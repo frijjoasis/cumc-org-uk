@@ -1,8 +1,11 @@
 import Home from "./views/home/index.js";
+import Blog from "./views/blog/index.js";
 
 import ClubAbout from "./views/about/club.js";
 import CommitteeAbout from "./views/about/committee.js";
 import SafetyAbout from "./views/about/safety.js";
+import CompetitionsAbout from "./views/about/competitions";
+import GearAbout from "./views/about/gear";
 
 import UpcomingMeets from "./views/meets/upcoming.js"
 import IndoorMeets from "./views/meets/indoor.js"
@@ -10,12 +13,19 @@ import OutdoorMeets from "./views/meets/outdoor.js"
 import SocialMeets from "./views/meets/social.js"
 
 // Warning: Order matters here. It's an array!
-var routes = [
+const routes = [
   {
     path: "/home",
     name: "Home",
     icon: "pe-7s-home",
     component: Home,
+    layout: "",
+  },
+  {
+    path: "/blog",
+    name: "Blog",
+    icon: "pe-7s-news-paper",
+    component: Blog,
     layout: "",
   },
   {
@@ -34,6 +44,20 @@ var routes = [
     name: "Committee",
     icon: "pe-7s-id",
     component: CommitteeAbout,
+    layout: "",
+  },
+  {
+    path: "/about/competitions",
+    name: "Competitions",
+    icon: "pe-7s-medal",
+    component: CompetitionsAbout,
+    layout: "",
+  },
+  {
+    path: "/about/gear",
+    name: "Gear",
+    icon: "pe-7s-config",
+    component: GearAbout,
     layout: "",
   },
   {
@@ -57,14 +81,14 @@ var routes = [
   {
     path: "/meets/indoor",
     name: "Indoor",
-    icon: "pe-7s-info",
+    icon: "pe-7s-gym",
     component: IndoorMeets,
     layout: "",
   },
   {
     path: "/meets/outdoor",
     name: "Outdoor",
-    icon: "pe-7s-info",
+    icon: "pe-7s-photo",
     component: OutdoorMeets,
     layout: "",
   },
@@ -76,4 +100,5 @@ var routes = [
     layout: "",
   },
 ];
+
 export default routes;

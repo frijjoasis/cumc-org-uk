@@ -1,5 +1,7 @@
 import React from "react";
-import {Navbar, Nav, NavItem, NavDropdown} from "react-bootstrap";
+import Navbar from "react-bootstrap/Navbar";
+import Nav from "react-bootstrap/Nav";
+import {NavLink} from "react-router-dom";
 
 class Header extends React.Component {
     constructor(props) {
@@ -34,10 +36,8 @@ class Header extends React.Component {
                 <Navbar.Toggle onClick={this.mobileSidebarToggle} />
                 <Navbar.Collapse>
                     <Nav className="ml-auto">
-                        <Nav.Link href="#">Login</Nav.Link>
-                        <Nav.Link eventKey={2} href="">
-                            Register
-                        </Nav.Link>
+                        <NavLink className="nav-link" to="/home">Login</NavLink>
+                        <NavLink className="nav-link" to="/home">Register</NavLink>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
