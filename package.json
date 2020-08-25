@@ -1,0 +1,13 @@
+{
+  "name": "cumc",
+  "version": "1.0.0",
+  "description": "Website of the Cambridge University Mountaineering Club",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "echo \"See the README.md to start the Express & React apps\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Edmund Ross",
+  "license": "ISC"
+}
