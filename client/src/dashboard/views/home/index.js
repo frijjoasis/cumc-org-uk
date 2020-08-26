@@ -5,9 +5,10 @@ import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Button from "react-bootstrap/Button";
+import Image from "react-bootstrap/Image";
 
 import Carousel from '../../../components/Carousel/Carousel';
-import {aboutText, slides, membershipText} from './text';
+import {aboutText, slides, membershipText, homeImages} from './text';
 
 class Home extends React.Component {
     constructor(props) {
@@ -58,17 +59,32 @@ class Home extends React.Component {
                         <Col>
                             <Card>
                                 <Card.Body>
-                                    <h3>About Us</h3>
+                                    <h2>About Us</h2>
                                     <p>{aboutText}</p>
                                 </Card.Body>
                             </Card>
                         </Col>
                     </Row>
                     <Row>
+                        {homeImages.map(i => {
+                            return (
+                                <Col>
+                                    <Card>
+                                        <Image
+                                            className="d-block w-100"
+                                            rounded
+                                            src={i}
+                                        />
+                                    </Card>
+                                </Col>
+                            );
+                        })}
+                    </Row>
+                    <Row>
                         <Col>
                             <Card>
                                 <Card.Body>
-                                    <h3>Membership</h3>
+                                    <h2>Membership</h2>
                                     <p>{membershipText}</p>
                                 </Card.Body>
                             </Card>

@@ -1,4 +1,5 @@
 import React from 'react';
+import axios from 'axios';
 
 class GearAbout extends React.Component {
     constructor(props) {
@@ -9,7 +10,11 @@ class GearAbout extends React.Component {
     }
 
     componentDidMount() {
-
+        axios.get("/api/index").then(res => {
+            this.setState({
+                content: res.data
+            })
+        })
     }
 
     render() {

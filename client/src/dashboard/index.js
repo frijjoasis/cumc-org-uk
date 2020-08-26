@@ -4,7 +4,10 @@ import Helmet from "react-helmet";
 import routes from './routes';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
-import {Switch, Route, Redirect} from 'react-router-dom';
+import Footer from '../components/Footer/Footer';
+import {Switch, Route} from 'react-router-dom';
+
+import NotFound from './views/404'
 
 import image from "../assets/img/sidebar/sidebar.jpg";
 
@@ -23,7 +26,7 @@ class Frame extends React.Component {
                 return route.name; // First matching path
             }
         }
-        return "Home";
+        return "404";
     };
 
     componentDidMount() {
@@ -61,8 +64,9 @@ class Frame extends React.Component {
                                 );
                             }
                         })}
-                        <Redirect to="/home" />
+                        <Route path="/" component={NotFound} />
                     </Switch>
+                    <Footer />
                 </div>
             </div>
         );

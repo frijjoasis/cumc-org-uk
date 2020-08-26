@@ -10,14 +10,14 @@ export class UserCard extends React.Component {
                 <div className="image">
                     <img
                         src={this.props.person.cover}
-                         alt="Cover Photo" />
+                         alt="Cover" />
                 </div>
                 <Card.Body>
                     <div className="author">
                         <img
                             className="avatar border-gray"
                             src={this.props.person.profile}
-                            alt="Profile Photo"
+                            alt="Profile"
                         />
                         <h6>{this.props.person.role}</h6>
                         <h4 className="title">{this.props.person.name}</h4>
