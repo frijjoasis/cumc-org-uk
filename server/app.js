@@ -3,7 +3,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
+const routers = [
+    {path: '/api/', router: require('./routes/index')},
+    {path: '/api/about/', router: require('./routes/about/about')},
+    {path: '/api/gear/', router: require('./routes/gear/gear')},
+    {path: '/api/committee', router: require('./routes/committee/committee')},
+];
 
 var app = express();
 
@@ -15,6 +20,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/', indexRouter);
+routers.forEach(i => {
+    app.use(i.path, i.router);
+});
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

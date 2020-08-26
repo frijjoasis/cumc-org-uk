@@ -5,7 +5,7 @@ import routes from './routes';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
-import {Switch, Route} from 'react-router-dom';
+import {Switch, Route, Redirect} from 'react-router-dom';
 
 import NotFound from './views/404'
 
@@ -64,6 +64,7 @@ class Frame extends React.Component {
                                 );
                             }
                         })}
+                        <Redirect exact from="/" to="/home" />
                         <Route path="/" component={NotFound} />
                     </Switch>
                     <Footer />
