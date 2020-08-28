@@ -5,17 +5,17 @@ const slides = [
     {
         img: require('../../../assets/img/carousel/trad.jpg'),
         header: "Trad Climbing",
-        desc: "Nulla vitae elit libero, a pharetra augue mollis interdum.",
+        desc: "Who doesn't love slabs?",
     },
     {
         img: require('../../../assets/img/carousel/bouldering.jpg'),
         header: "Bouldering",
-        desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+        desc: "Elizabeth sending hard on the gritstone of the Peak District",
     },
     {
         img: require('../../../assets/img/carousel/alpine.jpg'),
         header: "Alpine",
-        desc: "Praesent commodo cursus magna, vel scelerisque nisl consectetur.",
+        desc: "A nice view in Chamonix",
     },
 ];
 
