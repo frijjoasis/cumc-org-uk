@@ -31,22 +31,6 @@
             width: 100%;
         }
     }
-    .filter{
-        position: absolute;
-        z-index: 2;
-        background-color: rgba(0,0,0,.68);
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        text-align: center;
-
-        @include opacity(0);
-
-        .btn{
-            @include vertical-align();
-        }
-    }
     > .card-body {
         display: flex;
         flex-direction: column;
@@ -56,9 +40,6 @@
                 margin-right: 5px;
             }
         }
-    }
-    &:hover .filter{
-        @include opacity(1);
     }
     .btn-hover{
         @include opacity(0);
@@ -122,38 +103,9 @@
             margin-bottom: 5px;
         }
     }
-    .stats{
-        color: #a9a9a9;
-    }
-    .footer div{
-        display: inline-block;
-    }
-
-    .author{
-        font-size: $font-size-small;
-        font-weight: $font-weight-bold;
-        text-transform: uppercase;
-    }
-    .author i{
-        font-size: $font-size-base;
-    }
     h6{
         font-size: $font-size-small;
         margin: 0;
-    }
-    &.card-separator:after{
-        height: 100%;
-        right: -15px;
-        top: 0;
-        width: 1px;
-        background-color: $medium-gray;
-        content: "";
-        position: absolute;
-    }
-
-    .ct-chart{
-        margin: 30px 0 30px;
-        height: 245px;
     }
 
     .table{
@@ -165,15 +117,6 @@
         tbody td:last-child,
         thead th:last-child{
             padding-right: 15px;
-        }
-    }
-
-    .alert{
-        border-radius: $border-radius-base;
-        position: relative;
-
-        &.alert-with-icon{
-            padding-left: 65px;
         }
     }
 }
@@ -210,24 +153,5 @@
     }
     > .card-body {
         padding-bottom: 0;
-    }
-}
-
-.card-user,
-.card-price{
-    .footer{
-        padding: 5px 15px 10px;
-    }
-    hr{
-        margin: 5px 15px;
-    }
-}
-.card-plain{
-    background-color: transparent;
-    box-shadow: none;
-    border-radius: 0;
-
-    .image{
-        border-radius: 4px;
     }
 }

@@ -67,9 +67,6 @@
     .btn-simple{
         font-size: $font-size-medium;
     }
-    .caret{
-       // @include center-item();
-    }
     
     &.fixed{
         width: calc(100% - #{$sidebar-width});
@@ -143,48 +140,6 @@
     &:not(.navbar-transparent) .btn-neutral:active{
             color: $dark-gray;
         } 
-}
-
-/*      Navbar with icons            */
-
-.navbar-icons {
-    &.navbar .navbar-brand{
-        margin-top: 12px;
-        margin-bottom: 12px;
-    }
-    .navbar-nav{
-        > li > a{
-            text-align: center;
-            padding: $navbar-padding-a-icons;
-            margin: $navbar-margin-a-icons;
-        }
-        
-        [class^="pe"] {
-            font-size: 30px;
-            position: relative;
-        }
-        p {
-            margin: 3px 0 0;
-        }    
-    }    
-}
-
-.navbar-form{
-   @include box-shadow(none);
-   .form-control{
-        @include light-form();       
-        height: 22px;
-        font-size: $font-size-navbar;
-        line-height: $line-height-general;
-        color: $light-gray;
-    }
-    .navbar-transparent & .form-control, 
-    [class*="navbar-ct"] & .form-control{
-        color: $white-color;
-        border: $none;
-        border-bottom: 1px solid rgba($white-color,.6);
-    }
-
 }
 
 .navbar-toggle{

@@ -71,15 +71,6 @@
         padding: $padding-round-vertical;
     }
 }
-.btn-simple{
-    border: $none;
-    font-size: $font-size-medium;
-    padding: $padding-base-vertical $padding-base-horizontal;
-    
-    &.btn-icon{
-        padding: $padding-base-vertical;
-    }
-}
 .btn-lg{
    @include btn-size($padding-large-vertical, $padding-large-horizontal, $font-size-large, $border-radius-large);
    font-weight: $font-weight-normal;

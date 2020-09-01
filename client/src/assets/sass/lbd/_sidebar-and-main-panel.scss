@@ -44,15 +44,6 @@
         position: relative;
         z-index: 4;
 
-        p{
-            float: left;
-            font-size: 20px;
-            margin: 10px 10px;
-            color: $white-color;
-            line-height: 20px;
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
-
         a.logo-mini{
             float: left;
             text-align: center;
@@ -190,25 +181,6 @@ body > .navbar-collapse{
     &[data-image]:after,
     &.has-image:after{
         opacity: .77;
-    }
-
-    &[data-color="blue"]:after{
-        @include icon-gradient($new-dark-blue, $blue-color-bottom);
-    }
-    &[data-color="azure"]:after{
-        @include icon-gradient($new-blue, $azure-color-bottom);
-    }
-    &[data-color="green"]:after{
-        @include icon-gradient($new-green, $green-color-bottom);
-    }
-    &[data-color="orange"]:after{
-        @include icon-gradient($new-orange, $orange-color-bottom);
-    }
-    &[data-color="red"]:after{
-        @include icon-gradient($new-red, $red-color-bottom);
-    }
-    &[data-color="purple"]:after{
-        @include icon-gradient($new-purple, $purple-color-bottom);
     }
 }
 
