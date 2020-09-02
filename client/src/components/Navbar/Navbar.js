@@ -6,35 +6,42 @@ import {NavLink} from "react-router-dom";
 class Header extends React.Component {
     constructor(props) {
         super(props);
-        this.mobileSidebarToggle = this.mobileSidebarToggle.bind(this);
         this.state = {
-            sidebarExists: false
+            width: window.innerWidth
         };
     }
 
-    mobileSidebarToggle(e) {
-        if (this.state.sidebarExists === false) {
-            this.setState({
-                sidebarExists: true
-            });
-        }
-        e.preventDefault();
-        document.documentElement.classList.toggle("nav-open");
-        let node = document.createElement("div");
-        node.id = "bodyClick";
-        node.onclick = function() {
-            this.parentElement.removeChild(this);
-            document.documentElement.classList.toggle("nav-open");
-        };
-        document.body.appendChild(node);
+    updateDimensions() {
+        this.setState({ width: window.innerWidth });
+    }
+
+    componentDidMount() {
+        this.updateDimensions();
+        window.addEventListener("resize", this.updateDimensions.bind(this));
     }
 
     render() {
         return (
-            <Navbar fluid variant="default" sticky="top">
+            <Navbar bg="light" expand="lg">
                 <Navbar.Brand>{this.props.brandText}</Navbar.Brand>
-                <Navbar.Toggle onClick={this.mobileSidebarToggle} />
+                <Navbar.Toggle />
                 <Navbar.Collapse>
+                    <Nav>
+                        {this.state.width <= 991 ? this.props.routes.map(prop => {
+                            if (prop.category) {
+                                return (
+                                    <Navbar.Text>{prop.name}</Navbar.Text>
+                                )
+                            } else {
+                                return (
+                                    <NavLink to={prop.layout + prop.path} className="nav-link">
+                                        {prop.name}
+                                    </NavLink>
+                                );
+                            }
+                        }) : null}
+                    </Nav>
+                    <hr />
                     <Nav className="ml-auto">
                         <NavLink className="nav-link" to="/home">Login</NavLink>
                         <NavLink className="nav-link" to="/home">Register</NavLink>

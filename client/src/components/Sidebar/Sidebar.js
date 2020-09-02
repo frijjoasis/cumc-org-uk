@@ -4,12 +4,6 @@ import {NavLink} from 'react-router-dom';
 import logo from '../../assets/img/logo.png';
 
 class Sidebar extends React.Component {
-  constructor(props) {
-    super(props);
-    this.activeRoute.bind(this);
-    this.sidebar = React.createRef();
-  }
-
   // verifies if routeName is the one active (in browser input)
   activeRoute(routeName) {
     return this.props.location.pathname.includes(routeName) ? "active" : "";
@@ -38,7 +32,7 @@ class Sidebar extends React.Component {
             CUMC
           </NavLink>
         </div>
-        <div className="sidebar-wrapper" ref={this.sidebar}>
+        <div className="sidebar-wrapper">
           <ul className="nav" >
             {this.props.routes.map((prop, key) => {
               if (prop.category) {

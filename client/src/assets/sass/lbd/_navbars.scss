@@ -38,6 +38,29 @@
              line-height: 16px;
              top: 1px;
         }
+
+        .navbar-text {
+            margin: 0;
+            padding-bottom: 0;
+            padding-top: 1rem;
+            line-height: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        > .nav-link {
+            margin-left: 15px;
+            line-height: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #939393;
+        }
+        > .active {
+            color: #EF6981 !important;
+            opacity: 1;
+        }
         
         .notification{
             position: absolute;
@@ -87,14 +110,18 @@
     border-top-color: $white-color;
 }
 
-.navbar-default {
+.navbar-light {
     background-color: $white-navbar;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 
     .navbar-brand {
         color: #777777;
     }
-  
+
+    .navbar-toggler {
+        margin-right: 1rem;
+    }
+
     .navbar-nav{
         a:not(.btn){
             color: $dark-gray;
@@ -119,7 +146,7 @@
         }
         
         > .open > a, 
-        > .open > a:hover, 
+        > .open > a:hover,
         > .open > a:focus{
             background-color: transparent;
             color: $info-color;
@@ -128,7 +155,7 @@
         .navbar-toggle:hover,.navbar-toggle:focus {
             background-color: transparent;
         }
-        
+
     } 
     
     &:not(.navbar-transparent) .btn-default:hover{
@@ -140,23 +167,4 @@
     &:not(.navbar-transparent) .btn-neutral:active{
             color: $dark-gray;
         } 
-}
-
-.navbar-toggle{
-    margin-top: 19px;
-    margin-bottom: 19px;
-    border: $none;
-    
-    .icon-bar {
-        background-color: $white-color;
-    }
-     .navbar-collapse, 
-     .navbar-form {
-        border-color: transparent;
-    }
-    
-    &.navbar-default .navbar-toggle:hover,
-    &.navbar-default .navbar-toggle:focus {
-        background-color: transparent;
-    }
 }

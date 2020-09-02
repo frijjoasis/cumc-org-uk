@@ -50,7 +50,7 @@ class Frame extends React.Component {
                     image={this.state.image}
                 />
                 <div id="main-panel" className="main-panel">
-                    <Header {...this.props} brandText={this.getBrandText()} />
+                    <Header {...this.props} routes={routes} brandText={this.getBrandText()} />
                     <Switch>
                         {routes.map((prop, key) => {
                             if (!prop.category) {
