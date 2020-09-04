@@ -132,11 +132,11 @@ const safetyAbout = [
     <br />,<br />,
     "For any metal gear:",
     <br />,<br />,
-    <blockquote>value = cost when purchased</blockquote>,
+    "value = cost when purchased",
     <br />,<br />,
     "For any soft gear:",
     <br />,<br />,
-    <blockquote>value = cost * (1 - age/recommended maximum age)</blockquote>,
+    "value = cost * (1 - age/recommended maximum age)",
     <br />,<br />,
     "This is a guideline only; it may be that the equipment has no ‘recommended maximum age’, or that other unprecedented circumstances render"+
     " the above inappropriate. In such cases, the Gear Secretary should consult the President for further advice.",
