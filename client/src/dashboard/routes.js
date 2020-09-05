@@ -1,11 +1,12 @@
 import Home from "./views/home/index.js";
 import Blog from "./views/blog/index.js";
+import Register from "./views/login/index.js"
 
 import ClubAbout from "./views/about/club.js";
 import CommitteeAbout from "./views/about/committee.js";
 import SafetyAbout from "./views/about/safety.js";
-import CompetitionsAbout from "./views/about/competitions";
-import GearAbout from "./views/about/gear";
+import CompetitionsAbout from "./views/about/competitions.js";
+import GearAbout from "./views/about/gear.js";
 
 import UpcomingMeets from "./views/meets/upcoming.js"
 import IndoorMeets from "./views/meets/indoor.js"
@@ -97,6 +98,13 @@ const routes = [
     name: "Social",
     icon: "pe-7s-wine",
     component: SocialMeets,
+    layout: "",
+  },
+  {
+    path: "/register",
+    name: "Register",
+    hide: true,
+    component: Register,
     layout: "",
   },
 ];

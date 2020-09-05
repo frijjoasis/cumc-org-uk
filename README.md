@@ -9,10 +9,11 @@ You will need to run
 and
 ### `cd server && npm install` (o.e.)
 to install the required dependencies.
-You should also create a `.env` with the following variables:
+You should also create a `.env` in `/server` with the following variables:
 
-- `PORT` Specify the port the express server should run on (default: 5000)
-- `DATABASE_URL` Specify the PostgreSQL URL for storing backend data  
+- `PORT` The port the express server should run on (default: 5000)
+- `DATABASE_URL` The PostgreSQL URL for storing backend data
+- `SECRET` The secret used to sign session cookies. In production, this should be randomly generated and sufficiently complex. Locally, I have this set to `oxfordsucks`
 
 ## Available Scripts
 

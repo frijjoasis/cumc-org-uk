@@ -41,7 +41,7 @@ class Sidebar extends React.Component {
                       <p>{prop.name}</p>
                     </li>
                 )
-              } else {
+              } else if (!prop.hide) {
                 return (
                     <li
                         className={this.activeRoute(prop.layout + prop.path)}

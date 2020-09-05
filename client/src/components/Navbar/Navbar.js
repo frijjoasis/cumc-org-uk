@@ -32,7 +32,7 @@ class Header extends React.Component {
                                 return (
                                     <Navbar.Text>{prop.name}</Navbar.Text>
                                 )
-                            } else {
+                            } else if (!prop.hide) {
                                 return (
                                     <NavLink to={prop.layout + prop.path} className="nav-link">
                                         {prop.name}
@@ -43,8 +43,8 @@ class Header extends React.Component {
                     </Nav>
                     <hr />
                     <Nav className="ml-auto">
-                        <NavLink className="nav-link" to="/home">Login</NavLink>
-                        <NavLink className="nav-link" to="/home">Register</NavLink>
+                        <NavLink className="nav-link" to="/login">Login</NavLink>
+                        <NavLink className="nav-link" to="/login">Register</NavLink>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>
