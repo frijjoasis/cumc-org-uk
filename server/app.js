@@ -1,7 +1,7 @@
 const express = require('express');
-const path = require('path');
 const passport = require('passport');
-const RavenStrategy = require('passport-raven');
+const path = require('path');
+const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
 const session = require('express-session');
 const logger = require('morgan');
 
@@ -25,14 +25,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 passport.use(new RavenStrategy({
-    desc: 'Cambridge University Mountaineering Club',
-    msg: 'you are required to identify yourself to the society.',
-    debug: process.env.NODE_ENV !== 'production',
-    audience: 'http://localhost:5000',
-    //TODO:
-}, function (crsID, params, done) {
-    done(null, {id: crsID});
-}));
+        clientID: process.env.CLIENT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
+        callbackURL: '/api/auth/callback'
+    }, function(accessToken, refreshToken, profile, done) {
+        return done(null, profile);
+    }
+));
 
 passport.serializeUser(function(user, done) {
     done(null, user);
