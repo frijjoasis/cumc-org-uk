@@ -103,12 +103,6 @@ const safetyAbout = [
          has corrosion which cannot easily be removed it should be retired.
         </li>
     </ul>,
-    <br />,<br />,
-    "A rope with minor damage (such as small amounts of sheath separation or furring up of the surface) should be downgraded to a top-rope as below.",
-    <br />,<br />,
-    "If the gear has been near seawater, i.e. used at a sea-cliff, it should all be washed and re-lubricated as necessary. If any of the gear"+
-    " has corrosion which cannot easily be removed it should be retired. ",
-    <br />,
     <h3>5.2 Equipment maintenance</h3>,
     <br />,
     "A record of the purchase details (including date) and safety checks of club safety gear should be kept.",
