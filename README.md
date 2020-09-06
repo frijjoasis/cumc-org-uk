@@ -13,7 +13,8 @@ You should also create a `.env` in `/server` with the following variables:
 
 - `PORT` The port the express server should run on (default: 5000)
 - `DATABASE_URL` The PostgreSQL URL for storing backend data
-- `SECRET` The secret used to sign session cookies. In production, this should be randomly generated and sufficiently complex. Locally, I have this set to `oxfordsucks`
+- `SECRET` The secret used to sign session cookies. Locally, I have this set to `oxfordsucks`. Obviously, this is not a secret; in production this should be randomly generated and sufficiently complex
+- `CLIENT_ID`, `CLIENT_SECRET` OAuth2 client credentials. These can be obtained from the Google API project page
 
 ## Available Scripts
 

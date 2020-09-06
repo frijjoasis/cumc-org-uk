@@ -81,6 +81,10 @@
     .navbar-collapse {
         padding-left: 20px;
         padding-right: 20px;
+        > hr {
+            padding-bottom: 0;
+            margin-bottom: 0;
+        }
     }
 
     .btn{

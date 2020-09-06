@@ -26,7 +26,7 @@ const gearAbout = [
     "If gear is lost or damaged, but the borrower had taken reasonable precautions to look after it, then the club " +
     "will cover the cost at their discretion. If the club decides that reasonable precautions weren't taken, then " +
     "you will be expected to cover the cost of replacement/repair, using the formula: ",
-    <br />, <p className="text-center"><code>estimated value = cost * (1-age/recommend max age)</code></p>,
+    <br />, <br />, <p className="text-center"><code>estimated value = cost * (1-age/recommend max age)</code></p>,
 ];
 
 class GearAbout extends React.Component {
