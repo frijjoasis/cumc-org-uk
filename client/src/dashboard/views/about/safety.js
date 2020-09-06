@@ -135,7 +135,7 @@ const safetyAbout = [
     "This is a guideline only; it may be that the equipment has no ‘recommended maximum age’, or that other unprecedented circumstances render"+
     " the above inappropriate. In such cases, the Gear Secretary should consult the President for further advice.",
     <br />,<br />,
-    "7 Emergency procedures",
+    <h3>7 Emergency procedures</h3>,
     <br />,<br />,
     "In the first instance club members should ensure their own safety. In the event of an accident the emergency services should be called"+
     " where necessary and the university informed. All incidents and accidents must be reported by submitting an accident report form to the"+
