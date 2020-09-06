@@ -29,7 +29,7 @@ passport.use(new RavenStrategy({
         clientSecret: process.env.CLIENT_SECRET,
         callbackURL: '/api/auth/callback'
     }, function(accessToken, refreshToken, profile, done) {
-        return done(null, profile);
+        done(null, profile);
     }
 ));
 
