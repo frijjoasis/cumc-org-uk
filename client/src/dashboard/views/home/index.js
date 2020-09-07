@@ -9,6 +9,7 @@ import Image from "react-bootstrap/Image";
 
 import Carousel from '../../../components/Carousel/Carousel';
 import {aboutText, slides, membershipText, homeImages} from './text';
+import {NavLink} from "react-router-dom";
 
 class Home extends React.Component {
     constructor(props) {
@@ -42,13 +43,16 @@ class Home extends React.Component {
                                     <Card.Title>Welcome!</Card.Title>
                                     <Card.Subtitle>You are not signed in</Card.Subtitle>
                                     <Card.Text>
-                                        Some quick example text to build on the card title and make up the bulk of
-                                        the card's content.
+                                        Example text
                                     </Card.Text>
                                     <Row>
                                         <Col>
-                                            <Button className="float-right">Login</Button>
-                                            <Button className="float-right">Signup</Button>
+                                            <NavLink className="float-right btn btn-primary" to="/login">
+                                                Login
+                                            </NavLink>
+                                            <NavLink className="float-right btn btn-primary" to="/login">
+                                                Register
+                                            </NavLink>
                                         </Col>
                                     </Row>
                                 </Card.Body>

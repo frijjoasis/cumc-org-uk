@@ -14,13 +14,12 @@ router.get('/callback',
     }
 );
 
-router.get('/register', async function(req, res) {
+router.get('/user', async function(req, res) {
     if (req.isAuthenticated()) {
-        await res.json({missing: true});
+        await res.json({
+            missing: true,
+            user: "test"});
     } else res.json(false);
 });
 
-router.get('/authenticated', async function(req, res) {
-    await res.json(req.isAuthenticated);
-});
 module.exports = router;
