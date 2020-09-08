@@ -43,7 +43,8 @@ class Header extends React.Component {
                     </Nav>
                     <hr />
                     <Nav className="ml-auto">
-                        <NavLink className="nav-link" to="/login">Login / Register</NavLink>
+                        <NavLink className="nav-link" to="/login">Login</NavLink>
+                        <NavLink className="nav-link" to="/login">Register</NavLink>
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>

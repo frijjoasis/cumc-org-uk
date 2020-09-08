@@ -103,7 +103,8 @@ const routes = [
   {
     path: "/register",
     name: "Register",
-    hide: true,
+    hide: true, // Hide from sidebar
+    auth: true, // Requires auth
     Component: Register,
     layout: "",
   },

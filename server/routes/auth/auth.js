@@ -10,16 +10,9 @@ router.get('/login', passport.authenticate('google', {
 router.get('/callback',
     passport.authenticate('google', {failureRedirect: '/login'}),
     function(req, res) {
-        res.redirect('http://localhost:3000/'); //TODO:
+        const missing = true; //TODO:
+        res.redirect(`http://localhost:3000/${missing ? "register" : ""}`); //TODO:
     }
 );
-
-router.get('/user', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await res.json({
-            missing: true,
-            user: "test"});
-    } else res.json(false);
-});
 
 module.exports = router;
