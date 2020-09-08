@@ -39,7 +39,7 @@
              top: 1px;
         }
 
-        .navbar-text {
+        .navbar-text:not(.nav-link){
             margin: 0;
             padding-bottom: 0;
             padding-top: 1rem;
@@ -52,9 +52,6 @@
         > .nav-link {
             margin-left: 15px;
             line-height: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
             color: #939393;
         }
         > .active {

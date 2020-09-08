@@ -43,8 +43,18 @@ class Header extends React.Component {
                     </Nav>
                     <hr />
                     <Nav className="ml-auto">
-                        <NavLink className="nav-link" to="/login">Login</NavLink>
-                        <NavLink className="nav-link" to="/login">Register</NavLink>
+                        {this.props.user ? [
+                            <NavLink className="nav-link" to="/register">Profile</NavLink>,
+                            <Navbar.Text className="nav-link text-dark">Signed in as:
+                                <NavLink to="/register">
+                                    {" " + this.props.user.name}
+                                </NavLink>
+                            </Navbar.Text>,
+                            <NavLink className="nav-link" to="/logout">Logout</NavLink>
+                        ] : [
+                            <NavLink className="nav-link" to="/login">Login</NavLink>,
+                            <NavLink className="nav-link" to="/login">Register</NavLink>
+                        ]}
                     </Nav>
                 </Navbar.Collapse>
             </Navbar>

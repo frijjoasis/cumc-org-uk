@@ -30,16 +30,20 @@ passport.use(new RavenStrategy({
         clientSecret: process.env.CLIENT_SECRET,
         callbackURL: '/api/auth/callback'
     }, function(accessToken, refreshToken, profile, done) {
-        done(null, profile);
+        done(null, {
+            id: profile.id,
+            name: profile.displayName,
+            email: profile.emails[0].value
+        });
     }
 ));
 
 passport.serializeUser(function(user, done) {
-    done(null, user);
+    done(null, user); //TODO:
 });
 
 passport.deserializeUser(function(user, done) {
-    done(null, user);
+    done(null, user); //TODO:
 });
 
 app.use(session({

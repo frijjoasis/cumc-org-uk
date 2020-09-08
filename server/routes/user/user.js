@@ -3,11 +3,7 @@ const router = require('express').Router();
 router.get('/', async function(req, res) {
     if (req.isAuthenticated()) {
         await res.json({
-            missing: true,
-            user: { // TODO:
-                email: "",
-                display: ""
-            }});
+            user: req.user});
     } else res.json(false);
 });
 

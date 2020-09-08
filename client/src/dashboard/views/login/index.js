@@ -83,7 +83,7 @@ class Register extends React.Component {
                                                     <Form.Control
                                                         type="text"
                                                         readOnly
-                                                        value={this.props.user.display}
+                                                        value={this.props.user.name}
                                                     />
                                                 </Form.Group>
                                             </Col>

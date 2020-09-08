@@ -17,7 +17,6 @@ class Frame extends React.Component {
         this.state = {
             color: "black",
             image: image,
-            missing: false,
         };
     }
 
@@ -33,7 +32,6 @@ class Frame extends React.Component {
     componentDidMount() {
         axios.get('/api/user/').then(res => {
             this.setState({
-                missing: res.data.missing,
                 user: res.data.user,
             })
         })
@@ -52,7 +50,7 @@ class Frame extends React.Component {
                     image={this.state.image}
                 />
                 <div id="main-panel" className="main-panel">
-                    <Header {...this.props} routes={routes} brandText={this.getBrandText()} />
+                    <Header {...this.props} routes={routes} user={this.state.user} brandText={this.getBrandText()} />
                     <Switch>
                         {routes.map((prop, key) => {
                             if (!prop.category && ((prop.auth && this.state.user) || !prop.auth)) {
