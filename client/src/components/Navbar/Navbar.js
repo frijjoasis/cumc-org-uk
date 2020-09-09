@@ -47,7 +47,7 @@ class Header extends React.Component {
                             <NavLink className="nav-link" to="/register">Profile</NavLink>,
                             <Navbar.Text className="nav-link text-dark">Signed in as:
                                 <NavLink to="/register">
-                                    {" " + this.props.user.name}
+                                    {" " + this.props.user.displayName}
                                 </NavLink>
                             </Navbar.Text>,
                             <NavLink className="nav-link" to="/logout">Logout</NavLink>

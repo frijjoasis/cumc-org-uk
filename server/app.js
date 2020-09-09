@@ -1,11 +1,13 @@
+require('dotenv').config();
+
 const express = require('express');
 const passport = require('passport');
+const database = require('./database/database');
+const users = require('./database/controllers/users');
 const path = require('path');
 const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
 const session = require('express-session');
 const logger = require('morgan');
-
-require('dotenv').config();
 
 const routers = [
     {path: '/api/', router: require('./routes/index')},
@@ -30,10 +32,13 @@ passport.use(new RavenStrategy({
         clientSecret: process.env.CLIENT_SECRET,
         callbackURL: '/api/auth/callback'
     }, function(accessToken, refreshToken, profile, done) {
-        done(null, {
+        const user = {
             id: profile.id,
-            name: profile.displayName,
+            displayName: profile.displayName,
             email: profile.emails[0].value
+        }
+        users.upsert(user).then(() => {
+            done(null, user);
         });
     }
 ));
@@ -60,6 +65,13 @@ app.use(passport.session());
 
 routers.forEach(i => {
     app.use(i.path, i.router);
+});
+
+console.log(`Checking database connection...`);
+database.init().then(() => {
+    console.log('Database initialised.');
+}).catch((error) => {
+    console.error('Unable to connect to the database:', error);
 });
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
