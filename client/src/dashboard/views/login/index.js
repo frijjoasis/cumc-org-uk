@@ -20,9 +20,15 @@ class Register extends React.Component {
 
     componentDidMount() {
         axios.get('/api/user/info').then(res => {
-            this.setState({
-                form: res.data
-            });
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+                window.scrollTo(0,0);
+                // Scroll and show user the error
+            } else {
+                this.setState({
+                    form: res.data
+                });
+            }
         });
     }
 
@@ -41,7 +47,8 @@ class Register extends React.Component {
                 if (res.data.err) {
                     this.setState({err: res.data.err});
                     window.scrollTo(0,0);
-                    // Scroll and show user the error
+                } else {
+                    window.location.href = "http://localhost:3000/home"; //TODO:
                 }
             });
         }
@@ -191,7 +198,7 @@ class Register extends React.Component {
                                                 <Form.Group controlId="address2">
                                                     <Form.Label>Address Line 2</Form.Label>
                                                     <Form.Control type="text"
-                                                                  defaultValue={this.state.form.address1}
+                                                                  defaultValue={this.state.form.address2}
                                                                   placeholder="Not Set"
                                                     />
                                                 </Form.Group>

@@ -11,8 +11,11 @@ router.get('/', function(req, res) {
 
 router.post('/register', async function(req, res) {
     if (req.isAuthenticated()) {
-        await users.upsertInfo(req.body).then(() => {
+        await users.upsertInfo(req.body, req.user.id).then(() => {
             res.json(true);
+        }).catch(err => {
+            console.error("Database error: ", err);
+            res.json({err: "Database error: Please contact the webmaster"});
         });
     } else res.json({err: "You need to be signed in to do that!"});
 });

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const passport = require('passport');
+const users = require('../../database/controllers/users')
 
 router.get('/login', passport.authenticate('google', {
     scope: ['profile', 'email', 'openid'],
@@ -17,8 +18,9 @@ router.get('/logout', function(req, res) {
 router.get('/callback',
     passport.authenticate('google', {failureRedirect: '/login'}),
     function(req, res) {
-        const missing = true; //TODO:
-        res.redirect(`http://localhost:3000/${missing ? "register" : ""}`); //TODO:
+        users.isMissing(req.user.id).then(missing => {
+            res.redirect(`http://localhost:3000/${missing ? "register" : ""}`);
+        });
     }
 );
 

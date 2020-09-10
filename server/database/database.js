@@ -21,10 +21,10 @@ module.exports = {
         console.log('Database connection established.');
 
         models.forEach(model => {
-            model(sequelize);
+            model.define(sequelize);
         }); // Initialise models
 
-        await sequelize.sync({force: true}); // 'touch' relevant SQL tables
+        await sequelize.sync(); // 'touch' relevant SQL tables
         console.log("All models synchronized successfully.")
     },
 
