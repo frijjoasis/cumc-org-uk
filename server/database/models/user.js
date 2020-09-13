@@ -4,7 +4,8 @@ const schema = {
     id: {
         allowNull: false,
         primaryKey: true,
-        type: DataTypes.DECIMAL //TODO:
+        type: DataTypes.DECIMAL
+        // BIGINT doesn't have enough range
     },
     email: {
         allowNull: false,

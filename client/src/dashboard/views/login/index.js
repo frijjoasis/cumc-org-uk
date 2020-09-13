@@ -163,7 +163,7 @@ class Register extends React.Component {
                                                 <Form.Group controlId="phone">
                                                     <Form.Label>Mobile No.</Form.Label>
                                                     <Form.Control
-                                                        type="text"
+                                                        type="tel"
                                                         defaultValue={this.state.form.phone}
                                                         placeholder="Required"
                                                         required
@@ -259,7 +259,7 @@ class Register extends React.Component {
                                             <Col>
                                                 <Form.Group controlId="emergencyPhone">
                                                     <Form.Label>Additional Emergency Contact Number</Form.Label>
-                                                    <Form.Control type="text"
+                                                    <Form.Control type="tel"
                                                                   defaultValue={this.state.form.emergencyPhone}
                                                                   placeholder="Not Set"
                                                     />

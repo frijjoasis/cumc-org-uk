@@ -12,7 +12,9 @@ const sequelize = new Sequelize(process.env.DATABASE_URL, {
 });
 
 const models = [
-    require('./models/user')
+    require('./models/user'),
+    require('./models/member'),
+    require('./models/meet'),
 ]
 
 module.exports = {
