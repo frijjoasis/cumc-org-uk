@@ -42,7 +42,6 @@ class Register extends React.Component {
                 return acc;
                 // Avoid POSTing email and display name
             }, {});
-            console.log(data);
             axios.post('/api/user/register', data).then(res => {
                 if (res.data.err) {
                     this.setState({err: res.data.err});

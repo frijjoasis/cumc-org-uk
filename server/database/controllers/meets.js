@@ -8,7 +8,7 @@ function getModel() {
 function getAllUpcoming() {
     return getModel().findAll({
         where: {
-            date: {
+            startDate: {
                 [Op.gte]: new Date()
                 // Compare against current time
             }
@@ -20,6 +20,10 @@ function getOneUpcoming(id) {
     return getModel().findByPk(id);
 }
 
+function handleRegister(data, id) {
+
+}
+
 module.exports = {
-    getAllUpcoming, getOneUpcoming
+    getAllUpcoming, getOneUpcoming, handleRegister
 }

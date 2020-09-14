@@ -57,7 +57,7 @@ class GearAbout extends React.Component {
                             <Card>
                                 <Card.Body>
                                     <h2>Gear</h2>
-                                    <p>{gearAbout}</p>
+                                    <span>{gearAbout}</span>
                                     <Row>
                                         <Col>
                                             <Button className="float-right"
@@ -71,13 +71,14 @@ class GearAbout extends React.Component {
                     </Row>
                     <Row>
                         <Col md={12}>
-                            <Card ctTableFullWidth ctTableResponsive>
+                            <Card>
                                 <Card.Body>
                                     <Card.Title>Gear Table</Card.Title>
                                     <Card.Subtitle>
                                         The loan status of club owned gear.
                                     </Card.Subtitle>
-                                    <Table striped hover>
+                                    <hr />
+                                    <Table striped bordered hover responsive>
                                         <thead>
                                         <tr>
                                             {this.state.content.head.map((prop, key) => {

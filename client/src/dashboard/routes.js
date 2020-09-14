@@ -9,7 +9,8 @@ import CompetitionsAbout from "./views/about/competitions.js";
 import GearAbout from "./views/about/gear.js";
 
 import UpcomingMeets from "./views/meets/upcoming.js"
-import ViewMeet from "./views/meets/view";
+import ViewMeet from "./views/meets/view.js";
+import MeetForm from "./views/meets/form.js";
 import IndoorMeets from "./views/meets/indoor.js"
 import OutdoorMeets from "./views/meets/outdoor.js"
 import SocialMeets from "./views/meets/social.js"
@@ -85,6 +86,14 @@ const routes = [
     name: "View Meet",
     hide: true,
     Component: ViewMeet,
+    layout: "",
+  },
+  {
+    path: "/meets/upcoming/register/:id",
+    name: "Meet Registration",
+    hide: true,
+    auth: true,
+    Component: MeetForm,
     layout: "",
   },
   {

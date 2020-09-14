@@ -37,13 +37,19 @@ class UpcomingMeets extends React.Component {
                                     <Card>
                                         <Card.Body>
                                             <Card.Title>{meet.title}</Card.Title>
-                                            <Card.Subtitle>{meet.desc}</Card.Subtitle>
+                                            <Card.Subtitle>{meet.subtitle}</Card.Subtitle>
                                             <Card.Text as="span">
                                                 <hr />
-                                                <div className="text-muted" style={{display: 'inline'}}>Date: </div>
-                                                {new Date(meet.date).toUTCString()}<br />
-                                                <div className="text-muted" style={{display: 'inline'}}>Description: </div>
-                                                {meet.longDesc}
+
+                                                <div className="text-muted" style={{display: 'inline'}}>Dates: </div>
+                                                {new Date(meet.startDate).toUTCString()} -
+                                                {new Date(meet.endDate).toISOString()}
+                                                <br />
+
+                                                <div className="text-muted" style={{display: 'inline'}}>Type: </div>
+                                                {meet.type}
+                                                <br />
+
                                                 <NavLink
                                                     className="float-right btn btn-primary"
                                                     to={`/meets/upcoming/view/${meet.id}`}>
