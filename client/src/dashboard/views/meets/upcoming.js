@@ -3,6 +3,7 @@ import axios from "axios";
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
+import Alert from "react-bootstrap/Alert";
 import Container from "react-bootstrap/Container";
 import {NavLink} from "react-router-dom";
 
@@ -25,8 +26,11 @@ class UpcomingMeets extends React.Component {
     render() {
         return (
             <div className="content">
+                {this.props.user ? null : <Alert variant="dark">
+                    You will need to <NavLink to="/login">sign in</NavLink> and register before you can sign up to meets!
+                </Alert>}
                 <Container>
-                    {this.state.content ? this.state.content.map(meet => {
+                    {this.state.content.length ? this.state.content.map(meet => {
                         return(
                             <Row>
                                 <Col>
@@ -38,9 +42,11 @@ class UpcomingMeets extends React.Component {
                                                 <hr />
                                                 <div className="text-muted" style={{display: 'inline'}}>Date: </div>
                                                 {new Date(meet.date).toUTCString()}<br />
-                                                <div className="text-muted" style={{display: 'inline'}}>Signups: </div>
-                                                {meet.members}
-                                                <NavLink className="float-right btn btn-primary" to="/login">
+                                                <div className="text-muted" style={{display: 'inline'}}>Description: </div>
+                                                {meet.longDesc}
+                                                <NavLink
+                                                    className="float-right btn btn-primary"
+                                                    to={`/meets/upcoming/view/${meet.id}`}>
                                                     Details
                                                 </NavLink>
                                             </Card.Text>

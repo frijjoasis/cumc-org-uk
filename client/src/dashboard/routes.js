@@ -9,6 +9,7 @@ import CompetitionsAbout from "./views/about/competitions.js";
 import GearAbout from "./views/about/gear.js";
 
 import UpcomingMeets from "./views/meets/upcoming.js"
+import ViewMeet from "./views/meets/view";
 import IndoorMeets from "./views/meets/indoor.js"
 import OutdoorMeets from "./views/meets/outdoor.js"
 import SocialMeets from "./views/meets/social.js"
@@ -77,6 +78,13 @@ const routes = [
     name: "Upcoming",
     icon: "pe-7s-clock",
     Component: UpcomingMeets,
+    layout: "",
+  },
+  {
+    path: "/meets/upcoming/view/:id",
+    name: "View Meet",
+    hide: true,
+    Component: ViewMeet,
     layout: "",
   },
   {

@@ -16,6 +16,10 @@ function getAllUpcoming() {
     })
 }
 
+function getOneUpcoming(id) {
+    return getModel().findByPk(id);
+}
+
 module.exports = {
-    getAllUpcoming
+    getAllUpcoming, getOneUpcoming
 }
