@@ -2,7 +2,7 @@ const {sequelize} = require('../database');
 const {Op} = require('sequelize');
 
 function getModel() {
-    return sequelize.models.Meet;
+    return sequelize.models.meet;
 }
 
 function getAllUpcoming() {
@@ -17,13 +17,13 @@ function getAllUpcoming() {
 }
 
 function getOneUpcoming(id) {
-    return getModel().findByPk(id);
-}
-
-function handleRegister(data, id) {
-
+    return getModel().findByPk(id, {
+        include: {
+            all: true
+        } // Eager load associated models
+    });
 }
 
 module.exports = {
-    getAllUpcoming, getOneUpcoming, handleRegister
+    getAllUpcoming, getOneUpcoming
 }

@@ -1,11 +1,6 @@
 const {DataTypes} = require('sequelize');
 
 const schema = {
-    id: {
-        allowNull: false,
-        primaryKey: true,
-        type: DataTypes.DECIMAL
-    },
     hasPaid: { // Are they up to date on their membership payment?
         allowNull: false,
         type: DataTypes.BOOLEAN
@@ -18,11 +13,21 @@ const schema = {
 };
 
 function define(sequelize) {
-    sequelize.define('Member', schema, {
+    sequelize.define('member', schema, {
         tableName: "Members",
-    }).belongsTo(sequelize.models.User, {foreignKey: 'id'});
+    });
+}
+
+function associate(sequelize) {
+    sequelize.models.member.belongsTo(sequelize.models.user, {
+        foreignKey: {
+            name: 'id',
+            primaryKey: true,
+            type: DataTypes.DECIMAL
+        }
+    });
 }
 
 module.exports = {
-    define, schema
+    define, associate, schema
 }

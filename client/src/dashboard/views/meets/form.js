@@ -8,6 +8,8 @@ import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
+import {Redirect} from "react-router-dom";
+
 class MeetForm extends React.Component {
     constructor(props) {
         super(props);
@@ -36,11 +38,15 @@ class MeetForm extends React.Component {
         if (form.checkValidity() === false) {
             this.setState({validated: true})
         } else {
-            const data = [...form.elements].reduce((acc, cur) => {
+            const answers = [...form.elements].reduce((acc, cur) => {
                 if (cur.id) acc[cur.id] = cur.value;
                 return acc;
                 // Avoid POSTing email and display name
-            }, {});
+            }, []);
+            const data = {
+                answers: answers,
+                meetID: this.props.match.params.id
+            }; //TODO: Back this with a payment token
             axios.post('/api/meets/register', data).then(res => {
                 if (res.data.err) {
                     this.setState({err: res.data.err});
@@ -56,56 +62,84 @@ class MeetForm extends React.Component {
     };
 
     render() {
-        return (
-            <div className="content">
-                {this.state.err ? <Alert variant="danger">{this.state.err}</Alert> : null}
-                <Container>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <Card.Title>Register for {this.state.meet.title}</Card.Title>
-                                    <Card.Subtitle>
-                                        Please fill out the form below
-                                    </Card.Subtitle>
-                                    <br />
-                                    <Form noValidate
-                                          validated={this.state.validated}
-                                          onSubmit={this.handleSubmit.bind(this)}
-                                    >
-                                        <Row>
-                                            <Col md={8}>
-                                                <Form.Group>
-                                                    <Form.Label>Email</Form.Label>
-                                                    <Form.Control type="email"
-                                                                  readOnly
-                                                                  value={this.props.user.email}
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                            <Col md={4}>
-                                                <Form.Group>
-                                                    <Form.Label>Display Name</Form.Label>
-                                                    <Form.Control
-                                                        type="text"
-                                                        readOnly
-                                                        value={this.props.user.displayName}
-                                                    />
-                                                </Form.Group>
-                                            </Col>
-                                        </Row>
-                                        <br /><br />
-                                        <Row>
-                                            <Col><Button block type="submit">Submit</Button></Col>
-                                        </Row>
-                                    </Form>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
-        )
+        if (this.state.meet.disabled) {
+            return (
+                <Redirect to="/404" />
+            )
+        } else {
+            return (
+                <div className="content">
+                    {this.state.err ? <Alert variant="danger">{this.state.err}</Alert> : null}
+                    <Container>
+                        <Row>
+                            <Col>
+                                <Card>
+                                    <Card.Body>
+                                        <Card.Title>Register for {this.state.meet.title}</Card.Title>
+                                        <Card.Subtitle>
+                                            Please fill out the form below
+                                        </Card.Subtitle>
+                                        <br />
+                                        <Form noValidate
+                                              validated={this.state.validated}
+                                              onSubmit={this.handleSubmit.bind(this)}
+                                        >
+                                            <Row>
+                                                <Col md={8}>
+                                                    <Form.Group>
+                                                        <Form.Label>Email</Form.Label>
+                                                        <Form.Control type="email"
+                                                                      readOnly
+                                                                      value={this.props.user.email}
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                                <Col md={4}>
+                                                    <Form.Group>
+                                                        <Form.Label>Display Name</Form.Label>
+                                                        <Form.Control
+                                                            type="text"
+                                                            readOnly
+                                                            value={this.props.user.displayName}
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+                                            {this.state.meet.questions ? this.state.meet.questions.map((question, i) => {
+                                                return (
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group controlId={i}>
+                                                                <Form.Label>{question.title}</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    required={question.required}
+                                                                    placeholder={question.required ? "Required" : "Not Set"}
+                                                                />
+                                                                <Form.Text muted>
+                                                                    {question.desc}
+                                                                </Form.Text>
+                                                                <Form.Control.Feedback type="invalid">
+                                                                    {question.help}
+                                                                </Form.Control.Feedback>
+                                                            </Form.Group>
+                                                        </Col>
+                                                    </Row>
+                                                )
+                                            }) : null}
+                                            <br /><br />
+                                            <Row>
+                                                <Col><Button block type="submit">Submit</Button></Col>
+                                            </Row>
+                                        </Form>
+                                    </Card.Body>
+                                </Card>
+                            </Col>
+                        </Row>
+                    </Container>
+                </div>
+            )
+        }
     }
 }
 

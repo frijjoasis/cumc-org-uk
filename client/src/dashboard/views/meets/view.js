@@ -13,7 +13,9 @@ class ViewMeet extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            content: {},
+            content: {
+                user: {}
+            },
         }
     }
 
@@ -26,6 +28,7 @@ class ViewMeet extends React.Component {
                 this.setState({
                     content: res.data
                 });
+                console.log(res.data);
             }
         });
     }
@@ -50,7 +53,9 @@ class ViewMeet extends React.Component {
                                         <br />
 
                                         <div className="text-muted" style={{display: 'inline'}}>Organiser: </div>
-                                        {this.props.user ? this.state.content.organiser
+                                        {this.props.user ? `The emergency contact for this meet is 
+                                        ${this.state.content.user.firstName} ${this.state.content.user.lastName} 
+                                        on ${this.state.content.user.phone}`
                                             : [<NavLink to="/login">Sign in</NavLink>, " to view this information"]}
                                         <br />
 
@@ -91,10 +96,10 @@ class ViewMeet extends React.Component {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {this.state.content.members ? this.state.content.members.map((mem, key) => {
+                                        {this.state.content.signups ? this.state.content.signups.map((mem, key) => {
                                             return (
                                                 <tr key={key}>
-                                                    <td className="text-center">{mem}</td>
+                                                    <td className="text-center">{mem.displayName}</td>
                                                 </tr>
                                             )
                                         }) : <tr><td className="text-center">None yet!</td></tr>}

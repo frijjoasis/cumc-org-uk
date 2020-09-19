@@ -2,7 +2,7 @@ const {sequelize} = require('../database');
 const {schema, required} = require('../models/user');
 
 function getModel() {
-    return sequelize.models.User;
+    return sequelize.models.user;
 }
 
 function upsert(user) {

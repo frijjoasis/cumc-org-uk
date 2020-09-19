@@ -1,4 +1,4 @@
-const { Sequelize, QueryTypes } = require('sequelize');
+const {Sequelize} = require('sequelize');
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
@@ -15,6 +15,7 @@ const models = [
     require('./models/user'),
     require('./models/member'),
     require('./models/meet'),
+    require('./models/signup'),
 ]
 
 module.exports = {
@@ -26,6 +27,9 @@ module.exports = {
             model.define(sequelize);
         }); // Initialise models
 
+        models.forEach(model => {
+            model.associate(sequelize);
+        }); // Setup associations
         await sequelize.sync(); // 'touch' relevant SQL tables
         console.log("All models synchronized successfully.")
     },

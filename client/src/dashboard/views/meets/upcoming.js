@@ -42,12 +42,16 @@ class UpcomingMeets extends React.Component {
                                                 <hr />
 
                                                 <div className="text-muted" style={{display: 'inline'}}>Dates: </div>
-                                                {new Date(meet.startDate).toUTCString()} -
-                                                {new Date(meet.endDate).toISOString()}
+                                                {new Date(meet.startDate).toUTCString() + " "}-
+                                                {" " + new Date(meet.endDate).toUTCString()}
                                                 <br />
 
                                                 <div className="text-muted" style={{display: 'inline'}}>Type: </div>
                                                 {meet.type}
+                                                <br />
+
+                                                <div className="text-muted" style={{display: 'inline'}}>Signups open? </div>
+                                                {meet.disabled ? "No" : "Yes"}
                                                 <br />
 
                                                 <NavLink

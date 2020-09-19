@@ -30,22 +30,30 @@ const schema = {
         type: DataTypes.BOOLEAN
     },
     questions: DataTypes.JSON,
-    price: DataTypes.FLOAT,
-    members: DataTypes.ARRAY(DataTypes.STRING) // List (of display names) of sign-ups
-    //TODO: Many-to-many foreign key
+    price: DataTypes.FLOAT
 };
 
 function define(sequelize) {
-    sequelize.define('Meet', schema, {
+    sequelize.define('meet', schema, {
         tableName: "Meets",
-    }).belongsTo(sequelize.models.User, {
+    });
+}
+
+function associate(sequelize) {
+    sequelize.models.meet.belongsTo(sequelize.models.user, {
         foreignKey: {
             name: 'organiser',
+            allowNull: false
+        }
+    });
+    sequelize.models.meet.hasMany(sequelize.models.signup, {
+        foreignKey: {
+            name: 'meetID',
             allowNull: false
         }
     });
 }
 
 module.exports = {
-    define, schema
+    define, associate, schema
 }

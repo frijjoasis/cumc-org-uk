@@ -35,11 +35,33 @@ const required = [
 ];
 
 function define(sequelize) {
-    sequelize.define('User', schema, {
+    sequelize.define('user', schema, {
         tableName: "Users",
     });
 }
 
+function associate(sequelize) {
+    sequelize.models.user.hasMany(sequelize.models.member, {
+        foreignKey: {
+            name: 'id',
+            primaryKey: true,
+            type: DataTypes.DECIMAL
+        }
+    });
+    sequelize.models.user.hasMany(sequelize.models.meet, {
+        foreignKey: {
+            name: 'organiser',
+            allowNull: false
+        }
+    });
+    sequelize.models.user.hasMany(sequelize.models.signup, {
+        foreignKey: {
+            name: 'userID',
+            allowNull: false
+        }
+    });
+}
+
 module.exports = {
-    define, schema, required
+    define, associate, schema, required
 }
