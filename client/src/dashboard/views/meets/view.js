@@ -96,7 +96,7 @@ class ViewMeet extends React.Component {
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {this.state.content.signups ? this.state.content.signups.map((mem, key) => {
+                                        {this.state.content.signups && this.state.content.signups.length ? this.state.content.signups.map((mem, key) => {
                                             return (
                                                 <tr key={key}>
                                                     <td className="text-center">{mem.displayName}</td>
