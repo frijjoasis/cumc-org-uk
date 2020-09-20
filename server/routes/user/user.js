@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const users = require('../../database/controllers/users')
+const users = require('../../database/controllers/users');
 
 router.get('/', function(req, res) {
     if (req.isAuthenticated()) {

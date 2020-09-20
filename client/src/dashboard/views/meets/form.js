@@ -53,7 +53,6 @@ class MeetForm extends React.Component {
                     window.scrollTo(0,0);
                 } else {
                     window.location.href = `http://localhost:3000/meets/upcoming/view/${this.props.match.params.id}`;
-                    //TODO:
                 }
             });
         }

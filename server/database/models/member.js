@@ -1,6 +1,10 @@
 const {DataTypes} = require('sequelize');
 
 const schema = {
+    id : {
+        primaryKey: true,
+        type: DataTypes.DECIMAL
+    },
     hasPaid: { // Are they up to date on their membership payment?
         allowNull: false,
         type: DataTypes.BOOLEAN

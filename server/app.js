@@ -17,6 +17,7 @@ const routers = [
     {path: '/api/auth/', router: require('./routes/auth/auth')},
     {path: '/api/user', router: require('./routes/user/user')},
     {path: '/api/meets', router: require('./routes/meets/meets')},
+    {path: '/api/member', router: require('./routes/member/member')},
 ];
 
 const app = express();

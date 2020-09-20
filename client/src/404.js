@@ -7,7 +7,7 @@ import Image from "react-bootstrap/Image";
 import Container from "react-bootstrap/Container";
 import {withRouter} from "react-router-dom";
 
-import img from '../../assets/img/404.jpg'
+import img from './assets/img/404.jpg'
 
 class NotFound extends React.Component {
     constructor(props) {

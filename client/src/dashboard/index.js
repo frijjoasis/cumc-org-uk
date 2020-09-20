@@ -7,7 +7,7 @@ import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import {Switch, Route, Redirect} from 'react-router-dom';
 
-import NotFound from './views/404'
+import NotFound from '../404'
 
 import image from "../assets/img/sidebar/sidebar.jpg";
 
