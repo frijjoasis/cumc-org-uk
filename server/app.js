@@ -26,7 +26,7 @@ const port = process.env.PORT || 5000;
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 passport.use(new RavenStrategy({
         clientID: process.env.CLIENT_ID,
@@ -67,6 +67,10 @@ app.use(passport.session());
 routers.forEach(i => {
     app.use(i.path, i.router);
 });
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+}); // Serve react app
 
 console.log(`Checking database connection...`);
 database.init().then(() => {

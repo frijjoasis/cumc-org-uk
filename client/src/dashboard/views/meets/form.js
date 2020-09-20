@@ -52,8 +52,7 @@ class MeetForm extends React.Component {
                     this.setState({err: res.data.err});
                     window.scrollTo(0,0);
                 } else {
-                    window.location.href = `http://localhost:3000/meets/upcoming/view/${this.props.match.params.id}`;
-                    //TODO:
+                    window.location.href = `/meets/upcoming/view/${this.props.match.params.id}`;
                 }
             });
         }

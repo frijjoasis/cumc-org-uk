@@ -14,13 +14,12 @@ ReactDOM.render(
     <Router>
       <Switch>
           <Route exact path='/login' component={() => {
-              window.location.href = 'http://localhost:5000/api/auth/login';
+              window.location.href = '/api/auth/login';
               // Redirect to backend, since requests via <a> aren't proxied
-              //TODO: window.location.href = 'http(s)://cumc.org.uk:5000/api/auth/login';
               return null;
           }}/>
           <Route exact path='/logout' component={() => {
-              window.location.href = 'http://localhost:5000/api/auth/logout';
+              window.location.href = '/api/auth/logout';
               return null;
           }}/>
           <Route path="/committee" render={(props) => <Admin {...props} />} />

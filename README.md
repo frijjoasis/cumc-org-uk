@@ -3,6 +3,7 @@ In future, the prod server will be setup as a `git remote`, so be careful with y
 \- Edmund
 
 ## Setup
+Switch to the development branch.
 You will need to run
 
 ### `cd client && npm install` (o.e.)

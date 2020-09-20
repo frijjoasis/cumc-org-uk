@@ -47,7 +47,7 @@ class Register extends React.Component {
                     this.setState({err: res.data.err});
                     window.scrollTo(0,0);
                 } else {
-                    window.location.href = "http://localhost:3000/home"; //TODO:
+                    window.location.href = "/";
                 }
             });
         }

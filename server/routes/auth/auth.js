@@ -11,7 +11,7 @@ router.get('/login', passport.authenticate('google', {
 router.get('/logout', function(req, res) {
     if (req.isAuthenticated()) {
         req.logout();
-        res.redirect("http://localhost:3000/"); //TODO:
+        res.redirect("/");
     } else res.json(false);
 });
 
@@ -19,7 +19,7 @@ router.get('/callback',
     passport.authenticate('google', {failureRedirect: '/login'}),
     function(req, res) {
         users.isMissing(req.user.id).then(missing => {
-            res.redirect(`http://localhost:3000/${missing ? "register" : ""}`);
+            res.redirect(`/${missing ? "register" : ""}`);
         });
     }
 );
