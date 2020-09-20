@@ -31,7 +31,8 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 passport.use(new RavenStrategy({
         clientID: process.env.CLIENT_ID,
         clientSecret: process.env.CLIENT_SECRET,
-        callbackURL: '/api/auth/callback'
+        callbackURL: '/api/auth/callback',
+        proxy: 'true'
     }, function(accessToken, refreshToken, profile, done) {
         const user = {
             id: profile.id,
@@ -55,14 +56,14 @@ passport.deserializeUser(function(user, done) {
 app.use(session({
     secret: process.env.SECRET,
     resave: false,
+    secure: true,
     saveUninitialized: false,
     name: 'connect.sid.cumc',
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
-//TODO: A session store actually meant for production. Good thing I read the docs!
-//TODO: secure: true (and therefore SSL)
+//TODO: A session store actually meant for production
 
 routers.forEach(i => {
     app.use(i.path, i.router);
