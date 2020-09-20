@@ -58,6 +58,7 @@ class Admin extends React.Component {
                 />
                 <div id="main-panel" className="main-panel">
                     <Header {...this.props} routes={isCommittee ? routes : links} user={this.state.user}
+                            committee={isCommittee ? {link: '/home', text: 'Public Site'} : null}
                             brandText={this.getBrandText()}/>
                     <Switch>
                         {routes.map((prop, key) => {

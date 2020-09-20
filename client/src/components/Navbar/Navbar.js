@@ -27,6 +27,9 @@ class Header extends React.Component {
                 <Navbar.Toggle />
                 <Navbar.Collapse>
                     <Nav>
+                        {this.props.committee ? <NavLink to={this.props.committee.link}>
+                            {this.props.committee.text}
+                        </NavLink> : null}
                         {this.state.width <= 991 ? this.props.routes.map(prop => {
                             if (prop.category) {
                                 return (

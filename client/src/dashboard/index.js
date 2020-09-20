@@ -34,7 +34,17 @@ class Frame extends React.Component {
             this.setState({
                 user: res.data.user,
             })
-        })
+        });
+        axios.get('/api/member').then(res => {
+           if (res.data.member && res.data.member.committee) {
+               this.setState({
+                   committee: {
+                       link: '/committee/home',
+                       text: 'Committee'
+                   }
+               })
+           }
+        });
     }
 
     render() {
@@ -50,7 +60,8 @@ class Frame extends React.Component {
                     image={this.state.image}
                 />
                 <div id="main-panel" className="main-panel">
-                    <Header {...this.props} routes={routes} user={this.state.user} brandText={this.getBrandText()} />
+                    <Header {...this.props} routes={routes} user={this.state.user} committee={this.state.committee}
+                            brandText={this.getBrandText()} />
                     <Switch>
                         {routes.map((prop, key) => {
                             if (!prop.category && ((prop.auth && this.state.user) || !prop.auth)) {
