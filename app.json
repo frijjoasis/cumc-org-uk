@@ -1,0 +1,29 @@
+{
+  "name": "CUMC Website",
+  "description": "A heroku-ready website for the Cambridge University Mountaineering Club",
+  "repository": "https://github.com/frijjoasis/cumc-org-uk",
+  "env": {
+    "SECRET": {
+      "description": "A secret key for verifying the integrity of signed cookies.",
+      "generator": "secret",
+      "required": true
+    },
+    "PORT": {
+      "description": "The port this application is running on.",
+      "required": false
+    },
+    "CLIENT_ID": {
+      "description": "OAuth2 Google API client credentials, for use with Raven. (ID)",
+      "required": true
+    },
+    "CLIENT_SECRET": {
+      "description": "OAuth2 Google API client credentials, for use with Raven. (Secret)",
+      "required": true
+    }
+  },
+  "addons": [
+    {
+      "plan": "heroku-postgresql:hobby-dev"
+    }
+  ]
+}
