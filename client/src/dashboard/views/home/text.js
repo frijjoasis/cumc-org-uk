@@ -34,7 +34,7 @@ const aboutText = [
     "week. We also have a ",
     <a href="https://www.facebook.com/cumcofficial/">Facebook page <i className="fa fa-facebook-square" /></a>,
     ", ",
-    <a href="">Whatsapp group <i className="fa fa-whatsapp" /></a>,
+    <a href="https://chat.whatsapp.com/ENfiw44UbM2AGnY9Jjtk9E">Whatsapp group <i className="fa fa-whatsapp" /></a>,
     ", and ",
     <a href="https://www.instagram.com/cumcofficial">Instagram <i className="fa fa-instagram" /></a>,
     ". If you've got any questions then feel free to ",
