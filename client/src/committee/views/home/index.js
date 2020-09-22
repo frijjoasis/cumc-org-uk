@@ -1,7 +1,7 @@
 import React from 'react';
 import axios from "axios";
 
-class SocialMeets extends React.Component {
+class CommitteeHome extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -26,4 +26,4 @@ class SocialMeets extends React.Component {
     }
 }
 
-export default SocialMeets;
+export default CommitteeHome;
