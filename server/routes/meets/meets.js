@@ -1,10 +1,20 @@
 const router = require('express').Router();
 const meets = require('../../database/controllers/meets');
+const members = require('../../database/controllers/members');
 const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
 
 router.get('/upcoming', async function(req, res, next) {
     await meets.getAllUpcoming().then(upcoming => res.json(upcoming));
+});
+
+router.get('/all', async function(req, res) {
+    if (req.isAuthenticated()) {
+        await members.getCommitteeRole(req.user.id).then(role => {
+            if (role) return meets.getAll().then(all => res.json(all));
+            else res.json({err: "You need a committee role to do that!"});
+        });
+    } else res.json({err: "You need to be signed in to do that!"});
 });
 
 router.post('/view', async function(req, res) {

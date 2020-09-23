@@ -68,7 +68,7 @@ class Admin extends React.Component {
                                         exact
                                         path={prop.layout + prop.path}
                                         render={(props) =>
-                                            <prop.Component user={this.state.user} {...props} />
+                                            <prop.Component user={this.state.user} member={this.state.member} {...props} />
                                         }
                                         key={key}
                                     />

@@ -35,8 +35,8 @@ class Frame extends React.Component {
                 user: res.data.user,
             })
         });
-        axios.get('/api/member').then(res => {
-           if (res.data.member && res.data.member.committee) {
+        axios.get('/api/member/committee').then(res => {
+           if (res.data) {
                this.setState({
                    committee: {
                        link: '/committee/home',

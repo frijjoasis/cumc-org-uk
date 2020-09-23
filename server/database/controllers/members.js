@@ -8,6 +8,12 @@ function getMember(id) {
     return getModel().findByPk(id);
 }
 
+function getCommitteeRole(id) {
+    return getModel().findByPk(id).then(member => {
+        return member.committee;
+    });
+}
+
 module.exports = {
-    getMember
+    getMember, getCommitteeRole
 }

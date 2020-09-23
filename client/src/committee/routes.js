@@ -16,6 +16,13 @@ const routes = [
         Component: MeetManager,
         layout: "/committee",
     },
+    {
+        path: "/meets/archive",
+        name: "Meets Archive",
+        hide: true,
+        Component: MeetManager,
+        layout: "/committee",
+    }
 ];
 
 export default routes;
