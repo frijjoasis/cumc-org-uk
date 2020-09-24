@@ -45,17 +45,16 @@ class Home extends React.Component {
                                     <Card.Text>
                                         Example text
                                     </Card.Text>
-                                    <Row>
-                                        <Col>
-                                            <NavLink className="float-right btn btn-primary" to="/login">
-                                                Login
-                                            </NavLink>
-                                            <NavLink className="float-right btn btn-primary" to="/login">
-                                                Register
-                                            </NavLink>
-                                        </Col>
-                                    </Row>
                                 </Card.Body>
+                                <Card.Footer>
+                                    <NavLink style={{marginLeft: "10px"}}
+                                            className="float-right btn btn-primary" to="/login">
+                                        Login
+                                    </NavLink>
+                                    <NavLink className="float-right btn btn-primary" to="/login">
+                                        Register
+                                    </NavLink>
+                                </Card.Footer>
                             </Card>
                         </Col>
                     </Row>

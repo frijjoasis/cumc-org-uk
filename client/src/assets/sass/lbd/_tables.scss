@@ -19,9 +19,10 @@
         font-weight: $font-weight-normal;
         padding-bottom: 5px;
     }
-
-   .table-col > .col-sm-3 {
-        padding: 0 15px;
+   > tbody > tr > td {
+     a {
+       margin: 0 2px;
+     }
    }
 
    .td-actions .btn{

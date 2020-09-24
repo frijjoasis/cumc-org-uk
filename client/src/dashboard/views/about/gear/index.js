@@ -38,14 +38,12 @@ class GearAbout extends React.Component {
                                 <Card.Body>
                                     <h2>Gear</h2>
                                     {gearAbout}
-                                    <Row>
-                                        <Col>
-                                            <Button className="float-right"
-                                                    href="https://docs.google.com/spreadsheets/d/1CD4WMZ0-YO_ki2htINSFLYlZnkNZbJTNwkMwCX5cu38"
-                                            >Gear Spreadsheet</Button>
-                                        </Col>
-                                    </Row>
                                 </Card.Body>
+                                <Card.Footer>
+                                    <Button className="float-right"
+                                            href="https://docs.google.com/spreadsheets/d/1CD4WMZ0-YO_ki2htINSFLYlZnkNZbJTNwkMwCX5cu38"
+                                    >Gear Spreadsheet</Button>
+                                </Card.Footer>
                             </Card>
                         </Col>
                     </Row>

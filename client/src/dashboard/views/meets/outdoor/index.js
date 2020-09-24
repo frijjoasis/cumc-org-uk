@@ -21,14 +21,12 @@ class OutdoorMeets extends React.Component {
                                 <Card.Body>
                                     <h2>Outdoor Meets</h2>
                                     {outdoorMeets}
-                                    <Row>
-                                        <Col>
-                                            <NavLink className="float-right btn btn-primary" to="/meets/upcoming">
-                                                View Meets
-                                            </NavLink>
-                                        </Col>
-                                    </Row>
                                 </Card.Body>
+                                <Card.Footer>
+                                    <NavLink className="float-right btn btn-primary" to="/meets/upcoming">
+                                        View Meets
+                                    </NavLink>
+                                </Card.Footer>
                             </Card>
                             <Row className="justify-content-center">
                                 <Col style={{flex: 0}}>
