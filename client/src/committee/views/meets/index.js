@@ -4,22 +4,32 @@ import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Table from "react-bootstrap/Table";
 import Row from "react-bootstrap/Row";
+import Button from "react-bootstrap/Button";
 import {NavLink} from "react-router-dom";
 
 class MeetManager extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            content: []
+            content: [],
+            archive: (this.props.location.pathname === '/committee/meets/archive')
         }
     }
 
     componentDidMount() {
-        axios.get("/api/meets/upcoming").then(res => {
-            this.setState({
-                content: res.data
+        if (!this.state.archive) {
+            axios.get("/api/meets/upcoming").then(res => {
+                this.setState({
+                    content: res.data
+                });
             });
-        });
+        } else {
+            axios.get("/api/meets/all").then(res => {
+                this.setState({
+                    content: res.data
+                });
+            });
+        }
     }
 
     render() {
@@ -29,9 +39,11 @@ class MeetManager extends React.Component {
                     <Col md={12}>
                         <Card>
                             <Card.Body>
-                                <Card.Title>Upcoming Meets</Card.Title>
+                                <Card.Title>{this.state.archive ? "Meets Archive" : "Upcoming Meets"}</Card.Title>
                                 <Card.Subtitle>
-                                    Here you can clone, edit and view upcoming meets. To view past meets, click Meet Archive. To create an entirely new meet, click New.
+                                    Here you can clone, edit and view upcoming meets. To view
+                                    {this.state.archive ? " upcoming meets, click Upcoming. " : " past meets, click Meet Archive. "}
+                                    To create an entirely new meet, click New. Admin such as paying drivers is done through the view window.
                                 </Card.Subtitle>
                                 <hr />
                                 <Table striped bordered hover responsive>
@@ -54,14 +66,28 @@ class MeetManager extends React.Component {
                                                             meet.title,
                                                             meet.type,
                                                             new Date(meet.startDate).toUTCString(),
-                                                            new Date(meet.endDate).toUTCString()
+                                                            new Date(meet.endDate).toUTCString(),
+                                                            <Row className="table-col">
+                                                                <Col sm={3}>
+                                                                    <NavLink to={`/committee/meets/view/${meet.id}`}>
+                                                                        View</NavLink>
+                                                                </Col>
+                                                                <Col sm={3}>
+                                                                    <NavLink to={`/committee/meets/edit/${meet.id}`}>
+                                                                        Edit</NavLink>
+                                                                </Col>
+                                                                <Col sm={3}>
+                                                                    <NavLink to={`/committee/meets/clone/${meet.id}`}>
+                                                                        Clone</NavLink>
+                                                                </Col>
+                                                            </Row>
                                                         ].map((e, key) => {
                                                             return <td key={key}>{e}</td>;
                                                         })
                                                     }
                                                 </tr>
                                             )
-                                        }) : <tr><td className="text-center">No upcoming meets.</td></tr>}
+                                        }) : <tr><td className="text-center">Nothing here :(</td></tr>}
                                     </tbody>
                                 </Table>
                             </Card.Body>
@@ -70,12 +96,11 @@ class MeetManager extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <NavLink className="btn btn-block btn-success float-right" to="/home">
-                            New</NavLink>
+                        <Button block variant="success" href="/committee/meets/new">New</Button>
                     </Col>
                     <Col>
-                        <NavLink className="btn btn-block btn-primary float-left" to="/home">
-                            Archive</NavLink>
+                        <Button block href={`/committee/meets/${this.state.archive ? "" : "archive"}`}>
+                            {this.state.archive ? "Upcoming" : "Archive"}</Button>
                     </Col>
                 </Row>
             </div>

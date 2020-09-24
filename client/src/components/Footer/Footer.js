@@ -21,7 +21,7 @@ class Footer extends React.Component {
                                 </a>
                             </li>
                             <li>
-                                <a href="">
+                                <a href="https://chat.whatsapp.com/ENfiw44UbM2AGnY9Jjtk9E">
                                     <i className="fa fa-whatsapp" />
                                 </a>
                             </li>

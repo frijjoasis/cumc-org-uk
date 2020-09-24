@@ -1,24 +1,17 @@
 import React from 'react';
-import axios from "axios";
+import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
 
-class CommitteeHome extends React.Component {
+import {safetyAbout} from "./text";
+
+class SafetyAbout extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            content: {}
+            content: false
         }
-    }
-
-    componentDidMount() {
-        axios.get("/api/gear/list").then(res => {
-            this.setState({
-                content: res.data
-            })
-        })
     }
 
     render() {
@@ -28,7 +21,9 @@ class CommitteeHome extends React.Component {
                     <Row>
                         <Col>
                             <Card>
-                                committee home
+                                <Card.Body>
+                                    {safetyAbout}
+                                </Card.Body>
                             </Card>
                         </Col>
                     </Row>
@@ -38,4 +33,4 @@ class CommitteeHome extends React.Component {
     }
 }
 
-export default CommitteeHome;
+export default SafetyAbout;

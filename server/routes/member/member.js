@@ -11,4 +11,12 @@ router.get('/', async function(req, res) {
     } else res.json(false);
 });
 
+router.get('/committee', async function(req, res) {
+    if (req.isAuthenticated()) {
+        await members.getCommitteeRole(req.user.id).then(role => {
+            res.json(role);
+        });
+    } else res.json(false);
+});
+
 module.exports = router;

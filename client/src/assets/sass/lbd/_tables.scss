@@ -20,6 +20,10 @@
         padding-bottom: 5px;
     }
 
+   .table-col > .col-sm-3 {
+        padding: 0 15px;
+   }
+
    .td-actions .btn{
         @include opacity(0.36);
 

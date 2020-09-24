@@ -13,7 +13,11 @@ function getAllUpcoming() {
                 // Compare against current time
             }
         }
-    })
+    });
+}
+
+function getAll() {
+    return getModel().findAll();
 }
 
 function getOneUpcoming(id) {
@@ -25,5 +29,5 @@ function getOneUpcoming(id) {
 }
 
 module.exports = {
-    getAllUpcoming, getOneUpcoming
+    getAllUpcoming, getOneUpcoming, getAll
 }

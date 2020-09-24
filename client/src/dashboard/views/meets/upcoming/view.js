@@ -28,7 +28,6 @@ class ViewMeet extends React.Component {
                 this.setState({
                     content: res.data
                 });
-                console.log(res.data);
             }
         });
     }
