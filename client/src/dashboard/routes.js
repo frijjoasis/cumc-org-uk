@@ -1,19 +1,19 @@
-import Home from "./views/home/index.js";
-import Blog from "./views/blog/index.js";
-import Register from "./views/login/index.js"
+import Home from "./views/home/";
+import Blog from "./views/blog/";
+import Register from "./views/login/"
 
-import ClubAbout from "./views/about/club.js";
-import CommitteeAbout from "./views/about/committee.js";
-import SafetyAbout from "./views/about/safety.js";
-import CompetitionsAbout from "./views/about/competitions.js";
-import GearAbout from "./views/about/gear.js";
+import ClubAbout from "./views/about/club";
+import CommitteeAbout from "./views/about/committee";
+import SafetyAbout from "./views/about/safety";
+import CompetitionsAbout from "./views/about/competitions";
+import GearAbout from "./views/about/gear";
 
-import UpcomingMeets from "./views/meets/upcoming.js"
-import ViewMeet from "./views/meets/view.js";
-import MeetForm from "./views/meets/form.js";
-import IndoorMeets from "./views/meets/indoor.js"
-import OutdoorMeets from "./views/meets/outdoor.js"
-import SocialMeets from "./views/meets/social.js"
+import UpcomingMeets from "./views/meets/upcoming"
+import ViewMeet from "./views/meets/view";
+import MeetForm from "./views/meets/form";
+import IndoorMeets from "./views/meets/indoor"
+import OutdoorMeets from "./views/meets/outdoor"
+import SocialMeets from "./views/meets/social"
 
 // Warning: Order matters here. It's an array!
 const routes = [

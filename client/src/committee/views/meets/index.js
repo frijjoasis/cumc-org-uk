@@ -77,7 +77,7 @@ class MeetManager extends React.Component {
                                                                         Edit</NavLink>
                                                                 </Col>
                                                                 <Col sm={3}>
-                                                                    <NavLink to={`/committee/meets/new/${meet.id}`}>
+                                                                    <NavLink to={`/committee/meets/clone/${meet.id}`}>
                                                                         Clone</NavLink>
                                                                 </Col>
                                                             </Row>
