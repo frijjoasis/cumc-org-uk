@@ -65,6 +65,11 @@ class MeetForm extends React.Component {
             return (
                 <Redirect to="/404" />
             )
+        }
+        else if (!this.props.user) {
+            return (
+                <Redirect to="/login" />
+            )
         } else {
             return (
                 <div className="content">

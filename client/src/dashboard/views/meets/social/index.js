@@ -6,15 +6,9 @@ import Card from "react-bootstrap/Card";
 import {NavLink} from "react-router-dom";
 import Image from "react-bootstrap/Image";
 
-import img from "../../../assets/img/social-1.jpg";
+import img from "../../../../assets/img/social-1.jpg";
 
-const socialMeets = [
-    "The club has it's weekly social at a local pub, usually somewhere with a good ale selection, straight after the " +
-    "weekly Rainbow Rocket meet on a Monday night. We head to the pub around 9pm, so listen out for the Call to Beer " +
-    "if you're in Rainbow Rocket, or feel free to meet us at the pub if not! Look out for the weekly email which " +
-    "will let you know which pub we'll be at. As well as this, there are frequent extra social events throughout the " +
-    "year, such as our christmas formal, annual dinner and swaps with other societies."
-];
+import {socialMeets} from "./text";
 
 class SocialMeets extends React.Component {
     render() {
@@ -26,7 +20,7 @@ class SocialMeets extends React.Component {
                             <Card>
                                 <Card.Body>
                                     <h2>Social Meets</h2>
-                                    <p>{socialMeets}</p>
+                                    {socialMeets}
                                     <Row>
                                         <Col>
                                             <NavLink className="float-right btn btn-primary" to="/meets/upcoming">

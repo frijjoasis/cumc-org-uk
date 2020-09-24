@@ -8,12 +8,12 @@ import SafetyAbout from "./views/about/safety";
 import CompetitionsAbout from "./views/about/competitions";
 import GearAbout from "./views/about/gear";
 
-import UpcomingMeets from "./views/meets/upcoming"
-import ViewMeet from "./views/meets/view";
-import MeetForm from "./views/meets/form";
-import IndoorMeets from "./views/meets/indoor"
-import OutdoorMeets from "./views/meets/outdoor"
-import SocialMeets from "./views/meets/social"
+import UpcomingMeets from "./views/meets/upcoming";
+import ViewMeet from "./views/meets/upcoming/view";
+import MeetForm from "./views/meets/upcoming/form";
+import IndoorMeets from "./views/meets/indoor";
+import OutdoorMeets from "./views/meets/outdoor";
+import SocialMeets from "./views/meets/social";
 
 // Warning: Order matters here. It's an array!
 const routes = [
@@ -92,7 +92,6 @@ const routes = [
     path: "/meets/upcoming/register/:id",
     name: "Meet Registration",
     hide: true,
-    auth: true,
     Component: MeetForm,
     layout: "",
   },
