@@ -1,17 +1,9 @@
-.nav {
-    > li{
-        > a:hover,
-        > a:focus{
-            background-color: transparent;
-        }
-    } 
-}
 .navbar {
     border: $none;
     font-size: $font-size-navbar;
     border-radius: 0;
     padding: 0;
-    
+
     .navbar-brand {
         font-weight: $font-weight-normal;
         margin: $navbar-margin-brand;
@@ -20,35 +12,6 @@
     }
 
     .navbar-nav{
-         > li > a {
-             padding: $navbar-padding-a;
-             margin: $navbar-margin-a;
-             position: relative;
-         }
-         > li > a.btn{
-             margin: $navbar-margin-a-btn;
-             padding: $padding-base-vertical $padding-base-horizontal;
-         }
-         > li > a.btn-round{
-             margin: $navbar-margin-a-btn-round;
-         }
-         > li > a [class^="fa"]{
-             font-size: $font-size-large + 1;   
-             position: relative;
-             line-height: 16px;
-             top: 1px;
-        }
-
-        .navbar-text:not(.nav-link){
-            margin: 0;
-            padding-bottom: 0;
-            padding-top: 1rem;
-            line-height: 30px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
         > .nav-link {
             margin-left: 15px;
             line-height: 30px;
@@ -57,22 +20,6 @@
         > .active {
             color: #EF6981 !important;
             opacity: 1;
-        }
-        
-        .notification{
-            position: absolute;
-            background-color: #FB404B;
-            text-align: center;
-            border-radius: 10px;
-            min-width: 18px;
-            padding: 0 5px;
-            height: 18px;
-            font-size: 12px;
-            color: #FFFFFF;
-            font-weight: bold;
-            line-height: 18px;
-            top: 0px;
-            left: 7px;
         }
     }
     .navbar-collapse {
@@ -83,14 +30,6 @@
             margin-bottom: 0;
         }
     }
-
-    .btn{
-       margin: $navbar-margin-btn;
-       font-size: $font-size-base;
-    }
-    .btn-simple{
-        font-size: $font-size-medium;
-    }
     
     &.fixed{
         width: calc(100% - #{$sidebar-width});
@@ -99,16 +38,6 @@
         border-radius: 0;
     }
 
-}
-
-.navbar-nav > li > .dropdown-menu{
-    border-radius: $border-radius-extreme;
-    margin-top: -5px;
-}
-
-.nav-open .nav .caret{
-    border-bottom-color: $white-color;
-    border-top-color: $white-color;
 }
 
 .navbar-light {
@@ -127,23 +56,16 @@
         a:not(.btn){
             color: $dark-gray;
         }
-        
-        > .active > a, 
-        > .active > a:not(.btn):hover, 
-        > .active > a:not(.btn):focus, 
+
+        > .active > a,
+        > .active > a:not(.btn):hover,
+        > .active > a:not(.btn):focus,
         a:not(.btn):hover,
         a:not(.btn):focus {
             background-color: transparent;
             border-radius: 3px;
             color: $info-color;
             @include opacity(1);
-        }
-
-        > .dropdown > a:hover .caret,
-        > .dropdown > a:focus .caret {
-            border-bottom-color: $info-color;
-            border-top-color: $info-color;
-            
         }
         
         > .open > a, 
@@ -157,15 +79,5 @@
             background-color: transparent;
         }
 
-    } 
-    
-    &:not(.navbar-transparent) .btn-default:hover{
-        color: $info-color;
-        border-color: $info-color;
     }
-    &:not(.navbar-transparent) .btn-neutral,
-    &:not(.navbar-transparent) .btn-neutral:hover,
-    &:not(.navbar-transparent) .btn-neutral:active{
-            color: $dark-gray;
-        } 
 }

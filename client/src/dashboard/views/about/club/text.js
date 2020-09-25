@@ -24,7 +24,7 @@ const clubAbout = [
 ];
 
 const historyAbout = [
-    <h3>100th anniversary</h3>,
+    <h3>100th Anniversary</h3>,
     <p>
         The club’s 100th anniversary was celebrated on 19th June 2005 with a dinner held at St Catherine’s College.
         Following this meeting a number of articles were written by CUMC alumni to create the CUMC 100th Anniversary
@@ -39,7 +39,7 @@ const historyAbout = [
         <a href="mailto:henry.edmundson@cantab.net"> henry.edmundson@cantab.net</a>.
     </p>,
     <br />, <br />,
-    <h3>Brief history of the club</h3>,
+    <h3>Brief History of the Club</h3>,
     <p>
         What follows is an account of the club since its foundation in 1905. There is some controversy regarding the
         exact nature of the clubs origin and reason for its foundation, and an attempt has been made to try and solve

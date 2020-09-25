@@ -283,7 +283,7 @@ class Register extends React.Component {
                                                 </Form.Group>
                                             </Col>
                                         </Row>
-                                        <br /><br />
+                                        <br />
                                         <Row>
                                             <Col><Button block type="submit">Submit</Button></Col>
                                         </Row>

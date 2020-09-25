@@ -111,10 +111,6 @@
     .image{
         height: 110px;
     }
-    .image-plain{
-        height: 0;
-        margin-top: 110px;
-    }
     .author{
         text-align: center;
         text-transform: none;
@@ -134,9 +130,6 @@
     .title{
         line-height: 24px;
         margin-top: 15px;
-    }
-    .content{
-        min-height: 240px;
     }
     > .card-body {
         padding-bottom: 0;
