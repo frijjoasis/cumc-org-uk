@@ -1,10 +1,8 @@
 import React from 'react';
 import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Card from "react-bootstrap/Card";
 
 import {safetyAbout} from "./text";
+import AboutCard from "../../../../components/AboutCard/AboutCard";
 
 class SafetyAbout extends React.Component {
     constructor(props) {
@@ -18,15 +16,7 @@ class SafetyAbout extends React.Component {
         return (
             <div className="content">
                 <Container>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    {safetyAbout}
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="Safety Policy" text={safetyAbout} />
                 </Container>
             </div>
         )

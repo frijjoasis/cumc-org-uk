@@ -9,7 +9,6 @@ const outdoorMeets = [
         the preferences of those that sign up, as well as the weather forecast, to choose whether we go on Saturday or
         Sunday.
     </p>,
-    <br />, <br />,
     <p>
         Once a term we also try and go away for a weekend somewhere. In the past, we’ve had weekends in North Wales or
         the Peak District, but if you’ve got a favourite place to go then let us know! We usually book a bunkhouse out
@@ -18,20 +17,18 @@ const outdoorMeets = [
         appearance at some point over the weekend! We also now have a special CUMC edition of Cards Against Humanity,
         endorsed by current and former presidents of the Club."
     </p>,
-    <br />, <br />,
     <p>
         The pinnacle of outdoor meets happens after May Week every year: the annual meet. This is a week long trip
         somewhere far from Cambridge: in the past we’ve been to places such as Cornwall, North Wales, and
         Pembrokeshire. Signup for this normally opens around the start of Easter term, so keep on the lookout around
         then for more details!
     </p>,
-    <br />, <br />,
     <p>
         We also run a 'Winter Sun' trip. This happens soon after Michaelmas term ends and sees the club travel off to
         somewhere nice and sunny (unlike the UK in December!) for a week’s sport climbing. In 2019 we went to Antalya
         in Turkey, who knows where we’ll go this year?
     </p>,
-    <br />, <br />,
+    <br />,
     <h3>What kind of climbing happens on outdoor meets?</h3>,
     <p>
         Since the majority of the trips take place in the Peak District, trad climbing is the standard. There’s also
@@ -39,7 +36,7 @@ const outdoorMeets = [
         it’s possible or not depends on if there’s room in the car for a boulder pad! If you’re a super keen sport
         climber let us know and we’ll see if we can try and organise a trip more to your tastes.
     </p>,
-    <br />, <br />,
+    <br />,
     <h3>What you need to know</h3>,
     <p>
         We require that those going on outdoor meets know how to LEAD BELAY. If you don’t, then you’ll spend lots of
@@ -48,7 +45,7 @@ const outdoorMeets = [
         we’re happy to show you (we usually run one meet per term geared towards this), but it’s definitely best if you
         learn to lead indoors first or you may find it a little scarier than expected!
     </p>,
-    <br />, <br />,
+    <br />,
     <h3>How much do they cost?</h3>,
     <p>
         This year, outdoor meets cost £15. Everyone pays this to the club, then the driver can claim back 25p per mile
@@ -57,7 +54,7 @@ const outdoorMeets = [
         refunds will be given after this time except in exceptional circumstances. If the entire meet is cancelled then
         everyone will be refunded.
     </p>,
-    <br />, <br />,
+    <br />,
     <h3>What to bring</h3>,
     <p>
         These trips happen throughout the year, so clearly this varies. As a bare minimum you’ll need a harness,

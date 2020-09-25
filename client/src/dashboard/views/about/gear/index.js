@@ -8,6 +8,7 @@ import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
 
 import {gearAbout} from "./text";
+import AboutCard from "../../../../components/AboutCard/AboutCard";
 
 class GearAbout extends React.Component {
     constructor(props) {
@@ -32,21 +33,13 @@ class GearAbout extends React.Component {
         return (
             <div className="content">
                 <Container>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>Gear</h2>
-                                    {gearAbout}
-                                </Card.Body>
-                                <Card.Footer>
-                                    <Button className="float-right"
-                                            href="https://docs.google.com/spreadsheets/d/1CD4WMZ0-YO_ki2htINSFLYlZnkNZbJTNwkMwCX5cu38"
-                                    >Gear Spreadsheet</Button>
-                                </Card.Footer>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="Gear" text={gearAbout} button={
+                        {
+                            type: "button",
+                            to: "https://docs.google.com/spreadsheets/d/1CD4WMZ0-YO_ki2htINSFLYlZnkNZbJTNwkMwCX5cu38",
+                            text: "Gear Spreadsheet"
+                        }
+                    } />
                     <Row>
                         <Col md={12}>
                             <Card>

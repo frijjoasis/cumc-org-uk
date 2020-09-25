@@ -6,7 +6,6 @@ const competitionsAbout = [
         information on all these events will be released nearer the time, and the calendar will be regularly updated
         for forward planning. We have ordered the competition types to reflect how serious and challenging they are.
     </p>,
-    <br />,
     <h3>Cuppers</h3>,
     <p>
         This is our Inter-Collegiate competition, which will take place at Rainbow Rocket each term. You will be given
@@ -16,14 +15,12 @@ const competitionsAbout = [
         competition period has ended. There will be a large range in the difficulty of the problems chosen so there is
         no need for previous competition experience. The winning college will be presented with our Cuppers trophy.
     </p>,
-    <br />,
     <h3>Varsity</h3>,
     <p>
         A competition where we take on Oxford! Date and venue will be announced nearer the time, but will probably take
         place at a wall in London during Lent term. There is no limit to how many people we can enter, so let's get as
         big a team as possible! This is fairly relaxed, so try it out if you're new to climbing competitions.
     </p>,
-    <br />,
     <h3>London University Bouldering Event (LUBE)</h3>,
     <p>
         These are a series of competitions which are run by London universities and take place in centres around
@@ -31,7 +28,6 @@ const competitionsAbout = [
         compete, and return the same afternoon. No competition experience is required, although we will select on
         ability if oversubscribed.
     </p>,
-    <br />,
     <h3>BUCS</h3>,
     <p>
         The national bouldering competition! This will be in Sheffield at some point in Lent term, and a small group of

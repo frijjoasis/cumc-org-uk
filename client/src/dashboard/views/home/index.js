@@ -10,6 +10,7 @@ import Image from "react-bootstrap/Image";
 import Carousel from '../../../components/Carousel/Carousel';
 import {aboutText, slides, membershipText, homeImages} from './text';
 import {NavLink} from "react-router-dom";
+import AboutCard from "../../../components/AboutCard/AboutCard";
 
 class Home extends React.Component {
     constructor(props) {
@@ -58,16 +59,7 @@ class Home extends React.Component {
                             </Card>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>About Us</h2>
-                                    <p>{aboutText}</p>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="About Us" text={aboutText} />
                     <Row>
                         {homeImages.map(i => {
                             return (
@@ -83,16 +75,7 @@ class Home extends React.Component {
                             );
                         })}
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>Membership</h2>
-                                    <p>{membershipText}</p>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="Membership" text={membershipText} />
                 </Container>
             </div>
         )
