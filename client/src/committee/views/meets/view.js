@@ -54,35 +54,6 @@ class ViewMeet extends React.Component {
 
                                         <div className="text-muted" style={{display: 'inline'}}>Organiser: </div>
                                         {this.state.content.user.firstName} {this.state.content.user.lastName}
-                                        <br /><br />
-
-                                        <h5 className="text-muted">Questions:</h5>
-                                        <Table striped bordered hover responsive>
-                                            <thead>
-                                            <tr>
-                                                <th>Question</th>
-                                                <th>Required?</th>
-                                                <th>Description</th>
-                                                <th>Help Text</th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            {this.state.content.questions.length
-                                                ? this.state.content.questions.map((q, key) => {
-                                                    return (
-                                                        <tr key={key}>
-                                                            {
-                                                                [
-                                                                    q.title, q.required.toString(), q.desc, q.help
-                                                                ].map((e, key) => {
-                                                                    return <td key={key}>{e}</td>;
-                                                                })
-                                                            }
-                                                        </tr>
-                                                    )
-                                                }) : <tr><td className="text-center">Nothing here :(</td></tr>}
-                                            </tbody>
-                                        </Table>
                                     </Card.Text>
                                 </Card.Body>
                             </Card>
@@ -94,7 +65,7 @@ class ViewMeet extends React.Component {
                                 <Card.Body>
                                     <Card.Title>Signups</Card.Title>
                                     <Card.Subtitle>
-                                        Members currently signed up {this.state.content.title}
+                                        Members currently signed up to {this.state.content.title}
                                     </Card.Subtitle>
                                     <hr />
                                     <Table striped bordered hover responsive>
@@ -128,6 +99,50 @@ class ViewMeet extends React.Component {
                                                     </tr>
                                                 )
                                             }) : <tr><td className="text-center">None yet!</td></tr>}
+                                        </tbody>
+                                    </Table>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>Questions</Card.Title>
+                                    <Card.Subtitle>Form structure for {this.state.content.title}</Card.Subtitle>
+                                    <hr />
+                                    <Table striped bordered hover responsive>
+                                        <thead>
+                                        <tr>
+                                            {
+                                                [
+                                                    "Question", "Required?", "Description", "Help Text"
+                                                ].map((e, key) => {
+                                                    return <th key={key}>{e}</th>
+                                                })
+                                            }
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {this.state.content.questions.length
+                                            ? this.state.content.questions.map((q, key) => {
+                                                return (
+                                                    <tr key={key}>
+                                                        {
+                                                            [
+                                                                q.title,
+                                                                q.required ? <div className="text-success">Yes</div>
+                                                                    : <div className="text-danger">No</div>,
+                                                                q.desc,
+                                                                q.help
+                                                            ].map((e, key) => {
+                                                                return <td key={key}>{e}</td>;
+                                                            })
+                                                        }
+                                                    </tr>
+                                                )
+                                            }) : <tr><td className="text-center">Nothing here :(</td></tr>}
                                         </tbody>
                                     </Table>
                                 </Card.Body>

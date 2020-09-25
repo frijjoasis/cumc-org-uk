@@ -64,18 +64,18 @@ class ViewMeet extends React.Component {
 
                                         <div className="text-muted">Description:</div>
                                         {this.state.content.desc}
-                                        <br />
-
-                                        {this.state.content.disabled ? <Button disabled variant="outline-dark"
-                                            className="float-right">
-                                                Coming Soon...
-                                            </Button> :
-                                            <NavLink className="float-right btn btn-primary"
-                                                     to={`/meets/upcoming/register/${this.state.content.id}`}>
-                                                Sign Up
-                                            </NavLink>}
                                     </Card.Text>
                                 </Card.Body>
+                                <Card.Footer>
+                                    {this.state.content.disabled ? <Button disabled variant="outline-dark"
+                                                                           className="float-right">
+                                            Coming Soon...
+                                        </Button> :
+                                        <NavLink className="float-right btn btn-primary"
+                                                 to={`/meets/upcoming/register/${this.state.content.id}`}>
+                                            Sign Up
+                                        </NavLink>}
+                                </Card.Footer>
                             </Card>
                         </Col>
                     </Row>

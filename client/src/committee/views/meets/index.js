@@ -49,11 +49,13 @@ class MeetManager extends React.Component {
                                 <Table striped bordered hover responsive>
                                     <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>Start Date</th>
-                                        <th>End Date</th>
-                                        <th>Admin</th>
+                                        {
+                                            [
+                                                "Name", "Type", "Signups", "Start Date", "End Date", "Admin"
+                                            ].map((e, key) => {
+                                                return <th key={key}>{e}</th>;
+                                            })
+                                        }
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -65,22 +67,21 @@ class MeetManager extends React.Component {
                                                         [
                                                             meet.title,
                                                             meet.type,
+                                                            meet.disabled ? <div className="text-danger">Disabled</div>
+                                                                : <div className="text-success">Open</div>,
                                                             new Date(meet.startDate).toUTCString(),
                                                             new Date(meet.endDate).toUTCString(),
-                                                            <Row className="table-col">
-                                                                <Col sm={3}>
-                                                                    <NavLink to={`/committee/meets/view/${meet.id}`}>
-                                                                        View</NavLink>
-                                                                </Col>
-                                                                <Col sm={3}>
-                                                                    <NavLink to={`/committee/meets/edit/${meet.id}`}>
-                                                                        Edit</NavLink>
-                                                                </Col>
-                                                                <Col sm={3}>
-                                                                    <NavLink to={`/committee/meets/clone/${meet.id}`}>
-                                                                        Clone</NavLink>
-                                                                </Col>
-                                                            </Row>
+                                                            <div>
+                                                                <NavLink to={`/committee/meets/view/${meet.id}`}>
+                                                                    View
+                                                                </NavLink>
+                                                                <NavLink to={`/committee/meets/edit/${meet.id}`}>
+                                                                    Edit
+                                                                </NavLink>
+                                                                <NavLink to={`/committee/meets/clone/${meet.id}`}>
+                                                                    Clone
+                                                                </NavLink>
+                                                            </div>
                                                         ].map((e, key) => {
                                                             return <td key={key}>{e}</td>;
                                                         })

@@ -47,13 +47,6 @@ input:focus {
 .btn{
     @include transition($ultra-fast-transition-time, $transition-ease-in);
 }
-.fa{
-    width: 18px;
-    text-align: center;
-}
-.margin-top{
-    margin-top: 50px;
-}
 
 .wrapper{
     position: relative;

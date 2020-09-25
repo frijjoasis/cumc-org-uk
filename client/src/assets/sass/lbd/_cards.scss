@@ -14,7 +14,7 @@
     }
 
     h2 {
-        margin-top: 0;
+        margin: 0;
     }
 
     .image{
@@ -58,7 +58,6 @@
         font-size: $font-size-base;
         font-weight: $font-weight-normal;
         color: $dark-gray;
-        margin-bottom: 10px;
         text-transform: none;
 
         i{
@@ -89,20 +88,7 @@
         font-size: $font-size-base;
         color: #333;
     }
-    .footer{
-        padding: 0;
-        background-color: $transparent-bg;
-        line-height: 30px;
 
-        .legend{
-            padding: 5px 0;
-        }
-
-        hr{
-            margin-top: 5px;
-            margin-bottom: 5px;
-        }
-    }
     h6{
         font-size: $font-size-small;
         margin: 0;
@@ -124,10 +110,6 @@
     .image{
         height: 110px;
     }
-    .image-plain{
-        height: 0;
-        margin-top: 110px;
-    }
     .author{
         text-align: center;
         text-transform: none;
@@ -147,9 +129,6 @@
     .title{
         line-height: 24px;
         margin-top: 15px;
-    }
-    .content{
-        min-height: 240px;
     }
     > .card-body {
         padding-bottom: 0;

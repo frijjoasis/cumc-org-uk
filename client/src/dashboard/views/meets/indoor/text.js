@@ -7,7 +7,7 @@ const indoorMeets = [
         Pinnacle in Northampton, Big Rock in Milton Keynes and XC in Hemel Hempstead). They all have excellent leading,
         top roping and bouldering so there's something for everyone. We leave from Cambridge at around 6pm and usually
         climb to closing time so get back around 11pm.</p>,
-    <br />, <br />,
+    <br />,
     <p>
         To come sign up on the website. This opens on a Monday when the president sends out the weekly bulletin. Any
         club member can come on an indoor meet. This year indoor meets cost £6 which is used to refund drivers at a

@@ -4,10 +4,11 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Button from "react-bootstrap/Button";
 import Image from "react-bootstrap/Image";
 
 import Carousel from '../../../components/Carousel/Carousel';
+import AboutCard from "../../../components/AboutCard/AboutCard";
+
 import {aboutText, slides, membershipText, homeImages} from './text';
 import {NavLink} from "react-router-dom";
 
@@ -42,33 +43,24 @@ class Home extends React.Component {
                                 <Card.Body>
                                     <Card.Title>Welcome!</Card.Title>
                                     <Card.Subtitle>You are not signed in</Card.Subtitle>
-                                    <Card.Text>
+                                    <Card.Text as="span">
+                                        <hr />
                                         Example text
                                     </Card.Text>
-                                    <Row>
-                                        <Col>
-                                            <NavLink className="float-right btn btn-primary" to="/login">
-                                                Login
-                                            </NavLink>
-                                            <NavLink className="float-right btn btn-primary" to="/login">
-                                                Register
-                                            </NavLink>
-                                        </Col>
-                                    </Row>
                                 </Card.Body>
+                                <Card.Footer>
+                                    <NavLink style={{marginLeft: "10px"}}
+                                            className="float-right btn btn-primary" to="/login">
+                                        Login
+                                    </NavLink>
+                                    <NavLink className="float-right btn btn-primary" to="/login">
+                                        Register
+                                    </NavLink>
+                                </Card.Footer>
                             </Card>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>About Us</h2>
-                                    <p>{aboutText}</p>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="About Us" text={aboutText} />
                     <Row>
                         {homeImages.map(i => {
                             return (
@@ -84,16 +76,7 @@ class Home extends React.Component {
                             );
                         })}
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>Membership</h2>
-                                    <p>{membershipText}</p>
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="Membership" text={membershipText} />
                 </Container>
             </div>
         )

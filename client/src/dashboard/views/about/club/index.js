@@ -3,13 +3,11 @@ import axios from 'axios';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
-import Image from "react-bootstrap/Image";
 import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
 
-import img from "../../../../assets/img/logo.png";
-
 import {clubAbout, historyAbout} from "./text";
+import AboutCard from "../../../../components/AboutCard/AboutCard";
 
 class ClubAbout extends React.Component {
     constructor(props) {
@@ -34,33 +32,8 @@ class ClubAbout extends React.Component {
         return (
             <div className="content">
                 <Container>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>About CUMC</h2>
-                                    {clubAbout}
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
-                    <Row className="justify-content-center">
-                        <Col style={{flex: 0}}>
-                            <Card>
-                                <Image className="logo-cumc" rounded src={img} />
-                            </Card>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>Club History</h2>
-                                    {historyAbout}
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="About CUMC" text={clubAbout} />
+                    <AboutCard title="Club History" text={historyAbout} />
                     <Row>
                         <Col md={12}>
                             <Card ctTableFullWidth ctTableResponsive>

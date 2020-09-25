@@ -6,25 +6,22 @@ const clubAbout = [
         it exists to help climbing students of the University make contact with one another and go climbing and
         mountaineering.
     </p>,
-    <br />,
     <p>
         As a club we cater for members with a broad variety of climbing tastes. The current spectrum of climbing in the
         club includes indoor climbing, scrambling, bouldering, rock climbing, ice climbing and alpine climbing.
     </p>,
-    <br />,
     <p>
         The club organises trips at the weekend and outings to climbing walls during the week, details of which can be
         found in the meets section. Members often travel further afield during the holidays in informal groups to more
         exotic locations.
     </p>,
-    <br />,
     <p>
         The club additionally owns a collection of books which is housed in the Wherry Library in Pembroke College.
     </p>,
 ];
 
 const historyAbout = [
-    <h3>100th anniversary</h3>,
+    <h3>100th Anniversary</h3>,
     <p>
         The club’s 100th anniversary was celebrated on 19th June 2005 with a dinner held at St Catherine’s College.
         Following this meeting a number of articles were written by CUMC alumni to create the CUMC 100th Anniversary
@@ -32,14 +29,13 @@ const historyAbout = [
         mountaineers involved, and the incredible trips that alumni have been a part of. The full series of articles
         can be found <a href="https://drive.google.com/file/d/1szCqACkg-15GZ_SgyFMouP5wjtvCk6sT/view">here</a>.
     </p>,
-    <br />, <br />,
     <p>
         Additionally, the collection is now available in print (a 180 page colour volume containing all 28 articles).
         If anyone would like to purchase a copy, costing £10 including postage, send an email to
         <a href="mailto:henry.edmundson@cantab.net"> henry.edmundson@cantab.net</a>.
     </p>,
-    <br />, <br />,
-    <h3>Brief history of the club</h3>,
+    <br />,
+    <h3>Brief History of the Club</h3>,
     <p>
         What follows is an account of the club since its foundation in 1905. There is some controversy regarding the
         exact nature of the clubs origin and reason for its foundation, and an attempt has been made to try and solve
@@ -51,7 +47,6 @@ const historyAbout = [
         members of the Alpine club were from Cambridge. The exploits of these great mountaineers can also be found in
         the hall of fame.
     </p>,
-    <br />, <br />,
     <p>The foundation of the Cambridge University Mountaineering Club took place during the winter months of
         1905-1906. Its founders were W. J. R. Calvert, who became the clubs first president, and Hugh Stewart, who
         became the clubs first Hon. Secretary. Both men were from Trinity. Other known members of the club from this
@@ -77,14 +72,12 @@ const historyAbout = [
         front and the minute books (or book) were never transferred, and disappeared, leaving the early history of the
         club shrouded in mist.
     </p>,
-    <br />, <br />,
     <p>
         Since its reformation in 1920, the club has changed little. Operating on an evolving three year life cycle, the
         club has had its ups and downs, yet still the traditions of teas, meets and lectures continue. Certainly the
         greatest asset the club can provide, that of being a focal point for meeting other climbers and fostering an
         interest in beginners still remains.
     </p>,
-    <br />, <br />,
     <p>
         A major point in the development of the club came at the very end of 1954 when the inaugural meet of the Magogs
         was held at Black Rock Cottage in Glencoe on 31st December 1954. This club was similar to the C.U.M.C., in that
@@ -94,7 +87,6 @@ const historyAbout = [
         mention of this major point in the minutes, perhaps owing to the embarrassing controversy it undoubtedly
         generated.
     </p>,
-    <br />, <br />,
     <p>
         The club is still one of the most active student clubs in the country, with just over 100 members. Although
         no-one is currently at the cutting edge, such as Al Rouse new routeing E5 before even coming up(!), there is

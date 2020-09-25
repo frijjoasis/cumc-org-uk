@@ -8,6 +8,7 @@ import Image from "react-bootstrap/Image";
 import img from '../../../../assets/img/competitions-1.jpg'
 
 import {competitionsAbout} from "./text";
+import AboutCard from "../../../../components/AboutCard/AboutCard";
 
 class CompetitionsAbout extends React.Component {
     constructor(props) {
@@ -29,16 +30,7 @@ class CompetitionsAbout extends React.Component {
                             </Card>
                         </Col>
                     </Row>
-                    <Row>
-                        <Col>
-                            <Card>
-                                <Card.Body>
-                                    <h2>Competitions</h2>
-                                    {competitionsAbout}
-                                </Card.Body>
-                            </Card>
-                        </Col>
-                    </Row>
+                    <AboutCard title="Competitions" text={competitionsAbout} />
                 </Container>
             </div>
         )

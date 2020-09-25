@@ -52,15 +52,15 @@ class UpcomingMeets extends React.Component {
 
                                                 <div className="text-muted" style={{display: 'inline'}}>Signups open? </div>
                                                 {meet.disabled ? "No" : "Yes"}
-                                                <br />
-
-                                                <NavLink
-                                                    className="float-right btn btn-primary"
-                                                    to={`/meets/upcoming/view/${meet.id}`}>
-                                                    Details
-                                                </NavLink>
                                             </Card.Text>
                                         </Card.Body>
+                                        <Card.Footer>
+                                            <NavLink
+                                                className="float-right btn btn-primary"
+                                                to={`/meets/upcoming/view/${meet.id}`}>
+                                                Details
+                                            </NavLink>
+                                        </Card.Footer>
                                     </Card>
                                 </Col>
                             </Row>

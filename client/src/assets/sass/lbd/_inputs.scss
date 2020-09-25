@@ -80,41 +80,15 @@
     }
 }
 
-
-.input-group-addon {
-    background-color: $white-color;
-    border: 1px solid $light-gray;
-    border-radius: $border-radius-base;
-    
-    .has-success &,
-    .has-error &{
-        background-color: $white-color;
-        border: 1px solid $light-gray;
-    }
-    .has-error .form-control:focus + &{
-        border-color: $danger-color;
-        color: $danger-color;
-    }
-    .has-success .form-control:focus + &{
-        border-color: $success-color;
-        color: $success-color;
-    }
-    .form-control:focus + &,
-    .form-control:focus ~ &{
-        background-color: $white-color;
-        border-color: $dark-gray;
-    }
-}
-
-.input-group .form-control:first-child, 
-.input-group-addon:first-child,  
-.input-group-btn:first-child > .dropdown-toggle, 
+.input-group .form-control:first-child,
+.input-group-addon:first-child,
+.input-group-btn:first-child > .dropdown-toggle,
 .input-group-btn:last-child > .btn:not(:last-child):not(.dropdown-toggle) {
     border-right: 0 none;
 }
-.input-group .form-control:last-child, 
-.input-group-addon:last-child,  
-.input-group-btn:last-child > .dropdown-toggle, 
+.input-group .form-control:last-child,
+.input-group-addon:last-child,
+.input-group-btn:last-child > .dropdown-toggle,
 .input-group-btn:first-child > .btn:not(:first-child) {
     border-left: 0 none;
 }
