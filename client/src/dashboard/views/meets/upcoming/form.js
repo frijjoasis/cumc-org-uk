@@ -83,7 +83,7 @@ class MeetForm extends React.Component {
                                         <Card.Subtitle>
                                             Please fill out the form below
                                         </Card.Subtitle>
-                                        <br />
+                                        <hr />
                                         <Form noValidate
                                               validated={this.state.validated}
                                               onSubmit={this.handleSubmit.bind(this)}

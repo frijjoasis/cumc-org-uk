@@ -68,7 +68,7 @@ class Register extends React.Component {
                                     <Card.Subtitle>
                                         We require some information before you can sign up to meets
                                     </Card.Subtitle>
-                                    <br />
+                                    <hr />
                                     <Form noValidate
                                           validated={this.state.validated}
                                           onSubmit={this.handleSubmit.bind(this)}
