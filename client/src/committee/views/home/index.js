@@ -6,6 +6,7 @@ import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Button from "react-bootstrap/Button";
 import Table from "react-bootstrap/Table";
+import Alert from "react-bootstrap/Alert";
 
 class CommitteeHome extends React.Component {
     constructor(props) {
@@ -17,16 +18,20 @@ class CommitteeHome extends React.Component {
 
     componentDidMount() {
         axios.get("/api/committee/current").then(res => {
-            this.setState({
+            if (res.data.err) {
+                this.setState({
+                    err: res.data.err
+                });
+            } else this.setState({
                 content: res.data
             });
-            console.log(res.data);
         })
     }
 
     render() {
         return (
             <div className="content">
+                {this.state.err ? <Alert variant="danger">{this.state.err}</Alert> : null}
                 <Container>
                     <Row>
                         <Col>

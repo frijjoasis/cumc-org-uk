@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const members = require('../../database/controllers/members');
+const {committeeAuth} = require('../middleware');
 
 router.get('/past', function(req, res, next) {
     res.json({
@@ -8,16 +9,10 @@ router.get('/past', function(req, res, next) {
     });
 });
 
-router.get('/current', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await members.getCommitteeRole(req.user.id).then(role => {
-            if (role) {
-                return members.getCommittee().then(committee => {
-                    res.json(committee);
-                });
-            } else res.json(false);
-        });
-    } else res.json(false);
+router.get('/current', committeeAuth, async function(req, res) {
+    return members.getCommittee().then(committee => {
+        res.json(committee);
+    });
 });
 
 module.exports = router;

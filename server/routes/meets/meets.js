@@ -1,20 +1,15 @@
 const router = require('express').Router();
 const meets = require('../../database/controllers/meets');
-const members = require('../../database/controllers/members');
 const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
+const {committeeAuth, userAuth} = require('../middleware');
 
 router.get('/upcoming', async function(req, res, next) {
     await meets.getAllUpcoming().then(upcoming => res.json(upcoming));
 });
 
-router.get('/all', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await members.getCommitteeRole(req.user.id).then(role => {
-            if (role) return meets.getAll().then(all => res.json(all));
-            else res.json({err: "You need a committee role to do that!"});
-        });
-    } else res.json({err: "You need to be signed in to do that!"});
+router.get('/all', committeeAuth, async function(req, res) {
+    return meets.getAll().then(all => res.json(all));
 });
 
 router.post('/view', async function(req, res) {
@@ -26,39 +21,29 @@ router.post('/view', async function(req, res) {
     });
 });
 
-router.post('/register', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await users.isMissing(req.user.id).then(missing => {
-            if (!missing) {
-                return signups.handleRegister(req.body, req.user).then(() => {
-                    res.json(true);
-                }).catch(err => {
-                    console.error("Database error: ", err);
-                    res.json({err: "Database error: Please contact the webmaster"});
-                });
-            } else res.json({err: "You need to complete your profile to do that!"});
-        });
-    } else res.json({err: "You need to be signed in to do that!"});
+router.post('/register', userAuth, async function(req, res) {
+    await users.isMissing(req.user.id).then(missing => {
+        if (!missing) {
+            return signups.handleRegister(req.body, req.user).then(() => {
+                res.json(true);
+            }).catch(err => {
+                console.error("Database error: ", err);
+                res.json({err: "Database error: Please contact the webmaster"});
+            });
+        } else res.json({err: "You need to complete your profile to do that!"});
+    });
 });
 
-router.post('/historyOther', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await members.getCommitteeRole(req.user.id).then(role => {
-            if (role) {
-                return signups.getHistory(req.body.id).then(history => {
-                    res.json(history);
-                });
-            } else res.json({err: "You need a committee role to do that!"});
-        });
-    } else res.json({err: "You need to be signed in to do that!"});
+router.post('/historyOther', committeeAuth, async function(req, res) {
+    return signups.getHistory(req.body.id).then(history => {
+        res.json(history);
+    });
 });
 
-router.get('/history', async function(req, res) {
-    if (req.isAuthenticated()) {
-        return signups.getHistory(req.user.id).then(history => {
-            res.json(history);
-        });
-    } else res.json({err: "You need to be signed in to do that!"});
+router.get('/history', userAuth, async function(req, res) {
+    return signups.getHistory(req.user.id).then(history => {
+        res.json(history);
+    });
 });
 
 module.exports = router;
