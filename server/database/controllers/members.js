@@ -30,6 +30,23 @@ function getCommittee() {
     });
 }
 
+function getInfo(id) {
+    return getModel().findByPk(id, {
+        include: {
+            all: true
+        }
+    });
+}
+
+function list() {
+    return getModel().findAll({
+        include: {
+            model: sequelize.models.user,
+            attributes: ['firstName', 'lastName', 'college']
+        }
+    });
+}
+
 module.exports = {
-    getMember, getCommitteeRole, getCommittee
+    getMember, getCommitteeRole, getCommittee, list, getInfo
 }

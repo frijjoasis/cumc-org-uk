@@ -2,7 +2,9 @@ import Home from "./views/home/index";
 
 import Treasure from "./views/treasure";
 import Webmaster from "./views/webmaster";
+
 import Members from "./views/members";
+import ViewMember from "./views/members/view";
 
 import MeetManager from "./views/meets/";
 import EditMeet from "./views/meets/edit";
@@ -70,6 +72,13 @@ const routes = [
         name: "Members",
         icon: "pe-7s-users",
         Component: Members,
+        layout: "/committee"
+    },
+    {
+        path: "/members/:id",
+        name: "Member Details",
+        hide: true,
+        Component: ViewMember,
         layout: "/committee"
     },
     {

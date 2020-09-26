@@ -41,4 +41,24 @@ router.post('/register', async function(req, res) {
     } else res.json({err: "You need to be signed in to do that!"});
 });
 
+router.post('/historyOther', async function(req, res) {
+    if (req.isAuthenticated()) {
+        await members.getCommitteeRole(req.user.id).then(role => {
+            if (role) {
+                return signups.getHistory(req.body.id).then(history => {
+                    res.json(history);
+                });
+            } else res.json({err: "You need a committee role to do that!"});
+        });
+    } else res.json({err: "You need to be signed in to do that!"});
+});
+
+router.get('/history', async function(req, res) {
+    if (req.isAuthenticated()) {
+        return signups.getHistory(req.user.id).then(history => {
+            res.json(history);
+        });
+    } else res.json({err: "You need to be signed in to do that!"});
+});
+
 module.exports = router;
