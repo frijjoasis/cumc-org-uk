@@ -1,4 +1,5 @@
 const {sequelize} = require('../database');
+const {Op} = require('sequelize');
 
 function getModel() {
     return sequelize.models.member;
@@ -14,6 +15,21 @@ function getCommitteeRole(id) {
     });
 }
 
+function getCommittee() {
+    return getModel().findAll({
+        attributes: ['committee'],
+        where: {
+            committee: {
+                [Op.not]: null
+            }
+        },
+        include: {
+            model: sequelize.models.user,
+            attributes: ['firstName', 'lastName']
+        }
+    });
+}
+
 module.exports = {
-    getMember, getCommitteeRole
+    getMember, getCommitteeRole, getCommittee
 }

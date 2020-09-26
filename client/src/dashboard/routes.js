@@ -4,7 +4,7 @@ import Register from "./views/login/"
 
 import ClubAbout from "./views/about/club";
 import CommitteeAbout from "./views/about/committee";
-import SafetyAbout from "./views/about/safety";
+import DocumentsAbout from "./views/about/documents";
 import CompetitionsAbout from "./views/about/competitions";
 import GearAbout from "./views/about/gear";
 
@@ -64,10 +64,10 @@ const routes = [
     layout: "",
   },
   {
-    path: "/about/safety",
-    name: "Safety",
+    path: "/about/documents",
+    name: "Documents",
     icon: "pe-7s-attention",
-    Component: SafetyAbout,
+    Component: DocumentsAbout,
     layout: "",
   },
   {

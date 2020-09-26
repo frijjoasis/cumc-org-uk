@@ -5,6 +5,7 @@ import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Tabs from "react-bootstrap/Tabs";
+import Nav from "react-bootstrap/Nav";
 import Tab from "react-bootstrap/Tab";
 
 class EditMeet extends React.Component {
@@ -37,24 +38,38 @@ class EditMeet extends React.Component {
                 <Container>
                     <Row>
                         <Col>
-                            <Tabs defaultActiveKey="details">
-                                <Tab title="Details" eventKey="details">
-                                    <Card>
-                                        <Card.Body>
-                                            <Card.Title>Details</Card.Title>
-                                            <Card.Subtitle>Edit '{this.state.content.title}' meet details</Card.Subtitle>
-                                        </Card.Body>
-                                    </Card>
-                                </Tab>
-                                <Tab title="Questions" eventKey="questions">
-                                    <Card>
-                                        <Card.Body>
-                                            <Card.Title>Questions</Card.Title>
-                                            <Card.Subtitle>Here you can edit the form design for </Card.Subtitle>
-                                        </Card.Body>
-                                    </Card>
-                                </Tab>
-                            </Tabs>
+                            <Card>
+                                <Tab.Container id="tabs-edit-meet" defaultActiveKey="details">
+                                    <Card.Header>
+                                        <Nav variant="tabs" defaultActiveKey="details" >
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="details">Details</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="questions">Questions</Nav.Link>
+                                            </Nav.Item>
+                                        </Nav>
+                                    </Card.Header>
+                                    <Card.Body>
+                                        <Tab.Content>
+                                            <Tab.Pane eventKey="details">
+                                                <Card.Title>Details</Card.Title>
+                                                <Card.Subtitle>Edit meet details</Card.Subtitle>
+                                                <Card.Text as="span">
+                                                    <hr />
+                                                </Card.Text>
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="questions">
+                                                <Card.Title>Questions</Card.Title>
+                                                <Card.Subtitle>Edit signup form design</Card.Subtitle>
+                                                <Card.Text as="span">
+                                                    <hr />
+                                                </Card.Text>
+                                            </Tab.Pane>
+                                        </Tab.Content>
+                                    </Card.Body>
+                                </Tab.Container>
+                            </Card>
                         </Col>
                     </Row>
                 </Container>

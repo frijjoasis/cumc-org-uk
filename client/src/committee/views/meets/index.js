@@ -97,11 +97,12 @@ class MeetManager extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Button block variant="success" href="/committee/meets/new">New</Button>
+                        <NavLink className="btn btn-block btn-success" to="/committee/meets/new">New</NavLink>
                     </Col>
                     <Col>
-                        <Button block href={`/committee/meets/${this.state.archive ? "" : "archive"}`}>
-                            {this.state.archive ? "Upcoming" : "Archive"}</Button>
+                        <NavLink className="btn btn-block"
+                                 to={`/committee/meets/${this.state.archive ? "" : "archive"}`}>
+                            {this.state.archive ? "Upcoming" : "Archive"}</NavLink>
                     </Col>
                 </Row>
             </div>

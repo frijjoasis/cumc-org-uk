@@ -1,11 +1,6 @@
 import React from "react";
 
 const dataAbout = [
-    <h3>
-        <strong>How we use your personal information – Cambridge University
-            Mountaineering Club</strong>
-    </h3>,
-    <br />,
     <p>
         This statement explains how the Cambridge University Mountaineering Club (“the
         club”, “we”, “us” and “our”) handles and uses the personal information we

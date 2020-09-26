@@ -151,14 +151,16 @@ class ViewMeet extends React.Component {
                     </Row>
                     <Row>
                         <Col>
-                            <Button block variant="success" href="/">Reimburse Drivers</Button>
+                            <NavLink className="btn btn-block btn-success"
+                                     to={`/committee/meets/reimburse/${this.props.match.params.id}`}>
+                                Reimburse Drivers</NavLink>
                         </Col>
                         <Col>
                             <Button block href="/">Email Signups</Button>
                         </Col>
                         <Col>
-                            <Button block variant="danger" href={`/committee/meets/edit/${this.props.match.params.id}`}>
-                                Edit Meet</Button>
+                            <NavLink className="btn btn-block btn-danger" to={`/committee/meets/edit/${this.props.match.params.id}`}>
+                                Edit Meet</NavLink>
                         </Col>
                     </Row>
                 </Container>
