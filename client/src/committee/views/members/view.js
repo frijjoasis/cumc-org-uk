@@ -5,6 +5,7 @@ import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Row from "react-bootstrap/Row";
 import Table from "react-bootstrap/Table";
+import Alert from "react-bootstrap/Alert";
 
 class ViewMember extends React.Component {
     constructor(props) {
@@ -19,7 +20,10 @@ class ViewMember extends React.Component {
 
     componentDidMount() {
         axios.post("/api/member/info", {id: this.props.match.params.id}).then(res => {
-            this.setState({
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+                window.scrollTo(0, 0);
+            } else this.setState({
                 content: res.data
             });
         });
@@ -33,6 +37,7 @@ class ViewMember extends React.Component {
     render() {
         return (
             <div className="content">
+                {this.state.err ? <Alert variant="danger">{this.state.err}</Alert> : null}
                 <Container>
                     <Row>
                         <Col>

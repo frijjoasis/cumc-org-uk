@@ -14,7 +14,17 @@ router.get('/all', committeeAuth, async function(req, res) {
 
 router.post('/view', async function(req, res) {
     await meets.getOneUpcoming(req.body.id).then(meet => {
-        res.json(meet);
+        if (meet) res.json(meet);
+        else res.json({err: "Database error: Could not find meet"})
+    }).catch(err => {
+        console.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
+router.post('/edit', committeeAuth, async function(req, res) {
+    await meets.upsertMeet(req.body, req.user.id).then(() => {
+        res.json(true);
     }).catch(err => {
         console.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});

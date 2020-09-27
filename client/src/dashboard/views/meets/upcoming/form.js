@@ -52,23 +52,18 @@ class MeetForm extends React.Component {
                     this.setState({err: res.data.err});
                     window.scrollTo(0,0);
                 } else {
-                    window.location.href = `http://localhost:3000/meets/upcoming/view/${this.props.match.params.id}`;
+                    window.location.href = `/meets/upcoming/view/${this.props.match.params.id}`;
                 }
             });
         }
         event.preventDefault();
         event.stopPropagation();
-    };
+    }
 
     render() {
-        if (this.state.meet.disabled) {
+        if (this.state.meet.disabled || !this.props.user) {
             return (
-                <Redirect to="/404" />
-            )
-        }
-        else if (!this.props.user) {
-            return (
-                <Redirect to="/login" />
+                <Redirect to="/404"/>
             )
         } else {
             return (

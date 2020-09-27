@@ -64,6 +64,12 @@
     }
 }
 
+.custom-checkbox {
+    label {
+        padding-top: 3px;
+    }
+}
+
 .input-lg{
     height: 55px;
     padding: $padding-large-vertical $padding-large-horizontal;

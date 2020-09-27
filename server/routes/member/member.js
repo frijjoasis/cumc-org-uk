@@ -20,7 +20,8 @@ router.get('/committee', async function(req, res) {
 
 router.post('/info', committeeAuth, async function(req, res) {
     return members.getInfo(req.body.id).then(member => {
-        res.json(member);
+        if (member) res.json(member);
+        else res.json({err: "Database error: Could not find that user"})
     });
 });
 

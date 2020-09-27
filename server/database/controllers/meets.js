@@ -28,6 +28,11 @@ function getOneUpcoming(id) {
     });
 }
 
+function upsertMeet(data, id) {
+    data.organiser = id;
+    return getModel().upsert(data);
+}
+
 module.exports = {
-    getAllUpcoming, getOneUpcoming, getAll
+    getAllUpcoming, getOneUpcoming, getAll, upsertMeet
 }
