@@ -1,31 +1,26 @@
 const router = require('express').Router();
 const users = require('../../database/controllers/users');
+const {userAuth} = require('../middleware');
 
-router.get('/', function(req, res) {
-    if (req.isAuthenticated()) {
-        res.json({
-            user: req.user
-        });
-    } else res.json(false);
+router.get('/', userAuth, function(req, res) {
+    res.json({
+        user: req.user
+    });
 });
 
-router.post('/register', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await users.upsertInfo(req.body, req.user.id).then(() => {
-            res.json(true);
-        }).catch(err => {
-            console.error("Database error: ", err);
-            res.json({err: "Database error: Please contact the webmaster"});
-        });
-    } else res.json({err: "You need to be signed in to do that!"});
+router.post('/register', userAuth, async function(req, res) {
+    await users.upsertInfo(req.body, req.user.id).then(() => {
+        res.json(true);
+    }).catch(err => {
+        console.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
 });
 
-router.get('/info', async function(req, res) {
-    if (req.isAuthenticated()) {
-        await users.getInfo(req.user.id).then(info => {
-            res.json(info);
-        });
-    } else res.json(false);
+router.get('/info', userAuth, async function(req, res) {
+    await users.getInfo(req.user.id).then(info => {
+        res.json(info);
+    });
 });
 
 module.exports = router;

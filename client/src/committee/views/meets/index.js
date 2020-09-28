@@ -4,7 +4,6 @@ import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
 import Table from "react-bootstrap/Table";
 import Row from "react-bootstrap/Row";
-import Button from "react-bootstrap/Button";
 import {NavLink} from "react-router-dom";
 
 class MeetManager extends React.Component {
@@ -97,11 +96,12 @@ class MeetManager extends React.Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Button block variant="success" href="/committee/meets/new">New</Button>
+                        <NavLink className="btn btn-block btn-success" to="/committee/meets/new">New</NavLink>
                     </Col>
                     <Col>
-                        <Button block href={`/committee/meets/${this.state.archive ? "" : "archive"}`}>
-                            {this.state.archive ? "Upcoming" : "Archive"}</Button>
+                        <NavLink className="btn btn-block"
+                                 to={`/committee/meets/${this.state.archive ? "" : "archive"}`}>
+                            {this.state.archive ? "Upcoming" : "Archive"}</NavLink>
                     </Col>
                 </Row>
             </div>

@@ -17,6 +17,18 @@ function handleRegister(data, user) {
     });
 }
 
+function getHistory(id) {
+    return getModel().findAll({
+        where: {
+            userID: id
+        },
+        include: {
+            model: sequelize.models.meet,
+            attributes: ['title', 'startDate', 'type', 'price']
+        }
+    });
+}
+
 module.exports = {
-    handleRegister
+    handleRegister, getHistory
 }

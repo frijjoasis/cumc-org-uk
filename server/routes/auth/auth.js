@@ -11,8 +11,8 @@ router.get('/login', passport.authenticate('google', {
 router.get('/logout', function(req, res) {
     if (req.isAuthenticated()) {
         req.logout();
-        res.redirect("/");
-    } else res.json(false);
+    }
+    res.redirect("/");
 });
 
 router.get('/callback',

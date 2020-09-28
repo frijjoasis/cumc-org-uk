@@ -33,6 +33,11 @@ class ViewMeet extends React.Component {
         });
     }
 
+    sortQuestions(q, w) {
+        if (q.id === w.id) return 0;
+        return q.id > w.id ? 1 : -1;
+    } // Quick sort by ID function, so that questions (and answers) will be listed consistently
+
     render() {
         return (
             <div className="content">
@@ -74,10 +79,12 @@ class ViewMeet extends React.Component {
                                             {
                                                 [
                                                     "Name", "Created At"
-                                                ].concat(this.state.content.questions.map(q => q.title))
-                                                    .map((e, key) => {
-                                                        return <th key={key}>{e}</th>
-                                                    })
+                                                ].concat(this.state.content.questions
+                                                    .sort(this.sortQuestions)
+                                                    .map(q => q.title)
+                                                ).map((e, key) => {
+                                                    return <th key={key}>{e}</th>
+                                                })
                                             }
                                         </tr>
                                         </thead>
@@ -92,13 +99,16 @@ class ViewMeet extends React.Component {
                                                                     {mem.displayName}
                                                                 </NavLink>,
                                                                 new Date(mem.createdAt).toUTCString()
-                                                            ].concat(mem.answers).map((e, key) => {
+                                                            ].concat(mem.answers
+                                                                .sort(this.sortQuestions)
+                                                                .map(a => a.value)
+                                                            ).map((e, key) => {
                                                                 return <td key={key}>{e}</td>;
                                                             })
                                                         }
                                                     </tr>
                                                 )
-                                            }) : <tr><td className="text-center">None yet!</td></tr>}
+                                            }) : <tr><td className="text-center" colSpan={2}>None yet!</td></tr>}
                                         </tbody>
                                     </Table>
                                 </Card.Body>
@@ -142,7 +152,7 @@ class ViewMeet extends React.Component {
                                                         }
                                                     </tr>
                                                 )
-                                            }) : <tr><td className="text-center">Nothing here :(</td></tr>}
+                                            }) : <tr><td className="text-center" colSpan={4}>Nothing here :(</td></tr>}
                                         </tbody>
                                     </Table>
                                 </Card.Body>
@@ -151,14 +161,16 @@ class ViewMeet extends React.Component {
                     </Row>
                     <Row>
                         <Col>
-                            <Button block variant="success" href="/">Reimburse Drivers</Button>
+                            <NavLink className="btn btn-block btn-success"
+                                     to={`/committee/meets/reimburse/${this.props.match.params.id}`}>
+                                Reimburse Drivers</NavLink>
                         </Col>
                         <Col>
                             <Button block href="/">Email Signups</Button>
                         </Col>
                         <Col>
-                            <Button block variant="danger" href={`/committee/meets/edit/${this.props.match.params.id}`}>
-                                Edit Meet</Button>
+                            <NavLink className="btn btn-block btn-danger" to={`/committee/meets/edit/${this.props.match.params.id}`}>
+                                Edit Meet</NavLink>
                         </Col>
                     </Row>
                 </Container>

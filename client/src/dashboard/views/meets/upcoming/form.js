@@ -39,7 +39,7 @@ class MeetForm extends React.Component {
             this.setState({validated: true})
         } else {
             const answers = [...form.elements].reduce((acc, cur) => {
-                if (cur.id) acc[cur.id] = cur.value;
+                if (cur.id) acc.push({id: cur.id, value: cur.value});
                 return acc;
                 // Avoid POSTing email and display name
             }, []);
@@ -58,17 +58,12 @@ class MeetForm extends React.Component {
         }
         event.preventDefault();
         event.stopPropagation();
-    };
+    }
 
     render() {
-        if (this.state.meet.disabled) {
+        if (this.state.meet.disabled || !this.props.user) {
             return (
-                <Redirect to="/404" />
-            )
-        }
-        else if (!this.props.user) {
-            return (
-                <Redirect to="/login" />
+                <Redirect to="/404"/>
             )
         } else {
             return (
@@ -109,11 +104,11 @@ class MeetForm extends React.Component {
                                                     </Form.Group>
                                                 </Col>
                                             </Row>
-                                            {this.state.meet.questions ? this.state.meet.questions.map((question, i) => {
+                                            {this.state.meet.questions ? this.state.meet.questions.map(question => {
                                                 return (
                                                     <Row>
                                                         <Col>
-                                                            <Form.Group controlId={i}>
+                                                            <Form.Group controlId={question.id}>
                                                                 <Form.Label>{question.title}</Form.Label>
                                                                 <Form.Control
                                                                     type="text"
