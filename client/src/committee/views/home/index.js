@@ -39,7 +39,10 @@ class CommitteeHome extends React.Component {
                                 <Card.Body>
                                     <Card.Title>Committee Area</Card.Title>
                                     <Card.Subtitle>
-                                        Welcome, {this.props.user.displayName}. Your committee role is {this.props.member.committee}.
+                                        Welcome, {
+                                            this.props.user ? this.props.user.displayName : "" // Account for slow DB
+                                        }.
+                                        Your committee role is {this.props.member ? this.props.member.committee : ""}.
                                         Below you can find the current committee.
                                     </Card.Subtitle>
                                     <hr />
