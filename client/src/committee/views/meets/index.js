@@ -87,7 +87,7 @@ class MeetManager extends React.Component {
                                                     }
                                                 </tr>
                                             )
-                                        }) : <tr><td className="text-center">Nothing here :(</td></tr>}
+                                        }) : <tr><td className="text-center" colSpan={6}>Nothing here :(</td></tr>}
                                     </tbody>
                                 </Table>
                             </Card.Body>
