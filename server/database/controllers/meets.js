@@ -28,11 +28,19 @@ function getOneUpcoming(id) {
     });
 }
 
+function deleteMeet(id) {
+    return getModel().destroy({
+        where: {
+            id: id
+        }
+    })
+}
+
 function upsertMeet(data, id) {
     data.organiser = id;
     return getModel().upsert(data);
 }
 
 module.exports = {
-    getAllUpcoming, getOneUpcoming, getAll, upsertMeet
+    getAllUpcoming, getOneUpcoming, getAll, upsertMeet, deleteMeet
 }

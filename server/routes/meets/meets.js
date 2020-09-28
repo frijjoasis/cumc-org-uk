@@ -44,6 +44,15 @@ router.post('/register', userAuth, async function(req, res) {
     });
 });
 
+router.post('/delete', committeeAuth, async function(req, res) {
+    await meets.deleteMeet(req.body.id).then(() => {
+        res.json(true);
+    }).catch(err => {
+        console.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
 router.post('/historyOther', committeeAuth, async function(req, res) {
     return signups.getHistory(req.body.id).then(history => {
         res.json(history);

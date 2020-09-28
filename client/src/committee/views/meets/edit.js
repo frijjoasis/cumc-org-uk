@@ -10,7 +10,9 @@ import Alert from "react-bootstrap/Alert";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
 import InputGroup from "react-bootstrap/InputGroup";
+import EditQuestions from "../../../components/EditQuestions/EditQuestions";
 
+//TODO: Refactor this monstrosity of a file
 class EditMeet extends React.Component {
     constructor(props) {
         super(props);
@@ -40,6 +42,19 @@ class EditMeet extends React.Component {
                     this.setState({
                         content: res.data
                     });
+                }
+            });
+        }
+    }
+
+    deleteMeet() {
+        if (this.props.match.params.id) {
+            axios.post('/api/meets/delete', {id: this.props.match.params.id}).then(res => {
+                if (res.data.err) {
+                    this.setState({err: res.data.err});
+                    window.scrollTo(0, 0);
+                } else {
+                    window.location.href = `/committee/meets/`;
                 }
             });
         }
@@ -275,7 +290,17 @@ class EditMeet extends React.Component {
                                                     </Row>
                                                     <br /><br />
                                                     <Row>
-                                                        <Col><Button block type="submit">Submit</Button></Col>
+                                                        <Col md={8}>
+                                                            <Button block type="submit">Submit</Button>
+                                                        </Col>
+                                                        <Col md={4}>
+                                                            <Button
+                                                                block
+                                                                variant="danger"
+                                                                onClick={this.deleteMeet.bind(this)}>
+                                                                Delete
+                                                            </Button>
+                                                        </Col>
                                                     </Row>
                                                 </Form>
                                             </Tab.Pane>
@@ -283,6 +308,7 @@ class EditMeet extends React.Component {
                                                 <Card.Title>Questions</Card.Title>
                                                 <Card.Subtitle>Edit signup form design</Card.Subtitle>
                                                 <hr />
+                                                <EditQuestions content={this.state.content} />
                                             </Tab.Pane>
                                         </Tab.Content>
                                     </Card.Body>
