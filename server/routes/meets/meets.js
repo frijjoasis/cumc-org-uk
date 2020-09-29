@@ -23,12 +23,22 @@ router.post('/view', async function(req, res) {
 });
 
 router.post('/edit', committeeAuth, async function(req, res) {
-    await meets.upsertMeet(req.body, req.user.id).then(() => {
-        res.json(true);
+    await meets.upsertMeet(req.body, req.user.id).then(meet => {
+        if (meet.length) res.json(meet[0].dataValues.id);
+        else res.json({err: "Could not find that meet!"})
     }).catch(err => {
         console.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
+});
+
+router.post('/questions', committeeAuth, async function(req, res) {
+   await meets.upsertQuestions(req.body.questions, req.body.id).then(() => {
+       res.json(true);
+   }).catch(err => {
+       console.error("Database error: ", err);
+       res.json({err: "Database error: Please contact the webmaster"});
+   })
 });
 
 router.post('/register', userAuth, async function(req, res) {
