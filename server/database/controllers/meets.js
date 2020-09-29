@@ -41,6 +41,14 @@ function upsertMeet(data, id) {
     return getModel().upsert(data);
 }
 
+function upsertQuestions(data, id) {
+    return getModel().update({questions: data}, {
+        where: {
+            id: id
+        }
+    })
+}
+
 module.exports = {
-    getAllUpcoming, getOneUpcoming, getAll, upsertMeet, deleteMeet
+    getAllUpcoming, getOneUpcoming, getAll, upsertMeet, deleteMeet, upsertQuestions
 }
