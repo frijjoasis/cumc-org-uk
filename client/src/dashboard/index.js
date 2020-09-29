@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import Helmet from "react-helmet";
+import {Helmet, HelmetProvider} from "react-helmet-async";
 import routes from './routes';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
@@ -50,9 +50,11 @@ class Frame extends React.Component {
     render() {
         return (
             <div className="wrapper">
-                <Helmet>
-                    <title>{`CUMC ${this.getBrandText()}`}</title>
-                </Helmet>
+                <HelmetProvider>
+                    <Helmet>
+                        <title>{`CUMC ${this.getBrandText()}`}</title>
+                    </Helmet>
+                </HelmetProvider>
                 <Sidebar
                     {...this.props}
                     routes={routes}
@@ -75,7 +77,7 @@ class Frame extends React.Component {
                                         key={key}
                                     />
                                 );
-                            }
+                            } else return null;
                         })}
                         <Redirect exact from="/" to="/home" />
                         <Route path="/" component={NotFound} />

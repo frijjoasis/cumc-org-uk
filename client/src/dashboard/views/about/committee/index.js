@@ -61,13 +61,13 @@ class CommitteeAbout extends React.Component {
                     </Row>
                     <Row>
                         <Col md={12}>
-                            <Card ctTableFullWidth ctTableResponsive>
+                            <Card>
                                 <Card.Body>
                                     <Card.Title>Past Committees</Card.Title>
                                     <Card.Subtitle>
                                         Here you can find the committees of years past.
                                     </Card.Subtitle>
-                                    <Table striped hover>
+                                    <Table striped bordered hover responsive>
                                         <thead>
                                         <tr>
                                             {this.state.content.head.map((prop, key) => {

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import Helmet from "react-helmet";
+import {Helmet, HelmetProvider} from "react-helmet-async";
 import routes from './routes';
 import links from '../dashboard/routes';
 import Sidebar from '../components/Sidebar/Sidebar';
@@ -47,9 +47,11 @@ class Admin extends React.Component {
         const isCommittee = this.state.member && this.state.member.committee;
         return (
             <div className="wrapper">
-                <Helmet>
-                    <title>{`Committee ${this.getBrandText()}`}</title>
-                </Helmet>
+                <HelmetProvider>
+                    <Helmet>
+                        <title>{`Committee ${this.getBrandText()}`}</title>
+                    </Helmet>
+                </HelmetProvider>
                 <Sidebar
                     {...this.props}
                     routes={isCommittee ? routes : links}
@@ -73,7 +75,7 @@ class Admin extends React.Component {
                                         key={key}
                                     />
                                 );
-                            }
+                            } else return null;
                         })}
                         <Redirect exact from="/committee" to="/committee/home"/>
                         <Route path="/committee" component={NotFound}/>

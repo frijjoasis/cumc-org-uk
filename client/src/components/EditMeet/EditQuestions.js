@@ -207,7 +207,7 @@ class EditQuestions extends React.Component {
                                             required={q.required}
                                         />
                                         <Form.Text muted>{q.text}</Form.Text>
-                                        <a id={q.id} href="#" onClick={this.deleteQuestion.bind(this)}>
+                                        <a id={q.id} href="#!" onClick={this.deleteQuestion.bind(this)}>
                                             <i className="fa fa-times float-right" />
                                         </a>
                                         <Form.Control.Feedback type="invalid">{q.help}</Form.Control.Feedback>

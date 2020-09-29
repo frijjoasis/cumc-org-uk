@@ -6,9 +6,9 @@ class PreparedCarousel extends React.Component {
     render() {
         return (
             <Carousel>
-                {this.props.slides.map(slide => {
+                {this.props.slides.map((slide, key) => {
                     return (
-                        <Carousel.Item>
+                        <Carousel.Item key={key}>
                             <Image
                                 className="d-block w-100"
                                 rounded

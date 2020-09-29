@@ -15,7 +15,7 @@ export class AboutCard extends React.Component {
                             <h2>{this.props.title}</h2>
                             <span>
                                 <hr />
-                                <p>{this.props.text}</p>
+                                {this.props.text}
                             </span>
                         </Card.Body>
                         {this.props.button ?

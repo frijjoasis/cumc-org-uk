@@ -36,13 +36,13 @@ class ClubAbout extends React.Component {
                     <AboutCard title="Club History" text={historyAbout} />
                     <Row>
                         <Col md={12}>
-                            <Card ctTableFullWidth ctTableResponsive>
+                            <Card>
                                 <Card.Body>
                                     <Card.Title>New Routes</Card.Title>
                                     <Card.Subtitle>
                                         This is a list of some of the routes first climbed by CUMC members.
                                     </Card.Subtitle>
-                                    <Table striped hover>
+                                    <Table striped bordered hover responsive>
                                         <thead>
                                         <tr>
                                             {this.state.content.head.map((prop, key) => {
