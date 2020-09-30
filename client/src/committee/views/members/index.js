@@ -42,8 +42,9 @@ class Members extends React.Component {
                                 <Card.Body>
                                     <Card.Title>List of Members</Card.Title>
                                     <Card.Subtitle>
-                                        A list of members who have, at some point, paid membership. The table shows if
-                                        they have paid for this year. View member details by clicking their name.
+                                        A list of members who have, at some point, attended a meet or paid membership.
+                                        The table shows if they have paid for this year. View member details by
+                                        clicking their name.
                                     </Card.Subtitle>
                                     <hr />
                                     <Form.Group>

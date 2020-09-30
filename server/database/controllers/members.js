@@ -11,7 +11,7 @@ function getMember(id) {
 
 function getCommitteeRole(id) {
     return getModel().findByPk(id).then(member => {
-        return member.committee;
+        return member ? member.committee : null;
     });
 }
 
@@ -38,6 +38,10 @@ function getInfo(id) {
     });
 }
 
+function upsert(data) {
+    return getModel().upsert(data);
+}
+
 function list() {
     return getModel().findAll({
         include: {
@@ -48,5 +52,5 @@ function list() {
 }
 
 module.exports = {
-    getMember, getCommitteeRole, getCommittee, list, getInfo
+    getMember, getCommitteeRole, getCommittee, list, getInfo, upsert
 }
