@@ -79,7 +79,7 @@ class ViewMeet extends React.Component {
                                             {
                                                 [
                                                     "Name", "Created At"
-                                                ].concat(this.state.content.questions ? this.state.content.questions : []
+                                                ].concat((this.state.content.questions ? this.state.content.questions : [])
                                                     .sort(this.sortQuestions)
                                                     .map(q => q.title)
                                                 ).map((e, key) => {
