@@ -368,7 +368,7 @@ class Register extends React.Component {
                                                                     <PayPalButtons
                                                                         price='25.00'
                                                                         description='Purchase Full Membership'
-                                                                        intent='CAPTURE'
+                                                                        intent='membership'
                                                                         onSuccess={() => window.location.href = "/home"}
                                                                         payer={{
                                                                             name: {

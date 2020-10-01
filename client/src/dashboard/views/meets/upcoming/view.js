@@ -71,10 +71,14 @@ class ViewMeet extends React.Component {
                                                                            className="float-right">
                                             Coming Soon...
                                         </Button> :
-                                        <NavLink className="float-right btn btn-primary"
+                                        this.props.user ? <NavLink className="float-right btn btn-primary"
                                                  to={`/meets/upcoming/register/${this.state.content.id}`}>
                                             Sign Up
-                                        </NavLink>}
+                                        </NavLink> : <NavLink className="float-right btn btn-primary"
+                                                             to={`/login`}>
+                                            Sign In
+                                        </NavLink>
+                                    }
                                 </Card.Footer>
                             </Card>
                         </Col>

@@ -10,6 +10,7 @@ function handleRegister(data, user) {
         answers: data.answers,
         meetID: data.meetID,
         userID: user.id,
+        authID: data.authID,
         displayName: user.displayName
     }; // Contains a (composite) unique index, so upsert will work
     return getModel().upsert(signup, {

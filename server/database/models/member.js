@@ -15,6 +15,7 @@ const schema = {
         defaultValue: true,
         type: DataTypes.BOOLEAN
     },
+    paymentID: DataTypes.STRING,
     committee: DataTypes.STRING, // Do they hold a committee position?
 };
 

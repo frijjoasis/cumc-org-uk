@@ -8,7 +8,8 @@ const schema = {
         type: DataTypes.INTEGER
     },
     displayName: DataTypes.STRING,
-    payment: DataTypes.ENUM('upfront', 'delayed'),
+    authID: DataTypes.STRING,
+    captureID: DataTypes.STRING,
     answers: DataTypes.JSON
     // Sequelize also creates a 'created at' for us
 };

@@ -9,12 +9,14 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 import {Redirect} from "react-router-dom";
+import PayPalButtons from "../../../../components/PayPalButton/PayPalButtons";
 
 class MeetForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             validated: false,
+            showPayment: false,
             err: false,
             meet: {}
         }
@@ -47,12 +49,19 @@ class MeetForm extends React.Component {
                 answers: answers,
                 meetID: this.props.match.params.id
             }; //TODO: Back this with a payment token
-            axios.post('/api/meets/register', data).then(res => {
+            axios.post('/api/paypal/required', data).then(res => {
                 if (res.data.err) {
                     this.setState({err: res.data.err});
                     window.scrollTo(0,0);
+                } else if (res.data) {
+                    // Payment required
+                    this.setState({
+                        showPayment: true,
+                        data: data
+                    });
                 } else {
                     window.location.href = `/meets/upcoming/view/${this.props.match.params.id}`;
+                    // Payment wasn't required
                 }
             });
         }
@@ -128,7 +137,32 @@ class MeetForm extends React.Component {
                                             }) : null}
                                             <br /><br />
                                             <Row>
-                                                <Col><Button block type="submit">Submit</Button></Col>
+                                                <Col>
+                                                    {this.state.showPayment ?
+                                                        <div>
+                                                            <Form.Label>Pay for Meet</Form.Label>
+                                                            <div className="text-center">
+                                                                <PayPalButtons
+                                                                    price={this.state.meet.price}
+                                                                    description={`Register for ${this.state.meet.title}`}
+                                                                    intent='register'
+                                                                    form={this.state.data}
+                                                                    onSuccess={() =>
+                                                                        window.location.href =
+                                                                            `/meets/upcoming/view/${this.props.match.params.id}`
+                                                                    }
+                                                                    payer={{
+                                                                        email_address: this.props.user.email
+                                                                    }}
+                                                                    onError={(err) => this.setState({
+                                                                        err: err
+                                                                    })}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        : <Button block type="submit">Submit</Button>
+                                                    }
+                                                </Col>
                                             </Row>
                                         </Form>
                                     </Card.Body>

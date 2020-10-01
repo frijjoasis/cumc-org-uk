@@ -20,7 +20,6 @@ class PayPalButtons extends React.Component {
             },
             createOrder: (data, actions) => {
                 return actions.order.create({
-                    intent: this.props.intent,
                     purchase_units: [
                         {
                             description: this.props.description,
@@ -37,25 +36,34 @@ class PayPalButtons extends React.Component {
             },
 
             onApprove: async (data, actions) => {
-                if (this.props.intent === 'CAPTURE') {
-                    return actions.order.capture().then(details => {
-                        this.setState({
-                            paid: true
-                        });
-                        axios.post('/api/paypal/membership', {data: data, details: details}).then(res => {
-                            if (res.data.err) this.props.onError(res.data.err);
-                            else this.props.onSuccess();
-                        });
+                if (this.props.intent === 'membership') {
+                    return axios.post('/api/paypal/membership', {data: data}).then(res => {
+                        // Verify and capture payment
+                        if (res.data.err) {
+                            this.props.onError(res.data.err);
+                            this.setState({error: true})
+                        } else {
+                            this.props.onSuccess();
+                            this.setState({paid: true});
+                        }
                     });
-                } else if (this.props.intent === 'AUTHORISE') {
-
+                } else if (this.props.intent === 'register') {
+                    return axios.post('/api/paypal/register', {data: data, form: this.props.form}).then(res => {
+                        // Verify and authorise
+                        // You have no idea how many bugs I spent hours fixing because authorize <=> authorise
+                        if (res.data.err) {
+                            this.props.onError(res.data.err);
+                            this.setState({error: true})
+                        } else {
+                            this.props.onSuccess();
+                            this.setState({paid: true});
+                        }
+                    });
                 }
             },
 
             onError: (err) => {
-                this.setState({
-                    error: true
-                });
+                this.setState({error: true});
                 console.error(err);
             },
         }).render(this.state.ref.current);
