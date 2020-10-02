@@ -24,7 +24,7 @@ function updatePayment(id, captureID) {
         where: {
             id: id
         }
-    })
+    });
 }
 
 function getHistory(id) {

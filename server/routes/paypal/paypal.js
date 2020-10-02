@@ -26,6 +26,7 @@ axios.post(PAYPAL_OAUTH_API, {}, {
     }
 }).then(res => {
     accessToken = res.data.access_token;
+    console.log("PayPal API access token obtained")
 }).catch(err => {
     console.error('PayPal API error: ', err);
 });
@@ -218,24 +219,6 @@ function capture(authID, price) {
     }).catch(err => {
         console.error(err);
         return {err: "An error occurred capturing payment. You may have been charged. Please contact the webmaster"};
-    });
-}
-
-function reAuthorise(authID, price) {
-    return axios.post(`${PAYPAL_AUTHORIZATION_API}${authID}/reauthorize`, {
-        amount: {
-            value: price,
-            currency_code: "GBP"
-        }
-    }, {
-        headers: {
-            Authorization: `Bearer ${accessToken}`
-        }
-    }).then(authRes => {
-        return authRes.data.id;
-    }).catch(err => {
-        console.error(err);
-        return {err: "An error occurred re-authorising payment. Please contact the webmaster"};
     });
 }
 
