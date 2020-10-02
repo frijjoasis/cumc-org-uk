@@ -14,7 +14,7 @@ class EditQuestions extends React.Component {
         super(props);
         this.state = {
             content: this.props.content,
-            questions: this.props.content.questions.length ? this.props.content.questions : defaults.permanent,
+            questions: this.props.content.questions.length ? this.props.content.questions : [],
             validated: false
         }
     }
@@ -24,8 +24,8 @@ class EditQuestions extends React.Component {
             this.setState({
                 content: this.props.content,
                 questions: (!this.props.content.questions || !this.props.content.questions.length)
-                    ? defaults.permanent : this.props.content.questions
-            }) // Add compulsory questions on empty response
+                    ? [] : this.props.content.questions
+            })
             // React only calls the constructor once, and not on re-render.
         }
     }
@@ -86,6 +86,7 @@ class EditQuestions extends React.Component {
                     this.setState({err: res.data.err});
                     window.scrollTo(0, 0);
                 } else {
+                    window.scrollTo(0, 0);
                     this.setState({
                         success: "Set questions successfully.",
                         err: undefined
@@ -110,7 +111,7 @@ class EditQuestions extends React.Component {
                                 <Form.Control
                                     as="select"
                                 >
-                                    {["Indoor", "Outdoor", "Social", "Car", "Permanent"].map(i => {
+                                    {["Indoor", "Outdoor", "Social", "Car"].map(i => {
                                         return <option selected={this.state.content.type === i}>{i}</option>
                                     })}
                                 </Form.Control>

@@ -135,6 +135,33 @@ class MeetForm extends React.Component {
                                                     </Row>
                                                 )
                                             }) : null}
+                                            <Form.Label>Terms & Conditions</Form.Label>
+                                            <Row>
+                                                <Col>
+                                                    <Form.Group>
+                                                        <Form.Check
+                                                            custom
+                                                            type="checkbox"
+                                                            id="data"
+                                                            required
+                                                            label="I understand the club's data protection statement"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
+                                            <Row>
+                                                <Col>
+                                                    <Form.Group>
+                                                        <Form.Check
+                                                            custom
+                                                            type="checkbox"
+                                                            id="privacy"
+                                                            required
+                                                            label="I agree to the club's safety policy"
+                                                        />
+                                                    </Form.Group>
+                                                </Col>
+                                            </Row>
                                             <br /><br />
                                             <Row>
                                                 <Col>
