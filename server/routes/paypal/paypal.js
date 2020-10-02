@@ -1,10 +1,11 @@
+const {committeeAuth, userAuth} = require('../middleware');
+
 const router = require('express').Router();
 const members = require('../../database/controllers/members');
 const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
 const meets = require('../../database/controllers/meets');
 const axios = require('axios');
-const {userAuth} = require('../middleware');
 
 const PAYPAL_OAUTH_API = 'https://api.sandbox.paypal.com/v1/oauth2/token/';
 const PAYPAL_ORDER_API = 'https://api.sandbox.paypal.com/v2/checkout/orders/';
@@ -36,17 +37,20 @@ router.post('/membership', userAuth, async function(req, res) {
             return authorise(req.body.data.orderID).then(auth => {
                 if (auth.err) res.json(auth.err);
                 else {
-                    return capture(auth).then(cap => {
-                        return members.upsert({
-                            id: req.user.id,
-                            hasPaid: true,
-                            paymentID: cap
-                        }).then(() => {
-                            res.json(true)
-                        }).catch(err => {
-                            console.error("Database error: ", err);
-                            res.json({err: "Database error: Please contact the webmaster"});
-                        });
+                    return capture(auth, '25.00').then(cap => {
+                        if (cap.err) res.json(cap.err);
+                        else {
+                            return members.upsert({
+                                id: req.user.id,
+                                hasPaid: true,
+                                paymentID: cap
+                            }).then(() => {
+                                res.json(true)
+                            }).catch(err => {
+                                console.error("Database error: ", err);
+                                res.json({err: "Database error: Please contact the webmaster"});
+                            });
+                        }
                     });
                 }
             });
@@ -56,7 +60,9 @@ router.post('/membership', userAuth, async function(req, res) {
 
 router.post('/register', userAuth, async function(req, res) {
     await meets.getOneUpcoming(req.body.form.meetID).then(meet => {
-        return verify(req.body.data.orderID, meet.price).then(v => {
+        if (meet.disabled) {
+            res.json({err: "Signups are not open for this meet!"});
+        } else return verify(req.body.data.orderID, meet.price).then(v => {
             if (v.err) res.json(v.err);
             else {
                 return authorise(req.body.data.orderID).then(auth => {
@@ -76,11 +82,53 @@ router.post('/register', userAuth, async function(req, res) {
     });
 });
 
+router.post('/capture', committeeAuth, async function(req, res) {
+    await meets.getOneUpcoming(req.body.id).then(meet => {
+        let promises = [];
+        meet.signups.forEach(signup => {
+            if (signup.authID && !signup.captureID) {
+                promises.push(capture(signup.authID, meet.price).then(captureID => {
+                    if (captureID.err) captureID = 'Capture Failed';
+                    return signups.updatePayment(signup.id, captureID);
+                }));
+            }
+        });
+        return Promise.all(promises).then(() => res.json(true)).catch(err => {
+            console.error(err);
+            res.json({err: "Encountered an error. Please contact the webmaster"});
+        })
+    }).catch(err => {
+        console.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
+router.post('/void', committeeAuth, async function(req, res) {
+    await meets.getOneUpcoming(req.body.id).then(meet => {
+        let promises = [];
+        meet.signups.forEach(signup => {
+            if (signup.authID && !signup.captureID) {
+                promises.push(voidPayment(signup.authID).then(voidRes => {
+                    return signups.updatePayment(signup.id, voidRes.err ? 'Void Failed' : 'Void');
+                }));
+            }
+        });
+        return Promise.all(promises).then(() => res.json(true)).catch(err => {
+            console.error(err);
+            res.json({err: "Encountered an error. Please contact the webmaster"});
+        })
+    }).catch(err => {
+        console.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
 router.post('/required', userAuth, async function(req, res) {
     await isPaymentNeeded(req.user.id, req.body.meetID).then(isNeeded => {
         if (isNeeded) {
             res.json(isNeeded); // Error or payment required
         } else {
+            req.body.captureID = 'Not Paying';
             return signups.handleRegister(req.body, req.user).then(() => {
                 res.json(isNeeded);
             });
@@ -97,6 +145,8 @@ function isPaymentNeeded(id, meetID) {
             return meets.getOneUpcoming(meetID).then(meet => {
                 if (!meet.price || parseFloat(meet.price) < 0.01) {
                     return false; // Meet is free!
+                } else if (meet.disabled) {
+                    return {err: "Signups are not open for this meet!"}
                 } else {
                     return members.getMember(id).then(member => {
                         if (!member || member.hasFree) {
@@ -153,8 +203,13 @@ function authorise(orderID) {
     });
 }
 
-function capture(authID) {
-    return axios.post(`${PAYPAL_AUTHORIZATION_API}${authID}/capture`, {}, {
+function capture(authID, price) {
+    return axios.post(`${PAYPAL_AUTHORIZATION_API}${authID}/capture`, {
+        amount: {
+            value: price,
+            currency_code: "GBP"
+        }
+    }, {
         headers: {
             Authorization: `Bearer ${accessToken}`
         }
@@ -163,6 +218,38 @@ function capture(authID) {
     }).catch(err => {
         console.error(err);
         return {err: "An error occurred capturing payment. You may have been charged. Please contact the webmaster"};
+    });
+}
+
+function reAuthorise(authID, price) {
+    return axios.post(`${PAYPAL_AUTHORIZATION_API}${authID}/reauthorize`, {
+        amount: {
+            value: price,
+            currency_code: "GBP"
+        }
+    }, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    }).then(authRes => {
+        return authRes.data.id;
+    }).catch(err => {
+        console.error(err);
+        return {err: "An error occurred re-authorising payment. Please contact the webmaster"};
+    });
+}
+
+function voidPayment(authID) {
+    return axios.post(`${PAYPAL_AUTHORIZATION_API}${authID}/void`, {}, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+    }).then(() => {
+        return true;
+        // Returns 204 No Content
+    }).catch(err => {
+        console.error(err);
+        return {err: "An error occurred voiding payment. Please contact the webmaster"};
     });
 }
 
