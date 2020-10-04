@@ -10,10 +10,20 @@ function handleRegister(data, user) {
         answers: data.answers,
         meetID: data.meetID,
         userID: user.id,
+        authID: data.authID,
+        captureID: data.captureID,
         displayName: user.displayName
     }; // Contains a (composite) unique index, so upsert will work
     return getModel().upsert(signup, {
         fields: userFields // Only allow modifying these fields
+    });
+}
+
+function updatePayment(id, captureID) {
+    return getModel().update({captureID: captureID}, {
+        where: {
+            id: id
+        }
     });
 }
 
@@ -30,5 +40,5 @@ function getHistory(id) {
 }
 
 module.exports = {
-    handleRegister, getHistory
+    handleRegister, getHistory, updatePayment
 }

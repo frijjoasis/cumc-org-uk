@@ -18,6 +18,7 @@ const routers = [
     {path: '/api/user', router: require('./routes/user/user')},
     {path: '/api/meets', router: require('./routes/meets/meets')},
     {path: '/api/member', router: require('./routes/member/member')},
+    {path: '/api/paypal', router: require('./routes/paypal/paypal')},
 ];
 
 const app = express();
@@ -30,8 +31,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 passport.use(new RavenStrategy({
-        clientID: process.env.CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
+        clientID: process.env.GOOGLE_ID,
+        clientSecret: process.env.GOOGLE_SECRET,
         callbackURL: '/api/auth/callback',
         proxy: 'true'
     }, function(accessToken, refreshToken, profile, done) {

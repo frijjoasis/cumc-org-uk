@@ -33,6 +33,30 @@ class ViewMeet extends React.Component {
         });
     }
 
+    capturePayments() {
+        axios.post('/api/paypal/capture', {id: this.props.match.params.id}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: "Payments captured successfully. Please refresh the page"
+                })
+            }
+        });
+    }
+
+    voidPayments() {
+        axios.post('/api/paypal/void', {id: this.props.match.params.id}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: "Payments voided successfully. Please refresh the page"
+                })
+            }
+        });
+    }
+
     sortQuestions(q, w) {
         if (q.id === w.id) return 0;
         return q.id > w.id ? 1 : -1;
@@ -42,6 +66,7 @@ class ViewMeet extends React.Component {
         return (
             <div className="content">
                 {this.state.err ? <Alert variant="danger">{this.state.err}</Alert> : null}
+                {this.state.success ? <Alert variant="success">{this.state.success}</Alert> : null}
                 <Container>
                     <Row>
                         <Col>
@@ -78,8 +103,8 @@ class ViewMeet extends React.Component {
                                         <tr>
                                             {
                                                 [
-                                                    "Name", "Created At"
-                                                ].concat(this.state.content.questions ? this.state.content.questions : []
+                                                    "Name", "Created At", "Payment Status"
+                                                ].concat((this.state.content.questions ? this.state.content.questions : [])
                                                     .sort(this.sortQuestions)
                                                     .map(q => q.title)
                                                 ).map((e, key) => {
@@ -98,7 +123,11 @@ class ViewMeet extends React.Component {
                                                                 <NavLink to={`/committee/members/${mem.userID}`}>
                                                                     {mem.displayName}
                                                                 </NavLink>,
-                                                                new Date(mem.createdAt).toUTCString()
+                                                                new Date(mem.createdAt).toUTCString(),
+                                                                mem.authID ? <div className="text-success">
+                                                                        {mem.captureID ? mem.captureID : 'Not Captured'}
+                                                                </div> :
+                                                                    <div className="text-danger">Not Valid</div>
                                                             ].concat(mem.answers
                                                                 .sort(this.sortQuestions)
                                                                 .map(a => a.value)
@@ -171,6 +200,19 @@ class ViewMeet extends React.Component {
                         <Col>
                             <NavLink className="btn btn-block btn-danger" to={`/committee/meets/edit/${this.props.match.params.id}`}>
                                 Edit Meet</NavLink>
+                        </Col>
+                    </Row>
+                    <br />
+                    <Row>
+                        <Col>
+                            <Button block variant="success" onClick={this.capturePayments.bind(this)}>
+                                Capture Payments
+                            </Button>
+                        </Col>
+                        <Col>
+                            <Button block variant="danger" onClick={this.voidPayments.bind(this)}>
+                                Void Payments
+                            </Button>
                         </Col>
                     </Row>
                 </Container>

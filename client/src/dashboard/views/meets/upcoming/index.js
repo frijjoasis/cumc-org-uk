@@ -23,6 +23,13 @@ class UpcomingMeets extends React.Component {
         })
     }
 
+    sortMeets(m, n) {
+        const mStart = new Date(m.startDate);
+        const nStart = new Date(n.startDate);
+        if (mStart === nStart) return 0;
+        return mStart > nStart ? 1 : -1;
+    }
+
     render() {
         return (
             <div className="content">
@@ -30,7 +37,7 @@ class UpcomingMeets extends React.Component {
                     You will need to <NavLink to="/login">sign in</NavLink> and register before you can sign up to meets!
                 </Alert>}
                 <Container>
-                    {this.state.content.length ? this.state.content.map(meet => {
+                    {this.state.content.length ? this.state.content.sort(this.sortMeets).map(meet => {
                         return(
                             <Row>
                                 <Col>
@@ -41,10 +48,18 @@ class UpcomingMeets extends React.Component {
                                             <Card.Text as="span">
                                                 <hr />
 
-                                                <div className="text-muted" style={{display: 'inline'}}>Dates: </div>
-                                                {new Date(meet.startDate).toUTCString() + " "}-
-                                                {" " + new Date(meet.endDate).toUTCString()}
-                                                <br />
+                                                <Row>
+                                                    <Col>
+                                                        <div className="text-muted" style={{display: 'inline'}}>Dates: </div>
+                                                    {new Date(meet.startDate).toDateString() + " "}-
+                                                    {" " + new Date(meet.endDate).toDateString()}
+                                                    </Col>
+                                                    <Col className="text-right">
+                                                        <div className="text-muted" style={{display: 'inline'}}>Time: </div>
+                                                        {new Date(meet.startDate).toLocaleTimeString().substr(0, 5) + " "}-
+                                                        {" " + new Date(meet.endDate).toLocaleTimeString().substr(0, 5)}
+                                                    </Col>
+                                                </Row>
 
                                                 <div className="text-muted" style={{display: 'inline'}}>Type: </div>
                                                 {meet.type}

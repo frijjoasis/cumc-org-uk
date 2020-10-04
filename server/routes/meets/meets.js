@@ -41,19 +41,6 @@ router.post('/questions', committeeAuth, async function(req, res) {
    })
 });
 
-router.post('/register', userAuth, async function(req, res) {
-    await users.isMissing(req.user.id).then(missing => {
-        if (!missing) {
-            return signups.handleRegister(req.body, req.user).then(() => {
-                res.json(true);
-            }).catch(err => {
-                console.error("Database error: ", err);
-                res.json({err: "Database error: Please contact the webmaster"});
-            });
-        } else res.json({err: "You need to complete your profile to do that!"});
-    });
-});
-
 router.post('/delete', committeeAuth, async function(req, res) {
     await meets.deleteMeet(req.body.id).then(() => {
         res.json(true);

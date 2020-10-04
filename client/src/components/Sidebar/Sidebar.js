@@ -57,7 +57,7 @@ class Sidebar extends React.Component {
                       </NavLink>
                     </li>
                 );
-              }
+              } else return null;
             })}
           </ul>
         </div>

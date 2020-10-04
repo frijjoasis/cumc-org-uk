@@ -82,6 +82,25 @@ class CommitteeHome extends React.Component {
                     </Row>
                     <Row>
                         <Col>
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title>Things to Remember</Card.Title>
+                                    <Card.Subtitle>Information from the webmaster</Card.Subtitle>
+                                    <Card.Text as="span">
+                                        <hr />
+                                        - When a member signs up to a meet, they only promise to pay <br />
+                                        - This promise expires 30 days after signup, so disable signups before then <br />
+                                        - If you need to cancel a meet, void the promises first: They will not be charged <br />
+                                        - Remember to capture payments if the meet goes ahead! (And also fill out the reimbursement form) <br />
+                                        - w.r.t. price changes, the promise is only valid for up to 115% of the original price <br />
+                                        - If a meet changes by more than this, inform members and have them sign up again <br />
+                                    </Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
                             <Button block variant="success"
                                     href="https://github.com/frijjoasis/cumc-org-uk/commits/master">
                                 Recent Changes

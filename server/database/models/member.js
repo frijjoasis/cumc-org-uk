@@ -1,18 +1,21 @@
 const {DataTypes} = require('sequelize');
 
 const schema = {
-    id : {
+    id: {
         primaryKey: true,
         type: DataTypes.DECIMAL
     },
     hasPaid: { // Are they up to date on their membership payment?
         allowNull: false,
+        defaultValue: false,
         type: DataTypes.BOOLEAN
     },
     hasFree: { // Have they used their one free meet?
         allowNull: false,
+        defaultValue: true,
         type: DataTypes.BOOLEAN
     },
+    paymentID: DataTypes.STRING,
     committee: DataTypes.STRING, // Do they hold a committee position?
 };
 

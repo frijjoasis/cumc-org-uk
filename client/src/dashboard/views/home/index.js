@@ -62,9 +62,9 @@ class Home extends React.Component {
                     </Row>
                     <AboutCard title="About Us" text={aboutText} />
                     <Row>
-                        {homeImages.map(i => {
+                        {homeImages.map((i, key) => {
                             return (
-                                <Col>
+                                <Col key={key}>
                                     <Card>
                                         <Image
                                             className="d-block w-100"
