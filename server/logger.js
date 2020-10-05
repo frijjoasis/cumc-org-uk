@@ -2,7 +2,7 @@ const winston = require('winston');
 require('winston-daily-rotate-file');
 
 let transport = new (winston.transports.DailyRotateFile)({
-    filename: '/societies/cumc/cumc-org-uk/log/application-%DATE%.log',
+    filename: '/societies/cumc/cumc-org-uk/logs/application-%DATE%.log',
     datePattern: 'YYYY-MM-DD-HH',
     zippedArchive: true,
     maxSize: '20m',
