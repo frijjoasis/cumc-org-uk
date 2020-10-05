@@ -26,7 +26,7 @@ axios.post(PAYPAL_OAUTH_API, {}, {
     }
 }).then(res => {
     accessToken = res.data.access_token;
-    console.log("PayPal API access token obtained")
+    console.log("PayPal API access token obtained.")
 }).catch(err => {
     console.error('PayPal API error: ', err);
 });
