@@ -46,17 +46,45 @@ class CommitteeAbout extends React.Component {
                         </Col>
                     </Row>
                     <Row className="justify-content-md-center">
+                        {committee.indoorMeets.map((i, key) => {
+                            return (
+                                <Col key={key}>
+                                    <UserCard person={i} />
+                                </Col>
+                            )
+                        })}
+                        {committee.outdoorMeets.map((i, key) => {
+                            return (
+                                <Col key={key}>
+                                    <UserCard person={i} />
+                                </Col>
+                            )
+                        })}
+                    </Row>
+                    <Row className="justify-content-md-center">
                         <Col>
-                            <UserCard person={committee.treasurer} />
+                            <UserCard person={committee.gear} />
                         </Col>
                         <Col>
-                            <UserCard person={committee.treasurer} />
+                            <UserCard person={committee.competitions} />
                         </Col>
                         <Col>
-                            <UserCard person={committee.treasurer} />
+                            <UserCard person={committee.webmaster} />
                         </Col>
                         <Col>
-                            <UserCard person={committee.treasurer} />
+                            <UserCard person={committee.winterMeets} />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        {committee.socialMeets.map((i, key) => {
+                            return (
+                                <Col md={3} key={key}>
+                                    <UserCard person={i} />
+                                </Col>
+                            )
+                        })}
+                        <Col md={3}>
+                            <UserCard person={committee.journal} />
                         </Col>
                     </Row>
                     <Row>
@@ -67,6 +95,7 @@ class CommitteeAbout extends React.Component {
                                     <Card.Subtitle>
                                         Here you can find the committees of years past.
                                     </Card.Subtitle>
+                                    <hr />
                                     <Table striped bordered hover responsive>
                                         <thead>
                                         <tr>

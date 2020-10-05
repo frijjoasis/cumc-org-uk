@@ -42,7 +42,10 @@ class Home extends React.Component {
                             <Card className="flex-grow-1">
                                 <Card.Body>
                                     <Card.Title>Welcome!</Card.Title>
-                                    <Card.Subtitle>You are not signed in</Card.Subtitle>
+                                    <Card.Subtitle>
+                                        {this.props.user ? `You are signed in as ${this.props.user.displayName}`
+                                            : "You are not signed in"}
+                                    </Card.Subtitle>
                                     <Card.Text as="span">
                                         <hr />
                                         Example text

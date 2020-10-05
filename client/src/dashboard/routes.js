@@ -1,5 +1,5 @@
 import Home from "./views/home/";
-import Blog from "./views/blog/";
+import Blog from "../components/UnderConstruction/Construction";
 import Register from "./views/login/"
 
 import ClubAbout from "./views/about/club";
