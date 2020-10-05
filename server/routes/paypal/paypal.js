@@ -7,9 +7,9 @@ const signups = require('../../database/controllers/signups');
 const meets = require('../../database/controllers/meets');
 const axios = require('axios');
 
-const PAYPAL_OAUTH_API = 'https://api.sandbox.paypal.com/v1/oauth2/token/';
-const PAYPAL_ORDER_API = 'https://api.sandbox.paypal.com/v2/checkout/orders/';
-const PAYPAL_AUTHORIZATION_API = 'https://api.sandbox.paypal.com/v2/payments/authorizations/';
+const PAYPAL_OAUTH_API = 'https://api.paypal.com/v1/oauth2/token/';
+const PAYPAL_ORDER_API = 'https://api.paypal.com/v2/checkout/orders/';
+const PAYPAL_AUTHORIZATION_API = 'https://api.paypal.com/v2/payments/authorizations/';
 
 let accessToken;
 

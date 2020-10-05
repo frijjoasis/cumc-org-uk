@@ -1,13 +1,11 @@
 #!/usr/bin/env node
+require('dotenv').config({path: '/societies/cumc/cumc-org-uk/server/.env'});
 const express = require('express');
 const passport = require('passport');
 const database = require('./database/database');
 const users = require('./database/controllers/users');
-
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config({path: path.join(__dirname, '.env')});
-
 const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
 const session = require('express-session');
 const logger = require('morgan');
@@ -27,7 +25,7 @@ const app = express();
 
 const port = process.env.PORT || 5000;
 
-let accessLogStream = fs.createWriteStream(__dirname + '/access.log', {flags: 'a'})
+let accessLogStream = fs.createWriteStream('/societies/cumc/cumc-org-uk/access.log', {flags: 'a'})
 
 app.use(logger('combined', {stream: accessLogStream}));
 app.use(express.json());
