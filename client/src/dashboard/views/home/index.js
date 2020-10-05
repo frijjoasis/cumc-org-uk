@@ -48,7 +48,7 @@ class Home extends React.Component {
                                     </Card.Subtitle>
                                     <Card.Text as="span">
                                         <hr />
-                                        Example text
+                                        Become a member today! Click on 'Profile' and then the 'Membership' tab.
                                     </Card.Text>
                                 </Card.Body>
                                 <Card.Footer>
