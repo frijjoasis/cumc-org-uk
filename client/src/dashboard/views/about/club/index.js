@@ -42,6 +42,7 @@ class ClubAbout extends React.Component {
                                     <Card.Subtitle>
                                         This is a list of some of the routes first climbed by CUMC members.
                                     </Card.Subtitle>
+                                    <hr />
                                     <Table striped bordered hover responsive>
                                         <thead>
                                         <tr>

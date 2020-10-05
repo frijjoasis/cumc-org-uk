@@ -2,7 +2,7 @@ const router = require('express').Router();
 
 router.get('/list', function(req, res, next) {
     res.json({
-        head: ["Success"],
+        head: ["Coming Soon!"],
         body: [],
     });
 });
