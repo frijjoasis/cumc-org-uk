@@ -9,6 +9,7 @@ const path = require('path');
 const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
 const session = require('express-session');
 const logger = require('morgan');
+const winston = require('./logger');
 
 const routers = [
     {path: '/api/about/', router: require('./routes/about/about')},
@@ -77,11 +78,13 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 }); // Serve react app
 
-console.log(`Checking database connection...`);
+winston.info(`Checking database connection...`);
 database.init().then(() => {
-    console.log('Database initialised.');
+    winston.info('Database initialised.');
 }).catch((error) => {
-    console.error('Unable to connect to the database:', error);
+    winston.error('Unable to connect to the database:', error);
 });
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+
+
+app.listen(port, () => winston.info(`Listening on port ${port}`));

@@ -1,4 +1,5 @@
 const {Sequelize} = require('sequelize');
+const winston = require('../logger');
 
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
@@ -21,7 +22,7 @@ const models = [
 module.exports = {
     init: async () => {
         await sequelize.authenticate();
-        console.log('Database connection established.');
+        winston.info('Database connection established.');
 
         models.forEach(model => {
             model.define(sequelize);
@@ -31,7 +32,7 @@ module.exports = {
             model.associate(sequelize);
         }); // Setup associations
         await sequelize.sync(); // 'touch' relevant SQL tables
-        console.log("All models synchronized successfully.")
+        winston.info("All models synchronized successfully.")
     },
 
     sequelize: sequelize
