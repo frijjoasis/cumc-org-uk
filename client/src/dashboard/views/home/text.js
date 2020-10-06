@@ -52,9 +52,9 @@ const membershipText = [
         What you can do with us if you're not a member:
     </p>,
     <ul>{[
-        ["Come on our Monday bouldering socials at the ",
+        ["Come on our Thursday bouldering socials at the ",
             <a key="rr-link" href="https://rainbowrocket.cc/">Rainbow Rocket</a>,
-            " bouldering wall (followed by the pub)."],
+            " bouldering wall (followed by the pub - COVID dependent!)."],
         ["Come to one ",
             <NavLink key="indoor-link" to="/meets/indoor" className="simple-text">indoor</NavLink>, " or ",
             <NavLink key="outdoor-link" to="/meets/outdoor" className="simple-text">outdoor</NavLink>, " " +
