@@ -4,12 +4,10 @@ const express = require('express');
 const passport = require('passport');
 const database = require('./database/database');
 const users = require('./database/controllers/users');
-const fs = require('fs');
+const winstonLogger = require('./logger');
 const path = require('path');
 const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
 const session = require('express-session');
-const logger = require('morgan');
-const winston = require('./logger');
 
 const routers = [
     {path: '/api/about/', router: require('./routes/about/about')},
@@ -26,9 +24,7 @@ const app = express();
 
 const port = process.env.PORT || 5000;
 
-let accessLogStream = fs.createWriteStream('/societies/cumc/cumc-org-uk/access.log', {flags: 'a'})
-
-app.use(logger('combined', {stream: accessLogStream}));
+app.use(winstonLogger.expressLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '../client/build')));
@@ -78,13 +74,12 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 }); // Serve react app
 
-winston.info(`Checking database connection...`);
+const logger = winstonLogger.logger;
+logger.info(`Checking database connection...`);
 database.init().then(() => {
-    winston.info('Database initialised.');
+    logger.info('Database initialised.');
 }).catch((error) => {
-    winston.error('Unable to connect to the database:', error);
+    logger.error('Unable to connect to the database:', error);
 });
 
-
-
-app.listen(port, () => winston.info(`Listening on port ${port}`));
+app.listen(port, () => logger.info(`Listening on port ${port}`));

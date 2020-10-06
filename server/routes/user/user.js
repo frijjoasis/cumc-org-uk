@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const users = require('../../database/controllers/users');
-const winston = require('../../logger');
+const logger = require('../../logger').logger;
 const {userAuth} = require('../middleware');
 
 router.get('/', userAuth, function(req, res) {
@@ -13,7 +13,7 @@ router.post('/register', userAuth, async function(req, res) {
     await users.upsertInfo(req.body, req.user.id).then(() => {
         res.json(true);
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });

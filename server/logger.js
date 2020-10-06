@@ -1,18 +1,45 @@
 const winston = require('winston');
+const expressWinston = require('express-winston');
 require('winston-daily-rotate-file');
 
-let transport = new (winston.transports.DailyRotateFile)({
-    filename: '/societies/cumc/cumc-org-uk/logs/application-%DATE%.log',
-    datePattern: 'YYYY-MM-DD-HH',
-    zippedArchive: true,
-    maxSize: '20m',
-    maxFiles: '14d'
-});
+function transport(path, level) {
+    return new winston.transports.DailyRotateFile({
+        filename: `/societies/cumc/cumc-org-uk/logs/${path}`,
+        datePattern: 'YYYY-MM-DD-HH',
+        level: level ? level : 'info',
+        maxSize: '100m',
+        maxFiles: '14d'
+    });
+}
 
-let logger = winston.createLogger({
+let expressLogger = expressWinston.logger({
     transports: [
-        transport
-    ]
+        transport('access-%DATE%.log')
+    ],
+    format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.json()
+    ),
+    msg: "HTTP {{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
 });
 
-module.exports = logger;
+const logger = winston.createLogger({
+    transports: [
+        transport('application-%DATE%.log'),
+        transport('exceptions-%DATE%.log', 'error')
+    ],
+    exceptionHandlers: [
+        transport('application-%DATE%.log'),
+        transport('exceptions-%DATE%.log')
+        // Log errors to both files
+    ],
+    format: winston.format.combine(
+        winston.format.colorize(),
+        winston.format.json()
+    )
+});
+
+module.exports = {
+    logger: logger,
+    expressLogger: expressLogger
+}

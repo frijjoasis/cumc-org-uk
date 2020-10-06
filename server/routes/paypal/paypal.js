@@ -5,7 +5,7 @@ const members = require('../../database/controllers/members');
 const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
 const meets = require('../../database/controllers/meets');
-const winston = require('../../logger');
+const logger = require('../../logger').logger;
 const axios = require('axios');
 
 const PAYPAL_OAUTH_API = 'https://api.paypal.com/v1/oauth2/token/';
@@ -27,9 +27,9 @@ axios.post(PAYPAL_OAUTH_API, {}, {
     }
 }).then(res => {
     accessToken = res.data.access_token;
-    winston.info("PayPal API access token obtained.")
+    logger.info("PayPal API access token obtained.")
 }).catch(err => {
-    winston.error('PayPal API error: ', err);
+    logger.error('PayPal API error: ', err);
 });
 
 router.post('/membership', userAuth, async function(req, res) {
@@ -49,7 +49,7 @@ router.post('/membership', userAuth, async function(req, res) {
                             }).then(() => {
                                 res.json(true)
                             }).catch(err => {
-                                winston.error("Database error: ", err);
+                                logger.error("Database error: ", err);
                                 res.json({err: "Database error: Please contact the webmaster"});
                             });
                         }
@@ -79,7 +79,7 @@ router.post('/register', userAuth, async function(req, res) {
             } // Errors in verify and authorise are caught by the respective functions
         });
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -96,11 +96,11 @@ router.post('/capture', committeeAuth, async function(req, res) {
             }
         });
         return Promise.all(promises).then(() => res.json(true)).catch(err => {
-            winston.error(err);
+            logger.error(err);
             res.json({err: "Encountered an error. Please contact the webmaster"});
         })
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -116,11 +116,11 @@ router.post('/void', committeeAuth, async function(req, res) {
             }
         });
         return Promise.all(promises).then(() => res.json(true)).catch(err => {
-            winston.error(err);
+            logger.error(err);
             res.json({err: "Encountered an error. Please contact the webmaster"});
         })
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -136,7 +136,7 @@ router.post('/required', userAuth, async function(req, res) {
             });
         } // Payment not required
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -187,7 +187,7 @@ function verify(orderID, price) {
             return {err: "An error occurred verifying the amount paid. You have not been charged"};
         }
     }).catch(err => {
-        winston.error(err);
+        logger.error(err);
         return {err: "An error occurred verifying the payment. You have not been charged"};
     });
 }
@@ -200,7 +200,7 @@ function authorise(orderID) {
     }).then(authRes => {
         return authRes.data.purchase_units[0].payments.authorizations[0].id;
     }).catch(err => {
-        winston.error(err);
+        logger.error(err);
         return {err: "An error occurred authorising payment. You may be charged. Please contact the webmaster"};
     });
 }
@@ -218,7 +218,7 @@ function capture(authID, price) {
     }).then(captureRes => {
         return captureRes.data.id;
     }).catch(err => {
-        winston.error(err);
+        logger.error(err);
         return {err: "An error occurred capturing payment. You may have been charged. Please contact the webmaster"};
     });
 }
@@ -232,7 +232,7 @@ function voidPayment(authID) {
         return true;
         // Returns 204 No Content
     }).catch(err => {
-        winston.error(err);
+        logger.error(err);
         return {err: "An error occurred voiding payment. Please contact the webmaster"};
     });
 }

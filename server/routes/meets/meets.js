@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const meets = require('../../database/controllers/meets');
-const winston = require('../../logger');
+const logger = require('../../logger').logger;
 const signups = require('../../database/controllers/signups');
 const {committeeAuth, userAuth} = require('../middleware');
 
@@ -17,7 +17,7 @@ router.post('/view', async function(req, res) {
         if (meet) res.json(meet);
         else res.json({err: "Database error: Could not find meet"})
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -27,7 +27,7 @@ router.post('/edit', committeeAuth, async function(req, res) {
         if (meet.length) res.json(meet[0].dataValues.id);
         else res.json({err: "Could not find that meet!"})
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -36,7 +36,7 @@ router.post('/questions', committeeAuth, async function(req, res) {
    await meets.upsertQuestions(req.body.questions, req.body.id).then(() => {
        res.json(true);
    }).catch(err => {
-       winston.error("Database error: ", err);
+       logger.error("Database error: ", err);
        res.json({err: "Database error: Please contact the webmaster"});
    })
 });
@@ -45,7 +45,7 @@ router.post('/delete', committeeAuth, async function(req, res) {
     await meets.deleteMeet(req.body.id).then(() => {
         res.json(true);
     }).catch(err => {
-        winston.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
