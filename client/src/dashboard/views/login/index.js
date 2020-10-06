@@ -361,7 +361,7 @@ class Register extends React.Component {
                                                 </Row>
                                                 <Row>
                                                     <Col>
-                                                        {this.state.member.hasPaid ? null :
+                                                        {true ? null :
                                                             <div>
                                                                 <Form.Label>Purchase Membership</Form.Label>
                                                                 <div className="text-center">
