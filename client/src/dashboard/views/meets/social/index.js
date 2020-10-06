@@ -18,11 +18,11 @@ class SocialMeets extends React.Component {
                     <AboutCard title="Social Meets" text={socialMeets}
                         button={{to: "/meets/upcoming", text: "View Meets"}} />
                     <Row className="justify-content-center">
-                        <Col style={{flex: 0}}>
+                        <Col md={8}>
                             <Card>
-                                <Image src={img} />
+                                <Image src={img} fluid />
                                 <Card.Footer className="text-center text-muted">
-                                    ~something social~
+                                    Winter Sun 2019
                                 </Card.Footer>
                             </Card>
                         </Col>

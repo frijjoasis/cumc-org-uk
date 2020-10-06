@@ -23,9 +23,9 @@ class CompetitionsAbout extends React.Component {
             <div className="content">
                 <Container>
                     <Row className="justify-content-center">
-                        <Col style={{flex: 0}}>
+                        <Col md={8}>
                             <Card>
-                                <Image src={img} />
+                                <Image src={img} fluid />
                                 <Card.Footer className="text-center text-muted">Varsity 2020</Card.Footer>
                             </Card>
                         </Col>

@@ -49,6 +49,7 @@ class Home extends React.Component {
                                     <Card.Text as="span">
                                         <hr />
                                         Become a member today! Click on 'Profile' and then the 'Membership' tab.
+                                        Purchasing membership is temporarily disabled while we sort out a payment issue.
                                     </Card.Text>
                                 </Card.Body>
                                 <Card.Footer>

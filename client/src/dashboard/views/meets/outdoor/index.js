@@ -18,11 +18,11 @@ class OutdoorMeets extends React.Component {
                     <AboutCard title="Outdoor Meets" text={outdoorMeets}
                                button={{to: "/meets/upcoming", text: "View Meets"}} />
                     <Row className="justify-content-center">
-                        <Col style={{flex: 0}}>
+                        <Col md={8}>
                             <Card>
-                                <Image src={img} />
+                                <Image fluid src={img} />
                                 <Card.Footer className="text-center text-muted">
-                                    ~something outdoors~
+                                    Outdoor Bouldering
                                 </Card.Footer>
                             </Card>
                         </Col>

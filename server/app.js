@@ -26,7 +26,6 @@ const port = process.env.PORT || 5000;
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 passport.use(new RavenStrategy({
         clientID: process.env.GOOGLE_ID,

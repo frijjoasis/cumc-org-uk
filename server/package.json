@@ -12,11 +12,13 @@
     "express": "~4.16.1",
     "express-session": "^1.17.1",
     "http-errors": "~1.6.3",
-    "morgan": "~1.9.1",
     "passport": "^0.4.1",
     "passport-google-oauth": "^2.0.0",
     "pg": "^8.3.3",
     "pg-hstore": "^2.3.3",
     "sequelize": "^6.3.5"
+  },
+  "devDependencies": {
+    "morgan": "^1.9.1"
   }
 }
