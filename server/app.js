@@ -1,13 +1,9 @@
 #!/usr/bin/env node
+require('dotenv').config();
 const express = require('express');
 const passport = require('passport');
 const database = require('./database/database');
 const users = require('./database/controllers/users');
-
-const fs = require('fs');
-const path = require('path');
-require('dotenv').config({path: path.join(__dirname, '.env')});
-
 const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
 const session = require('express-session');
 const logger = require('morgan');
@@ -27,9 +23,7 @@ const app = express();
 
 const port = process.env.PORT || 5000;
 
-let accessLogStream = fs.createWriteStream(__dirname + '/access.log', {flags: 'a'})
-
-app.use(logger('combined', {stream: accessLogStream}));
+app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
