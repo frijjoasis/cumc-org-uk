@@ -317,6 +317,45 @@ class Register extends React.Component {
                                                             </Form.Group>
                                                         </Col>
                                                     </Row>
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group>
+                                                                <Form.Check
+                                                                    custom
+                                                                    type="checkbox"
+                                                                    id="data"
+                                                                    required
+                                                                    label="I have read, understand and agree to the club's data protection statement"
+                                                                />
+                                                            </Form.Group>
+                                                        </Col>
+                                                    </Row>
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group>
+                                                                <Form.Check
+                                                                    custom
+                                                                    type="checkbox"
+                                                                    id="privacy"
+                                                                    required
+                                                                    label="I read, understand and agree to the club's safety policy"
+                                                                />
+                                                            </Form.Group>
+                                                        </Col>
+                                                    </Row>
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group>
+                                                                <Form.Check
+                                                                    custom
+                                                                    type="checkbox"
+                                                                    id="participation"
+                                                                    required
+                                                                    label="I have read, understand and agree to the BMC participation statement"
+                                                                />
+                                                            </Form.Group>
+                                                        </Col>
+                                                    </Row>
                                                     <br />
                                                     <Row>
                                                         <Col><Button block type="submit">Submit</Button></Col>
