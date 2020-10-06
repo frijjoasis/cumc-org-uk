@@ -53,8 +53,8 @@ const committee = {
             role: "Outdoor Meets Secretary",
             name: "Igor Mazur",
             social: "outdoor-meets@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.png`),
-            cover: require(`../../../../assets/img/committee/notFound.png`),
+            profile: require(`../../../../assets/img/committee/outdoorMeets2.jpg`),
+            cover: require(`../../../../assets/img/committee/outdoorMeets2Cover.jpg`),
         }
     ],
     gear: {

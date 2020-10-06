@@ -18,10 +18,10 @@ class IndoorMeets extends React.Component {
                     <AboutCard title="Indoor Meets" text={indoorMeets}
                               button={{to: "/meets/upcoming", text: "View Meets"}} />
                     <Row className="justify-content-center">
-                        <Col style={{flex: 0}}>
+                        <Col md={8}>
                             <Card>
-                                <Image src={img} />
-                                <Card.Footer className="text-center text-muted">~something indoors~</Card.Footer>
+                                <Image src={img} fluid />
+                                <Card.Footer className="text-center text-muted">Hugo stares down an auto-belay</Card.Footer>
                             </Card>
                         </Col>
                     </Row>
