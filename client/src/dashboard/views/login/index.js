@@ -286,7 +286,11 @@ class Register extends React.Component {
                                                                 <Form.Control type="text"
                                                                               defaultValue={this.state.form.emergencyName}
                                                                               placeholder="Not Set"
+                                                                              required
                                                                 />
+                                                                <Form.Control.Feedback type="invalid">
+                                                                    This field is required
+                                                                </Form.Control.Feedback>
                                                             </Form.Group>
                                                         </Col>
                                                         <Col>
@@ -295,9 +299,13 @@ class Register extends React.Component {
                                                                 <Form.Control type="tel"
                                                                               defaultValue={this.state.form.emergencyPhone}
                                                                               placeholder="Not Set"
+                                                                              required
                                                                 />
+                                                                <Form.Control.Feedback type="invalid">
+                                                                    This field is required
+                                                                </Form.Control.Feedback>
                                                                 <Form.Text muted>
-                                                                    Optionally specify an additional emergency contact
+                                                                    Specify an additional emergency contact
                                                                 </Form.Text>
                                                             </Form.Group>
                                                         </Col>
