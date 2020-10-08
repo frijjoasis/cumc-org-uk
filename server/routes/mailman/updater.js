@@ -16,7 +16,7 @@ const empty = JSON.stringify({
     }
 }, null, 2);
 
-fs.readFile('mail.json', (err, data) => {
+fs.readFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', (err, data) => {
     if (!err) {
         const lists = JSON.parse(data.toString());
 
@@ -33,7 +33,7 @@ fs.readFile('mail.json', (err, data) => {
             });
         });
 
-        fs.writeFile('mail.json', empty, 'utf-8', err => {
+        fs.writeFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', empty, 'utf-8', err => {
             if (!err) console.log("Mailing list update executed successfully.");
             else console.error("Failed to write to mail.json: ", err);
         });

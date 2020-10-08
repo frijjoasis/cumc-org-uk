@@ -1,9 +1,10 @@
 const router = require('express').Router();
 const fs = require('fs');
+const logger = require('../../logger').logger;
 const {userAuth} = require('../middleware');
 
 router.post('/update', userAuth, function(req, res) {
-    fs.readFile('./routes/mailman/mail.json', (err, data) => {
+    fs.readFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', (err, data) => {
         if (!err) {
             let lists = JSON.parse(data.toString());
 
@@ -22,18 +23,17 @@ router.post('/update', userAuth, function(req, res) {
                 });
             });
             lists = JSON.stringify(lists, null, 2);
-            console.log(lists);
-            fs.writeFile('./routes/mailman/mail.json', lists, 'utf-8', err => {
+            fs.writeFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', lists, 'utf-8', err => {
                 if (!err) {
-                    console.log("Successfully updated mail.json for " + req.user.email);
+                    logger.info("Successfully updated mail.json for " + req.user.email);
                     res.json(true);
                 } else {
-                    console.error("Failed to write to mail.json: ", err);
+                    logger.error("Failed to write to mail.json: ", err);
                     res.json({err: "Something went wrong. Please contact the webmaster."});
                 }
             });
         } else {
-            console.error("Failed to read mail.json: ", err);
+            logger.error("Failed to read mail.json: ", err);
             res.json({err: "Something went wrong. Please contact the webmaster."});
         }
     });
