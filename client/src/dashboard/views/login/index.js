@@ -11,6 +11,7 @@ import Nav from "react-bootstrap/Nav";
 import Tab from "react-bootstrap/Tab";
 import PayPalButtons from "../../../components/PayPalButton/PayPalButtons";
 
+//TODO: Refactor into components. Easy but tedious.
 class Register extends React.Component {
     constructor(props) {
         super(props);
@@ -73,10 +74,29 @@ class Register extends React.Component {
         event.stopPropagation();
     };
 
+    handleMailing(event) {
+        const form = event.currentTarget;
+        const data = [...form.elements].reduce((acc, cur) => {
+            cur.checked ? acc.add.push(cur.id) : acc.remove.push(cur.id);
+            return acc;
+        }, {add: [], remove: []});
+        axios.post('/api/mailman/update', data).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+                window.scrollTo(0,0);
+            } else {
+                this.setState({success: "Successfully updated your mailing preferences."});
+            }
+        });
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     render() {
         return (
             <div className="content">
                 {this.state.err ? <Alert variant="danger">{this.state.err}</Alert> : null}
+                {this.state.success ? <Alert variant="success">{this.state.success}</Alert> : null}
                 <Container>
                     <Row>
                         <Col>
@@ -433,6 +453,69 @@ class Register extends React.Component {
                                                         }
                                                     </Col>
                                                 </Row>
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="mailing">
+                                                <Card.Title>Mailing Lists</Card.Title>
+                                                <Card.Subtitle>
+                                                    Control your mailing list preferences. It's strongly recommended
+                                                    that you subscribe to at least CUMC-official, else you won't ever
+                                                    hear from us! Clicking submit sets the preferences for all 3 lists.
+                                                </Card.Subtitle>
+                                                <hr />
+                                                <Form onSubmit={this.handleMailing.bind(this)}>
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group className="margin-check">
+                                                                <Form.Check
+                                                                    custom
+                                                                    type="checkbox"
+                                                                    id="cumc-official"
+                                                                    label="cumc-official"
+                                                                />
+                                                            </Form.Group>
+                                                            <Form.Text>
+                                                                The official CUMC mailing list. Emails are infrequent,
+                                                                and the information is important.
+                                                            </Form.Text>
+                                                        </Col>
+                                                    </Row>
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group className="margin-check">
+                                                                <Form.Check
+                                                                    custom
+                                                                    type="checkbox"
+                                                                    id="cumc-oldgits"
+                                                                    label="cumc-oldgits"
+                                                                />
+                                                            </Form.Group>
+                                                            <Form.Text>
+                                                                A list for alumni who wish to keep in contact, and
+                                                                organise their own meets.
+                                                            </Form.Text>
+                                                        </Col>
+                                                    </Row>
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group className="margin-check">
+                                                                <Form.Check
+                                                                    custom
+                                                                    type="checkbox"
+                                                                    id="cumc-freshers"
+                                                                    label="cumc-freshers"
+                                                                />
+                                                            </Form.Group>
+                                                            <Form.Text>
+                                                                A list for freshers and people new to the club. Much
+                                                                higher traffic at the beginning of the academic year.
+                                                            </Form.Text>
+                                                        </Col>
+                                                    </Row>
+                                                    <br />
+                                                    <Row>
+                                                        <Col><Button block type="submit">Submit</Button></Col>
+                                                    </Row>
+                                                </Form>
                                             </Tab.Pane>
                                         </Tab.Content>
                                     </Card.Body>

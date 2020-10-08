@@ -31,7 +31,7 @@ const schema = {
 };
 
 const required = [
-    'firstName', 'lastName', 'dob', 'college', 'phone', 'address1', 'postCode', 'country'
+    'firstName', 'lastName', 'dob', 'college', 'phone', 'address1', 'postCode', 'country', 'emergencyName' , 'emergencyPhone'
 ];
 
 function define(sequelize) {
