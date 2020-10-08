@@ -22,8 +22,8 @@ fs.readFile('mail.json', (err, data) => {
 
         ["add", "remove"].forEach(i => {
             Object.keys(lists[i]).forEach(list => {
-                let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['-w', 'y', '-a', 'n', list]
-                    : ['-N', '-s', list]);
+                let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['--welcome-msg=y', '--admin-notify=n', list]
+                    : ['--noadminack', '--stdin', list]);
                 child.stdin.setEncoding('utf-8');
                 child.stdout.pipe(process.stdout);
                 for (let e of lists[i][list]) {
@@ -33,8 +33,9 @@ fs.readFile('mail.json', (err, data) => {
             });
         });
 
+        // Reset mail.json. We don't have to worry about this being asynchronous from the child processes, the file has already been read
         fs.writeFile('mail.json', empty, 'utf-8', err => {
-            if (!err) console.log("Mailing list update executed successfully.");
+            if (!err) console.log("Reset mail.json successfully.");
             else console.error("Failed to write to mail.json: ", err);
         });
     } else console.error("Failed to read mail.json: ", err);
