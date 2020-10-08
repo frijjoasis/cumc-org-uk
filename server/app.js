@@ -17,6 +17,7 @@ const routers = [
     {path: '/api/meets', router: require('./routes/meets/meets')},
     {path: '/api/member', router: require('./routes/member/member')},
     {path: '/api/paypal', router: require('./routes/paypal/paypal')},
+    {path: '/api/mailman', router: require('./routes/mailman/mailman')},
 ];
 
 const app = express();
