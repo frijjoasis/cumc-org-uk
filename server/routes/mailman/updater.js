@@ -26,7 +26,7 @@ fs.readFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', (err,
                     : ['-N', '-s', list]);
                 child.stdin.setEncoding('utf-8');
                 for (let e of lists[i][list]) {
-                    console.log(`${i} ${e} from ${l}`);
+                    console.log(`${i} ${e} from ${list}`);
                     child.stdin.write(e + '\r\n');
                 }
                 child.stdin.end();
