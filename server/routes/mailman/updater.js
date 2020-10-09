@@ -22,11 +22,11 @@ fs.readFile('mail.json', (err, data) => {
 
         ["add", "remove"].forEach(i => {
             Object.keys(lists[i]).forEach(list => {
-                let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['--welcome-msg=y', '--admin-notify=n', list]
-                    : ['--noadminack', '--stdin', list]);
+                let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['-w', 'y', '-a', 'n', list]
+                    : ['-N', '-s', list]);
                 child.stdin.setEncoding('utf-8');
-                child.stdout.pipe(process.stdout);
                 for (let e of lists[i][list]) {
+                    console.log(`${i} ${e} from ${l}`);
                     child.stdin.write(e + '\r\n');
                 }
                 child.stdin.end();
