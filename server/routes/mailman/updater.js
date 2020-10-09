@@ -26,7 +26,7 @@ fs.readFile('mail.json', (err, data) => {
                     : ['-N', '-s', list]);
                 child.stdin.setEncoding('utf-8');
                 for (let e of lists[i][list]) {
-                    console.log(`${i} ${e} from ${l}`);
+                    console.log(`${i} ${e} from ${list}`);
                     child.stdin.write(e + '\r\n');
                 }
                 child.stdin.end();
