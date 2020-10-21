@@ -14,6 +14,7 @@ import {committee} from "./committee";
 const oldCommittee = {
     'head' : ["Year","President","Secretary","Treasurer","Gear","Outdoor Meet","Indoor Meet","Alpine and Winter","Competition","Social","Journal","Librarian","Webmaster"],
     'body' : [
+                ["2019-2020","Timo Zheng","Robert Ryan","Ed Mabon","Sam Reynolds","Ollie Carr","Mikey Matthews & Alice Kirk","Igor Mazur","Ilya Carey","Anna Kelly","Sophie Miocevich & Nina","Nina","Mikey Matthews"],
                 ["2018-2019","Holly Rowland","Izzy Bentley","Sophie Miocevich","Elin Falla","Omar Shah & Timo Zheng","Alex Nicol & Bethan Morris","Charlie Fraser","Ed Mabon","Joe Taylor & Sophia Georgescu","Sophie Miocevich","Francesca Rigg","Daniel Wainwright"],
                 ["2017-2018","Ed Wheatcroft","Jemima Churchhouse","Gwilym Rowbottom","Sophie Miocevich","Ed Bray & Robert Morse","Holly Rowland & Alice Kirk","James Kent","Timo Zheng","Isabella Bentley & Joe Taylor","Jia Yuan Loke & Charlie Fraser","Jia Yuan Loke & Charlie Fraser","James Lomax"],
                 ["2016-2017","Gwilym Rowbottom","Kris Cao","Liat Adler","George Harding-Perrott","Ed Wheatcroft & Alex Law","Ed Bray","Cameron Holloway","Isabella Bentley","Roberto Cecere & Jemima Churchhouse","none","Gwilym Rowbottom",""],
