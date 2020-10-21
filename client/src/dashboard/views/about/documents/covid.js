@@ -1,7 +1,7 @@
 import React from "react";
 
 const covidAbout = [
-    <h1>CUMC COVID Guidelines</h1>,
+    <h1>CUMC COVID Guidelines</h1>,<br></br>,<br></br>,
 <p>
 This document will attempt to outline the changes to each aspect of club
 activity due to COVID-19. All of the following is subject to change, as we as a
@@ -10,7 +10,7 @@ and other bodies, which are all being updated regularly. We will attempt to keep
 this document as up to date as possible with the latest from us in terms of
 planned activities and restrictions.
 </p>,
-<h2><strong>Outdoor Meets</strong></h2>,
+<h2><strong>Outdoor Meets</strong></h2>,<br></br>,
 <p>
 Outdoor meets will currently be taking part this term unless there is any
 significant change in the coming weeks.
@@ -74,7 +74,7 @@ chosen</li>
 be placing gear or rope in their mouths whilst climbing</li>
 </ul>,
 <p>
-<strong>Indoor meets</strong>
+<strong>Indoor meets</strong><br></br>,
 </p>,
 <ul>
     <li>General guidance: see outdoor meets for general CUMC meets policies</li>
@@ -99,7 +99,7 @@ be placing gear or rope in their mouths whilst climbing</li>
     signup form), since there are gyms accessible by train from Cambridge and if we
     can’t find a driver this will be our best option.</li>
 </ul>,
-<h2><strong>Competitions</strong></h2>,
+<h2><strong>Competitions</strong></h2>,<br></br>,
 <p>
 <strong>There has been no information to suggest that any of our major
 competitions will be cancelled.</strong> However, with the IFSC cancelling World
@@ -144,7 +144,7 @@ sessions for at least a while. If anyone else on the committee wants to run
 training sessions for those who don’t mind attending at popular times, please
 get in contact with me!
 </p>,
-<h2><strong>Socials</strong></h2>,
+<h2><strong>Socials</strong></h2>,<br></br>,
 <p>
 <strong>Weekly Socials:</strong>
 </p>,
@@ -168,7 +168,7 @@ get in contact with me!
     <li>If the guidance changes back to allowed groups of 30+ (or thereabouts), we
     could do outdoor socials in larger groups. This will remain under review.</li>
 </ul>,
-<h2>Gear</h2>,
+<h2><strong>Gear</strong></h2>,<br></br>,
 <p>
 <strong>RESTRICTED GEAR LENDING </strong>
 </p>,
