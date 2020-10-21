@@ -88,7 +88,7 @@ router.post('/capture', committeeAuth, async function(req, res) {
     await meets.getOneUpcoming(req.body.id).then(meet => {
         let promises = [];
         meet.signups.forEach(signup => {
-            if (signup.authID && !signup.captureID) {
+            if (signup.authID && !signup.captureID && (!req.body.authID || req.body.authID === signup.authID)) {
                 promises.push(capture(signup.authID, meet.price).then(captureID => {
                     if (captureID.err) captureID = 'Capture Failed';
                     return signups.updatePayment(signup.id, captureID);
@@ -109,7 +109,7 @@ router.post('/void', committeeAuth, async function(req, res) {
     await meets.getOneUpcoming(req.body.id).then(meet => {
         let promises = [];
         meet.signups.forEach(signup => {
-            if (signup.authID && !signup.captureID) {
+            if (signup.authID && !signup.captureID && (!req.body.authID || req.body.authID === signup.authID)) {
                 promises.push(voidPayment(signup.authID).then(voidRes => {
                     return signups.updatePayment(signup.id, voidRes.err ? 'Void Failed' : 'Void');
                 }));

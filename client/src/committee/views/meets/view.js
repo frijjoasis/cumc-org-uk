@@ -45,6 +45,30 @@ class ViewMeet extends React.Component {
         });
     }
 
+    capturePayment(mem) {
+        axios.post('/api/paypal/capture', {id: this.props.match.params.id, authID: mem.authID}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: `Payment for ${mem.displayName} captured successfully, if it hadn't been already. Please refresh.`
+                })
+            }
+        });
+    }
+
+    voidPayment(mem) {
+        axios.post('/api/paypal/void', {id: this.props.match.params.id, authID: mem.authID}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: `Payment for ${mem.displayName} voided successfully, if it hadn't been captured. Please refresh.`
+                })
+            }
+        });
+    }
+
     voidPayments() {
         axios.post('/api/paypal/void', {id: this.props.match.params.id}).then(res => {
             if (res.data.err) {
@@ -103,7 +127,7 @@ class ViewMeet extends React.Component {
                                         <tr>
                                             {
                                                 [
-                                                    "Name", "Created At", "Payment Status"
+                                                    "Name", "Admin", "Created At", "Payment Status"
                                                 ].concat((this.state.content.questions ? this.state.content.questions : [])
                                                     .sort(this.sortQuestions)
                                                     .map(q => q.title)
@@ -123,6 +147,17 @@ class ViewMeet extends React.Component {
                                                                 <NavLink to={`/committee/members/${mem.userID}`}>
                                                                     {mem.displayName}
                                                                 </NavLink>,
+                                                                <div>
+                                                                    <span style={{color: '#1DC7EA', cursor: 'pointer'}}
+                                                                       onClick={() => this.voidPayment(mem)}>
+                                                                        Reject
+                                                                    </span>
+                                                                    <br />
+                                                                    <span style={{color: '#1DC7EA', cursor: 'pointer'}}
+                                                                       onClick={() => this.capturePayment(mem)}>
+                                                                         Capture
+                                                                    </span>
+                                                                </div>,
                                                                 new Date(mem.createdAt).toUTCString(),
                                                                 mem.authID ? <div className="text-success">
                                                                         {mem.captureID ? mem.captureID : 'Not Captured'}
