@@ -23,68 +23,68 @@ be adhering to all the BMC guidelines given to student clubs.
 <strong>The measures that we will be adhering to on meets are:</strong>
 </p>,
 <ul>
-<li>Students must not attend meets if they have any symptoms of Covid-19</li>
-<li>Providing it is on offer to them, students must be taking part in the
-University testing service to attend meets</li>
-<li>If they are able to take part in the above, and providing it is running
-effectively, students must have a household negative test within the last week
-in order to attend meets and must have tested negative themselves once every two
-weeks under the scheme</li>
-<li>Students must not attend if anyone in their household is displaying symptoms</li>
-<li>Students must adhere to all college and government regulations in order to
-attend meets</li>
-<li>The sharing of group shelters or bothy bags is not to be permitted except in
-an emergency situation where necessary</li>
-<li>Food and drink sharing will <strong>not</strong> be permitted and students
-must bring sufficient food and water for themselves</li>
-<li>No groups of more than 6 will be climbing together outdoors and it is
-expected that people will be climbing in pairs.</li>
-<li>No overnight meets will be taking place this term and we will review this
-with the situation in January</li>
-<li>Members are to avoid touching gates etc… while they are at the crag. Try and
-open with feet/elbows.</li>
-<li>Contact tracing details of students will be taken for each meet by the
-organiser</li>
-<li>Students are advised to bring their own personal first aid kits if they have
-them</li>
-<li>NHS track and trace must be informed if any students develop symptoms within
-72 hours following the meet and the outdoor meet secretary is to also be
-informed at the earliest opportunity</li>
-<li>We advise self isolation in the event of someone on a meet developing
-symptoms or testing positive</li>
-<li>A covid risk assessment form is to be completed for each meet based on the
-BMC template</li>
+    <li>Students must not attend meets if they have any symptoms of Covid-19</li>
+    <li>Providing it is on offer to them, students must be taking part in the
+    University testing service to attend meets</li>
+    <li>If they are able to take part in the above, and providing it is running
+    effectively, students must have a household negative test within the last week
+    in order to attend meets and must have tested negative themselves once every two
+    weeks under the scheme</li>
+    <li>Students must not attend if anyone in their household is displaying symptoms</li>
+    <li>Students must adhere to all college and government regulations in order to
+    attend meets</li>
+    <li>The sharing of group shelters or bothy bags is not to be permitted except in
+    an emergency situation where necessary</li>
+    <li>Food and drink sharing will <strong>not</strong> be permitted and students
+    must bring sufficient food and water for themselves</li>
+    <li>No groups of more than 6 will be climbing together outdoors and it is
+    expected that people will be climbing in pairs.</li>
+    <li>No overnight meets will be taking place this term and we will review this
+    with the situation in January</li>
+    <li>Members are to avoid touching gates etc… while they are at the crag. Try and
+    open with feet/elbows.</li>
+    <li>Contact tracing details of students will be taken for each meet by the
+    organiser</li>
+    <li>Students are advised to bring their own personal first aid kits if they have
+    them</li>
+    <li>NHS track and trace must be informed if any students develop symptoms within
+    72 hours following the meet and the outdoor meet secretary is to also be
+    informed at the earliest opportunity</li>
+    <li>We advise self isolation in the event of someone on a meet developing
+    symptoms or testing positive</li>
+    <li>A covid risk assessment form is to be completed for each meet based on the
+    BMC template</li>
 </ul>,
 <p>
 <strong>Regarding transport:</strong>
 </p>,
 <ul>
-<li>Masks are to be worn in the car at <strong>all times</strong> (except by
-those exempt)<strong> </strong>and students must use hand sanitizer upon
-entering and exiting the car. Students must bring their own hand sanitizer</li>
-<li>Windows of the car are to be kept down by at least ⅓ for the duration of the
-journey and students are advised to travel in warm layers that you should have
-for the crag anyway</li>
-<li>Fuel stops are allowed and only the driver may enter the shop to pay, if
-necessary other students may visit the toilet</li>
-<li>No other stops are allowed on the journey</li>
+    <li>Masks are to be worn in the car at <strong>all times</strong> (except by
+    those exempt)<strong> </strong>and students must use hand sanitizer upon
+    entering and exiting the car. Students must bring their own hand sanitizer</li>
+    <li>Windows of the car are to be kept down by at least ⅓ for the duration of the
+    journey and students are advised to travel in warm layers that you should have
+    for the crag anyway</li>
+    <li>Fuel stops are allowed and only the driver may enter the shop to pay, if
+    necessary other students may visit the toilet</li>
+    <li>No other stops are allowed on the journey</li>
 </ul>,
 <p>
 <strong>Regarding climbing itself</strong>
 </p>,
 <ul>
-<li>Students should maintain 2m social distancing at all times, with the
-exception of when passing a belayer at the top of the route where students
-should attempt to turn their faces away from each other when they pass</li>
-<li>Use hand sanitiser between climbs. Students should be aware that there is an
-inherent risk in sharing climbing gear. This is to be minimised by only climbing
-with one partner for the day and to use hand sanitiser before and after each
-route.</li>
-<li>The venue will be carefully assessed by the outdoor meet secretaries in
-advance of the meet to try and ensure that quiet and appropriate locations are
-chosen</li>
-<li>Unless it will compromise safety whilst leading a route students should not
-be placing gear or rope in their mouths whilst climbing</li>
+    <li>Students should maintain 2m social distancing at all times, with the
+    exception of when passing a belayer at the top of the route where students
+    should attempt to turn their faces away from each other when they pass</li>
+    <li>Use hand sanitiser between climbs. Students should be aware that there is an
+    inherent risk in sharing climbing gear. This is to be minimised by only climbing
+    with one partner for the day and to use hand sanitiser before and after each
+    route.</li>
+    <li>The venue will be carefully assessed by the outdoor meet secretaries in
+    advance of the meet to try and ensure that quiet and appropriate locations are
+    chosen</li>
+    <li>Unless it will compromise safety whilst leading a route students should not
+    be placing gear or rope in their mouths whilst climbing</li>
 </ul>,
 
 <p>
