@@ -30,8 +30,8 @@ const committee = {
             role: "Indoor Meets Secretary",
             name: "Anna Kelly",
             social: "indoor-meets@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.png`),
-            cover: require(`../../../../assets/img/committee/notFound.png`),
+            profile: require(`../../../../assets/img/committee/indoorMeets2.png`),
+            cover: require(`../../../../assets/img/committee/indoorMeets2Cover.jpg`),
         },
         {
             role: "Indoor Meets Secretary",
