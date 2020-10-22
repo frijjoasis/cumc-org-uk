@@ -47,7 +47,7 @@ const committee = {
             name: "Elizabeth Stephenson",
             social: "outdoor-meets@cumc.org.uk",
             profile: require(`../../../../assets/img/committee/outdoorMeets1.jpg`),
-            cover: require(`../../../../assets/img/committee/notFound.png`),
+            cover: require(`../../../../assets/img/committee/outdoorMeets1Cover.jpg`),
         }
     ],
     gear: {
@@ -76,8 +76,8 @@ const committee = {
             role: "Social Secretary",
             name: "Marcus Samuel",
             social: "socials@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.png`),
-            cover: require(`../../../../assets/img/committee/notFound.png`),
+            profile: require(`../../../../assets/img/committee/socials1.jpg`),
+            cover: require(`../../../../assets/img/committee/socials1Cover.jpg`),
         },
         {
             role: "Social Secretary",

@@ -47,8 +47,13 @@ class EditDetails extends React.Component {
                 return acc;
             }, {});
 
-            answers.startDate = new Date(`${form.elements.startDate.value} ${form.elements.startTime.value}`);
-            answers.endDate = new Date(`${form.elements.endDate.value} ${form.elements.endTime.value}`);
+            answers.startDate = new Date(
+                `${form.elements.startDate.value} ${form.elements.startTime.value}`.replace("/", "-")
+                // Browser compatibility
+            );
+            answers.endDate = new Date(
+                `${form.elements.endDate.value} ${form.elements.endTime.value}`.replace("/", "-")
+            );
             // Reconstruct date objects
             answers.disabled = form.elements.disabled.checked;
 
