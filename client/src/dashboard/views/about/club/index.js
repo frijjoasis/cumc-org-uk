@@ -14,7 +14,7 @@ class ClubAbout extends React.Component {
         super(props);
         this.state = {
             content: {
-                head: ["Date", "Climbers", "Name", "Grade", "Location"],
+                head: [],
                 body: [],
             },
         }
@@ -43,7 +43,7 @@ class ClubAbout extends React.Component {
                                         This is a list of some of the routes first climbed by CUMC members.
                                     </Card.Subtitle>
                                     <hr />
-                                    <Table striped bordered hover responsive>
+                                    <Table bordered hover responsive>
                                         <thead>
                                         <tr>
                                             {this.state.content.head.map((prop, key) => {
