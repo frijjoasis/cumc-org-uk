@@ -69,6 +69,7 @@ class EditDetails extends React.Component {
                     this.setState({
                         success: "Meet details set successfully. If this is a new meet, you should set some questions."
                     });
+                    window.scrollTo(0, 0);
                 }
             });
         }
@@ -244,6 +245,12 @@ class EditDetails extends React.Component {
                                 custom
                                 type="checkbox"
                                 id="disabled"
+                                onClick={() => this.setState(prevState => ({
+                                    content: {
+                                        ...prevState.content,
+                                        disabled: !prevState.content.disabled
+                                    }
+                                }))}
                                 checked={this.state.content.disabled}
                                 label="Disable signups?"
                             />

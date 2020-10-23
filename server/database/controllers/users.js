@@ -22,8 +22,26 @@ function upsertInfo(user, id) {
     });
 }
 
+function list() {
+    return getModel().findAll({
+        include: {
+            model: sequelize.models.member,
+            attributes: ['hasPaid']
+        }
+    });
+}
+
 function getInfo(id) {
     return getModel().findByPk(id);
+}
+
+function getMemberInfo(id) {
+    return getModel().findByPk(id, {
+        include: {
+            model: sequelize.models.member,
+            attributes: ['hasPaid']
+        }
+    })
 }
 
 function isMissing(id) {
@@ -33,5 +51,5 @@ function isMissing(id) {
 }
 
 module.exports = {
-    upsert, upsertInfo, getInfo, isMissing
+    upsert, upsertInfo, getInfo, getMemberInfo, isMissing, list
 }

@@ -41,7 +41,7 @@ function define(sequelize) {
 }
 
 function associate(sequelize) {
-    sequelize.models.user.hasMany(sequelize.models.member, {
+    sequelize.models.user.hasOne(sequelize.models.member, {
         foreignKey: {
             name: 'id',
             primaryKey: true,

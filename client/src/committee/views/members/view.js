@@ -19,7 +19,7 @@ class ViewMember extends React.Component {
     }
 
     componentDidMount() {
-        axios.post("/api/member/info", {id: this.props.match.params.id}).then(res => {
+        axios.post("/api/user/member", {id: this.props.match.params.id}).then(res => {
             if (res.data.err) {
                 this.setState({err: res.data.err});
                 window.scrollTo(0, 0);
@@ -51,23 +51,28 @@ class ViewMember extends React.Component {
                                         <hr />
                                         {
                                             [
-                                                {name: "Full Name", display: (c) => `${c.user.firstName} ${c.user.lastName}`},
-                                                {name: "College", display: (c) => c.user.college},
-                                                {name: "Email", display: (c) => c.user.email},
+                                                {name: "Full Name", display: (c) => c.firstName ?
+                                                        `${c.firstName} ${c.lastName}` : c.displayName
+                                                },
+                                                {name: "College", display: (c) => c.college},
+                                                {name: "Email", display: (c) => c.email},
                                                 {name: "Address", display: (c) => [
                                                         <br />,
-                                                        c.user.address1, <br />,
-                                                        c.user.address2, <br />,
-                                                        c.user.postCode + ", " + c.user.city + " " + c.user.country
+                                                        c.address1, <br />,
+                                                        c.address2, <br />,
+                                                        c.postCode ? c.postCode : ""
+                                                            + ", " + c.city ? c.city : ""
+                                                            + " " + c.country ? c.country : ""
                                                     ]
                                                 },
-                                                {name: "Date of Birth", display: (c) => c.user.dob},
-                                                {name: "Phone", display: (c) => c.user.phone},
+                                                {name: "Date of Birth", display: (c) => c.dob},
+                                                {name: "Phone", display: (c) => c.phone},
                                                 {name: "Emergency Contact", display: (c) =>
-                                                        c.user.emergencyName + " " + c.user.emergencyPhone
+                                                        c.emergencyName ? c.emergencyName : ""
+                                                            + " " + c.emergencyPhone ? c.emergencyPhone : ""
                                                 },
-                                                {name: "BMC Number", display: (c) => c.user.bmc},
-                                                {name: "Current Member", display: (c) => c.hasPaid ?
+                                                {name: "BMC Number", display: (c) => c.bmc},
+                                                {name: "Current Member", display: (c) => (c.member && c.member.hasPaid) ?
                                                         <div className="text-success" style={{display: 'inline'}}>Yes</div> :
                                                         <div className="text-danger" style={{display: 'inline'}}>No</div>
                                                 },

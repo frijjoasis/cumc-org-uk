@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const users = require('../../database/controllers/users');
-const {userAuth} = require('../middleware');
+const {userAuth, committeeAuth} = require('../middleware');
 
 router.get('/', userAuth, function(req, res) {
     res.json({
@@ -20,6 +20,21 @@ router.post('/register', userAuth, async function(req, res) {
 router.get('/info', userAuth, async function(req, res) {
     await users.getInfo(req.user.id).then(info => {
         res.json(info);
+    });
+});
+
+router.post('/member', committeeAuth, async function(req, res) {
+    await users.getMemberInfo(req.body.id).then(user => {
+        res.json(user);
+    }).catch(err => {
+        console.error("Database err: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
+router.get('/list', committeeAuth, async function(req, res) {
+    await users.list().then(list => {
+        res.json(list);
     });
 });
 

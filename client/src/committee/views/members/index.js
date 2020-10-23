@@ -18,7 +18,7 @@ class Members extends React.Component {
     }
 
     componentDidMount() {
-        axios.get("/api/member/list").then(res => {
+        axios.get("/api/user/list").then(res => {
             this.setState({
                 content: res.data,
                 filter: ""
@@ -66,20 +66,22 @@ class Members extends React.Component {
                                         </thead>
                                         <tbody>
                                         {this.state.content.length
-                                            ? this.state.content.filter(m =>
-                                                `${m.user.firstName} ${m.user.lastName}`.includes(this.state.filter) ||
-                                                m.user.college.includes(this.state.filter) ||
-                                                (this.state.filter === "paid" && m.hasPaid)
-                                            ).map((m, key) => {
+                                            ? this.state.content.filter(u =>
+                                                `${u.firstName} ${u.lastName}`.includes(this.state.filter) ||
+                                                (u.college && u.college.includes(this.state.filter)) ||
+                                                u.displayName.includes(this.state.filter)
+                                                (this.state.filter === "paid" && u.member && u.member.hasPaid)
+                                            ).map((u, key) => {
                                                 return (
                                                     <tr key={key}>
                                                         {
                                                             [
-                                                                <NavLink to={`/committee/members/${m.id}`}>
-                                                                    {m.user.firstName} {m.user.lastName}
+                                                                <NavLink to={`/committee/members/${u.id}`}>
+                                                                    {u.firstName ? `${u.firstName} ${u.lastName}` :
+                                                                        u.displayName}
                                                                 </NavLink>,
-                                                                m.user.college,
-                                                                m.hasPaid ? <div className="text-success">Yes</div>
+                                                                u.college,
+                                                                (u.member && u.member.hasPaid) ? <div className="text-success">Yes</div>
                                                                     : <div className="text-danger">No</div>,
                                                             ].map((e, key) => {
                                                                 return <td key={key}>{e}</td>;

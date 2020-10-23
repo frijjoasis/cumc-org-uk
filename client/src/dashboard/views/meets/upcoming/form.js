@@ -41,14 +41,16 @@ class MeetForm extends React.Component {
             this.setState({validated: true})
         } else {
             const answers = [...form.elements].reduce((acc, cur) => {
-                if (cur.id) acc.push({id: cur.id, value: cur.value});
+                if (cur.id && !["privacy", "participation", "data"].includes(cur.id)) {
+                    acc.push({id: cur.id, value: cur.value});
+                }
                 return acc;
-                // Avoid POSTing email and display name
+                // Avoid POSTing email, display name and checkboxes
             }, []);
             const data = {
                 answers: answers,
                 meetID: this.props.match.params.id
-            }; //TODO: Back this with a payment token
+            };
             axios.post('/api/paypal/required', data).then(res => {
                 if (res.data.err) {
                     this.setState({err: res.data.err});
