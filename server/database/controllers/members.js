@@ -42,15 +42,6 @@ function upsert(data) {
     return getModel().upsert(data);
 }
 
-function list() {
-    return getModel().findAll({
-        include: {
-            model: sequelize.models.user,
-            attributes: ['firstName', 'lastName', 'college']
-        }
-    });
-}
-
 module.exports = {
-    getMember, getCommitteeRole, getCommittee, list, getInfo, upsert
+    getMember, getCommitteeRole, getCommittee, getInfo, upsert
 }
