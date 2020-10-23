@@ -22,6 +22,8 @@ const routers = [
 
 const app = express();
 
+app.use(express.static('public/journals'));//statically serving journals
+
 const port = process.env.PORT || 5000;
 
 app.use(logger('dev'));
