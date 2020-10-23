@@ -69,7 +69,7 @@ class Members extends React.Component {
                                             ? this.state.content.filter(u =>
                                                 `${u.firstName} ${u.lastName}`.includes(this.state.filter) ||
                                                 (u.college && u.college.includes(this.state.filter)) ||
-                                                u.displayName.includes(this.state.filter)
+                                                u.displayName.includes(this.state.filter) ||
                                                 (this.state.filter === "paid" && u.member && u.member.hasPaid)
                                             ).map((u, key) => {
                                                 return (
