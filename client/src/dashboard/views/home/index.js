@@ -1,5 +1,4 @@
 import React from 'react';
-import axios from 'axios';
 import Card from "react-bootstrap/Card";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
@@ -21,11 +20,7 @@ class Home extends React.Component {
     }
 
     componentDidMount() {
-        axios.get('/api/index').then(res => {
-            this.setState({
-                content: res.data,
-            })
-        })
+
     }
 
     render() {

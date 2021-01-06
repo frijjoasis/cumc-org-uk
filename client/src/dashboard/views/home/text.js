@@ -3,17 +3,17 @@ import React from "react";
 
 const slides = [
     {
-        img: require('../../../assets/img/carousel/trad.jpg'),
+        img: require('../../../assets/img/carousel/trad.jpg').default,
         header: "Trad Climbing",
         desc: "Who doesn't love slabs?",
     },
     {
-        img: require('../../../assets/img/carousel/bouldering.jpg'),
+        img: require('../../../assets/img/carousel/bouldering.jpg').default,
         header: "Bouldering",
         desc: "Elizabeth sending hard on the gritstone of the Peak District",
     },
     {
-        img: require('../../../assets/img/carousel/alpine.jpg'),
+        img: require('../../../assets/img/carousel/alpine.jpg').default,
         header: "Alpine",
         desc: "A nice view in Chamonix",
     },
@@ -96,8 +96,8 @@ const membershipText = [
 
 // Images here should have the same aspect ratio
 const homeImages = [
-    require('../../../assets/img/home-1.jpg'),
-    require('../../../assets/img/home-2.jpg'),
+    require('../../../assets/img/home-1.jpg').default,
+    require('../../../assets/img/home-2.jpg').default,
 ];
 
 export {slides, aboutText, membershipText, homeImages};
