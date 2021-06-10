@@ -394,14 +394,14 @@ class Register extends React.Component {
                                                 <Card.Title>CUMC Membership</Card.Title>
                                                 <Card.Subtitle>
                                                     In order to come on club meets, you must purchase membership. It
-                                                    currently costs £25. Newcomers are entitled to one free meet before
-                                                    purchasing.
+                                                    currently costs £25. Newcomers are entitled attend one meet before
+                                                    purchasing, as long as it is in the first three months of the year.
                                                 </Card.Subtitle>
                                                 <hr />
                                                 <Row>
                                                     <Col>
                                                         <Form.Group>
-                                                            <Form.Label>Free Meet Status</Form.Label>
+                                                            <Form.Label>Membership Meet Waiver</Form.Label>
                                                             <Form.Control type="text"
                                                                           className={this.state.member.hasFree ?
                                                                               "text-success" : "text-danger"}

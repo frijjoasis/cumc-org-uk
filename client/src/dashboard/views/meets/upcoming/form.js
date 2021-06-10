@@ -127,7 +127,7 @@ class MeetForm extends React.Component {
                                                                     placeholder={question.required ? "Required" : "Not Set"}
                                                                 />
                                                                 <Form.Text muted>
-                                                                    {question.desc}
+                                                                    {question.text}
                                                                 </Form.Text>
                                                                 <Form.Control.Feedback type="invalid">
                                                                     {question.help}

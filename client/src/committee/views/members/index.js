@@ -42,7 +42,7 @@ class Members extends React.Component {
                                 <Card.Body>
                                     <Card.Title>List of Members</Card.Title>
                                     <Card.Subtitle>
-                                        A list of members who have, at some point, attended a meet or paid membership.
+                                        A list of members who have signed up to the website.
                                         The table shows if they have paid for this year. View member details by
                                         clicking their name.
                                     </Card.Subtitle>
@@ -67,9 +67,12 @@ class Members extends React.Component {
                                         <tbody>
                                         {this.state.content.length
                                             ? this.state.content.filter(u =>
-                                                `${u.firstName} ${u.lastName}`.includes(this.state.filter) ||
-                                                (u.college && u.college.includes(this.state.filter)) ||
-                                                u.displayName.includes(this.state.filter) ||
+                                                `${u.firstName} ${u.lastName}`.toLowerCase()
+                                                    .includes(this.state.filter.toLowerCase()) ||
+                                                (u.college && u.college.toLowerCase()
+                                                    .includes(this.state.filter.toLowerCase())) ||
+                                                u.displayName.toLowerCase()
+                                                    .includes(this.state.filter.toLowerCase()) ||
                                                 (this.state.filter === "paid" && u.member && u.member.hasPaid)
                                             ).map((u, key) => {
                                                 return (

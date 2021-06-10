@@ -208,7 +208,7 @@ class ViewMeet extends React.Component {
                                                                 q.title,
                                                                 q.required ? <div className="text-success">Yes</div>
                                                                     : <div className="text-danger">No</div>,
-                                                                q.desc,
+                                                                q.text,
                                                                 q.help
                                                             ].map((e, key) => {
                                                                 return <td key={key}>{e}</td>;
