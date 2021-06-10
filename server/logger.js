@@ -5,6 +5,7 @@ require('winston-daily-rotate-file');
 function transport(path, level) {
     return new winston.transports.DailyRotateFile({
         filename: `/societies/cumc/cumc-org-uk/logs/${path}`,
+        options: {mode: 0o660}, // File permissions
         datePattern: 'YYYY-MM-DD-HH',
         level: level ? level : 'info',
         maxSize: '100m',
