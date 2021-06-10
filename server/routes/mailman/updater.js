@@ -22,7 +22,7 @@ fs.readFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', (err,
 
         ["add", "remove"].forEach(i => {
             Object.keys(lists[i]).forEach(list => {
-                let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['-w', 'y', '-a', 'n', list]
+                let child = spawn(`/usr/local/bin/srcf-mailman-${i}`, (i === "add") ? ['-w', 'y', '-a', 'n', list]
                     : ['-N', '-s', list]);
                 child.stdin.setEncoding('utf-8');
                 for (let e of lists[i][list]) {
