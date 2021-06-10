@@ -44,6 +44,7 @@ router.post('/membership', userAuth, async function(req, res) {
                             return members.upsert({
                                 id: req.user.id,
                                 hasPaid: true,
+                                hasFree: false,
                                 paymentID: cap
                             }).then(() => {
                                 res.json(true)
@@ -150,6 +151,7 @@ function isPaymentNeeded(id, meetID) {
                     return {err: "Signups are not open for this meet!"}
                 } else {
                     return members.getMember(id).then(member => {
+                        //TODO: Condition this on the first 3 months of the year, somehow...
                         if (!member || member.hasFree) {
                             // User not known to have gone on any meets
                             return members.upsert({
@@ -157,7 +159,8 @@ function isPaymentNeeded(id, meetID) {
                                 // hasPaid defaults to false
                                 hasFree: false
                             }).then(() => {
-                                return false;
+                                return true;
+                                // Policy is that a user gets to attend one meet before having to become a full member
                             });
                         } else if (member.hasPaid) {
                             // They are a current member

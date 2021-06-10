@@ -10,7 +10,8 @@ const schema = {
         defaultValue: false,
         type: DataTypes.BOOLEAN
     },
-    hasFree: { // Have they used their one free meet?
+    hasFree: { // This variable is a misnomer - it really means whether or not they can attend one meet before they have
+        // to purchase membership. I wrote this code before I knew that was the policy; refactor it if you're brave enough.
         allowNull: false,
         defaultValue: true,
         type: DataTypes.BOOLEAN
