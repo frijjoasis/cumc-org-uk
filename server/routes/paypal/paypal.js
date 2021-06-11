@@ -158,6 +158,7 @@ function isPaymentNeeded(id, meetID) {
                                 id: id,
                                 // hasPaid defaults to false
                                 hasFree: false
+                                //TODO: This should be updated on signup, not on checking if they need to pay...
                             }).then(() => {
                                 return true;
                                 // Policy is that a user gets to attend one meet before having to become a full member
