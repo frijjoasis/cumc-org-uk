@@ -7,6 +7,7 @@ function transport(path, level) {
         filename: `/societies/cumc/cumc-org-uk/logs/${path}`,
         options: {mode: 0o660}, // File permissions
         datePattern: 'YYYY-MM-DD-HH',
+        auditFile: '/societies/cumc/cumc-org-uk/logs/audit.json',
         level: level ? level : 'info',
         maxSize: '100m',
         maxFiles: '14d'
