@@ -63,7 +63,7 @@ class ViewMeet extends React.Component {
                                         <br />
 
                                         <div className="text-muted">Description:</div>
-                                        {this.state.content.desc}
+                                        <div style={{whiteSpace: 'pre-line'}}>{this.state.content.desc}</div>
                                     </Card.Text>
                                 </Card.Body>
                                 <Card.Footer>
