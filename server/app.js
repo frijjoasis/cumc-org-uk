@@ -23,13 +23,23 @@ const routers = [
 
 const app = express();
 
-app.use(express.static('public/journals'));//statically serving journals
+app.use(express.static('public/journals')); // Statically serving journals
 
 const port = process.env.PORT || 5000;
 
 app.use(winstonLogger.expressLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.use((req, res, next) => {
+    if (req.secure) {
+        next();
+    }
+    else {
+        res.redirect('https://' + req.headers.host + req.url);
+    }
+});
+
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 passport.use(new RavenStrategy({
@@ -71,11 +81,6 @@ app.use(passport.session());
 
 routers.forEach(i => {
     app.use(i.path, i.router);
-});
-
-app.use((req, res, next) => {
-    if (req.secure) next();
-    else res.redirect('https://' + req.headers.host + req.url);
 });
 
 app.get('*', (req, res) => {
