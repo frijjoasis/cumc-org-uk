@@ -73,6 +73,11 @@ routers.forEach(i => {
     app.use(i.path, i.router);
 });
 
+app.use((req, res, next) => {
+    if (req.secure) next();
+    else res.redirect('https://' + req.headers.host + req.url);
+});
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/build/index.html'));
 }); // Serve react app
