@@ -22,14 +22,13 @@ const routers = [
 ];
 
 const app = express();
-
-app.use(express.static('public/journals')); // Statically serving journals
-
 const port = process.env.PORT || 5000;
 
 app.use(winstonLogger.expressLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+app.enable('trust proxy');
 
 app.use((req, res, next) => {
     if (req.secure) {
@@ -40,6 +39,7 @@ app.use((req, res, next) => {
     }
 });
 
+app.use(express.static('public/journals')); // Statically serving journals
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 passport.use(new RavenStrategy({
