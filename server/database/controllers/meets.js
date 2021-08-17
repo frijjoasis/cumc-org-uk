@@ -22,9 +22,19 @@ function getAll() {
 
 function getOneUpcoming(id) {
     return getModel().findByPk(id, {
-        include: {
-            all: true
-        } // Eager load associated models
+        include: [
+            {
+                model: sequelize.models.signup,
+                include: {
+                    model: sequelize.models.user,
+                    attributes: ['email']
+                }
+            },
+            {
+                model: sequelize.models.user,
+                attributes: ['email', 'firstName', 'lastName', 'phone']
+            }
+        ] // Eager load associated models, recursively
     });
 }
 
