@@ -92,7 +92,7 @@ class ViewMeet extends React.Component {
             str = str + this.state.content.signups.map(signup => {
                 console.log(signup)
                 return signup.user.email
-            }).toString().replace(',', '; ');
+            }).toString().replaceAll(',', '; ');
         }
         return str;
     }
