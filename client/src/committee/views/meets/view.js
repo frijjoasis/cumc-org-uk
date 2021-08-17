@@ -86,6 +86,17 @@ class ViewMeet extends React.Component {
         return q.id > w.id ? 1 : -1;
     } // Quick sort by ID function, so that questions (and answers) will be listed consistently
 
+    emailString() {
+        let str = "mailto:";
+        if (this.state.content.signups && this.state.content.signups.length) {
+            str = str + this.state.content.signups.map(signup => {
+                console.log(signup)
+                return signup.user.email
+            }).toString();
+        }
+        return str;
+    }
+
     render() {
         return (
             <div className="content">
@@ -230,7 +241,7 @@ class ViewMeet extends React.Component {
                                 Reimburse Drivers</NavLink>
                         </Col>
                         <Col>
-                            <Button block href="/">Email Signups</Button>
+                            <Button block href={this.emailString()}>Email Signups</Button>
                         </Col>
                         <Col>
                             <NavLink className="btn btn-block btn-danger" to={`/committee/meets/edit/${this.props.match.params.id}`}>

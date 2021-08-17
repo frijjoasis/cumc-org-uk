@@ -13,7 +13,7 @@ const oldCommittee = {
         ["2014-2015","Tom Hare","Laurent Michaux","Luke Bounds","Daniel Zheng","Alexander Law","Helen Fox & Liam Carter","Rose Pearson","Philip Glass","Lucy Sawyer","Cameron Holloway","Evan Miles",""],
         ["2013-2014","Liam Carter","Laurence Cowton","Luke Bounds","Philip Glass","Daniel Zheng and Thomas Geh","Daniel Zheng and Thomas Geh","Tom Hare","Amelia Fischer-Linnett","Nick Jarman and Laurence Orchard","Jack Ogden and Nick Jarman","Evan Miles",""],
         ["2012-2013","Laurence Cowton","Fabian Jakubczik","Ed Feldman","Vincent Lister","Liam Carter","Liam Carter","Tom Hare (Alpine) & Ivo Dawkins (Winter)","Amelia Fischer-Linnett","Jack Ogden","Nick Jarman","Dawn Hollis",""]
-    ]
+    ] // TODO: Maybe don't hardcode this?
 }
 
 router.get('/past', function(req, res, next) {
