@@ -31,10 +31,17 @@ class Home extends React.Component {
         axios.get('/api/meets/history').then(res => {
            if (res.data.length) {
                this.setState({
-                    history: res.data.map(h => h.meet)
+                    history: res.data.map(h => h.meet).sort(this.sortMeets)
                });
            }
         });
+    }
+
+    sortMeets(m, n) {
+        const mStart = new Date(m.startDate);
+        const nStart = new Date(n.startDate);
+        if (mStart === nStart) return 0;
+        return mStart < nStart ? 1 : -1; // Put later dates first
     }
 
     render() {
@@ -80,12 +87,13 @@ class Home extends React.Component {
                                             </thead>
                                             <tbody>
                                             {
-                                                this.state.history.length ? this.state.history.map(h => {
-                                                    return <tr>
-                                                        <td>{h.title}</td>
-                                                        <td>{new Date(h.startDate).toDateString()}</td>
-                                                    </tr>;
-                                            }) :
+                                                this.state.history.length ?
+                                                    this.state.history.sort(this.sortMeets).map(h => {
+                                                        return <tr>
+                                                            <td>{h.title}</td>
+                                                            <td>{new Date(h.startDate).toDateString()}</td>
+                                                        </tr>;
+                                                    }).splice(0, 2) : // Return only the first 3 elements.
                                                 <tr><td className="text-center" colSpan={2}>None yet!</td></tr>
                                             }
                                             </tbody>
