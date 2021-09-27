@@ -81,6 +81,18 @@ class ViewMeet extends React.Component {
         });
     }
 
+    exportSignups() {
+        axios.post('/api/meets/export', {id: this.props.match.params.id}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: "Payments voided successfully. Please refresh the page"
+                })
+            }
+        });
+    }
+
     sortQuestions(q, w) {
         if (q.id === w.id) return 0;
         return q.id > w.id ? 1 : -1;
@@ -183,7 +195,7 @@ class ViewMeet extends React.Component {
                                                         }
                                                     </tr>
                                                 )
-                                            }) : <tr><td className="text-center" colSpan={2}>None yet!</td></tr>}
+                                            }) : <tr><td className="text-center" colSpan={"100%"}>None yet!</td></tr>}
                                         </tbody>
                                     </Table>
                                 </Card.Body>
@@ -242,6 +254,9 @@ class ViewMeet extends React.Component {
                         </Col>
                         <Col>
                             <Button block href={this.emailString()}>Email Signups</Button>
+                        </Col>
+                        <Col>
+                            <Button block onClick={this.exportSignups.bind(this)}>Export Signups</Button>
                         </Col>
                         <Col>
                             <NavLink className="btn btn-block btn-danger" to={`/committee/meets/edit/${this.props.match.params.id}`}>
