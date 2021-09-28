@@ -38,6 +38,25 @@ function getOneUpcoming(id) {
     });
 }
 
+function getOneUpcomingRestricted(id) { // Same as above, but don't reveal user answers.
+    return getModel().findByPk(id, {
+        include: [
+            {
+                model: sequelize.models.signup,
+                attributes: ['displayName'],
+                include: {
+                    model: sequelize.models.user,
+                    attributes: ['email']
+                }
+            },
+            {
+                model: sequelize.models.user,
+                attributes: ['email', 'firstName', 'lastName', 'phone']
+            }
+        ] // Eager load associated models, recursively
+    });
+}
+
 function deleteMeet(id) {
     return getModel().destroy({
         where: {
@@ -60,5 +79,5 @@ function upsertQuestions(data, id) {
 }
 
 module.exports = {
-    getAllUpcoming, getOneUpcoming, getAll, upsertMeet, deleteMeet, upsertQuestions
+    getAllUpcoming, getOneUpcoming, getOneUpcomingRestricted, getAll, upsertMeet, deleteMeet, upsertQuestions
 }

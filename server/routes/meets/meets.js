@@ -13,7 +13,7 @@ router.get('/all', committeeAuth, async function(req, res) {
 });
 
 router.post('/view', async function(req, res) {
-    await meets.getOneUpcoming(req.body.id).then(meet => {
+    await meets.getOneUpcomingRestricted(req.body.id).then(meet => {
         if (meet) res.json(meet);
         else res.json({err: "Database error: Could not find meet"})
     }).catch(err => {
@@ -56,7 +56,7 @@ router.post('/historyOther', committeeAuth, async function(req, res) {
     });
 });
 
-router.post('/export', committeeAuth, async function(req, res) {
+router.post('/signups', committeeAuth, async function(req, res) {
     await meets.getOneUpcoming(req.body.id).then(meet => {
         if (meet) res.json(meet);
         else res.json({err: "Database error: Could not find meet"})
