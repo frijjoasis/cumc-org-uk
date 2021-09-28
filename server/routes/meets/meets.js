@@ -1,6 +1,5 @@
 const router = require('express').Router();
 const meets = require('../../database/controllers/meets');
-const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
 const {committeeAuth, userAuth} = require('../middleware');
 
@@ -43,6 +42,15 @@ router.post('/questions', committeeAuth, async function(req, res) {
 
 router.post('/delete', committeeAuth, async function(req, res) {
     await meets.deleteMeet(req.body.id).then(() => {
+        res.json(true);
+    }).catch(err => {
+        console.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
+router.post('/deleteSignup', committeeAuth, async function(req, res) {
+    await signups.deleteSignup(req.body.id).then(() => {
         res.json(true);
     }).catch(err => {
         console.error("Database error: ", err);

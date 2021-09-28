@@ -56,8 +56,9 @@ class ViewMeet extends React.Component {
                 this.setState({err: res.data.err});
             } else {
                 this.setState({
-                    success: success + " Please refresh the page."
+                    success: success
                 })
+                window.location.reload(true);
             }
         });
     }
@@ -75,6 +76,19 @@ class ViewMeet extends React.Component {
             }).toString().replaceAll(',', '; ');
         }
         return str;
+    }
+
+    deleteSignup(id) {
+        axios.post(`/api/meets/deleteSignup`, {id: id}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: "Successfully deleted signup."
+                })
+                window.location.reload(true);
+            }
+        });
     }
 
     render() {
@@ -137,17 +151,22 @@ class ViewMeet extends React.Component {
                                                                 </NavLink>,
                                                                 <div>
                                                                     <span style={{color: '#1DC7EA', cursor: 'pointer'}}
-                                                                       onClick={() => this.axiosPaypal('void', mem,
+                                                                          onClick={() => this.axiosPaypal('void', mem,
                                                                        `Payment for ${mem.displayName} voided successfully, if it hadn't been captured.`
                                                                        )}>
                                                                         Reject
                                                                     </span>
                                                                     <br />
                                                                     <span style={{color: '#1DC7EA', cursor: 'pointer'}}
-                                                                       onClick={() => this.axiosPaypal('capture', mem,
+                                                                          onClick={() => this.axiosPaypal('capture', mem,
                                                                            `Payment for ${mem.displayName} captured successfully, if it hadn't been already.`
                                                                        )}>
-                                                                         Capture
+                                                                        Capture
+                                                                    </span>
+                                                                    <br />
+                                                                    <span style={{color: '#1DC7EA', cursor: 'pointer'}}
+                                                                          onClick={() => this.deleteSignup(mem.id)}>
+                                                                        Delete
                                                                     </span>
                                                                 </div>,
                                                                 new Date(mem.createdAt).toUTCString(),
