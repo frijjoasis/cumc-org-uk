@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const members = require('../../database/controllers/members');
+const logger = require('../../logger').logger;
 const {userAuth, rootAuth} = require('../middleware');
 
 router.get('/', userAuth, async function(req, res) {
@@ -22,7 +23,7 @@ router.get('/reset', rootAuth, async function(req, res) {
     await members.resetMembership().then(() => {
         res.json(true);
     }).catch(err => {
-        console.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
