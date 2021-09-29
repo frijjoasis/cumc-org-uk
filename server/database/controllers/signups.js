@@ -27,6 +27,14 @@ function updatePayment(id, captureID) {
     });
 }
 
+function deleteSignup(id) {
+    return getModel().destroy({
+        where: {
+            id: id
+        }
+    })
+}
+
 function getHistory(id) {
     return getModel().findAll({
         where: {
@@ -40,5 +48,5 @@ function getHistory(id) {
 }
 
 module.exports = {
-    handleRegister, getHistory, updatePayment
+    handleRegister, getHistory, updatePayment, deleteSignup
 }

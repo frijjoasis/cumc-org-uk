@@ -13,7 +13,7 @@ router.get('/all', committeeAuth, async function(req, res) {
 });
 
 router.post('/view', async function(req, res) {
-    await meets.getOneUpcoming(req.body.id).then(meet => {
+    await meets.getOneUpcomingRestricted(req.body.id).then(meet => {
         if (meet) res.json(meet);
         else res.json({err: "Database error: Could not find meet"})
     }).catch(err => {
@@ -50,9 +50,28 @@ router.post('/delete', committeeAuth, async function(req, res) {
     });
 });
 
+router.post('/deleteSignup', committeeAuth, async function(req, res) {
+    await signups.deleteSignup(req.body.id).then(() => {
+        res.json(true);
+    }).catch(err => {
+        logger.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
+    });
+});
+
 router.post('/historyOther', committeeAuth, async function(req, res) {
     return signups.getHistory(req.body.id).then(history => {
         res.json(history);
+    });
+});
+
+router.post('/signups', committeeAuth, async function(req, res) {
+    await meets.getOneUpcoming(req.body.id).then(meet => {
+        if (meet) res.json(meet);
+        else res.json({err: "Database error: Could not find meet"})
+    }).catch(err => {
+        logger.error("Database error: ", err);
+        res.json({err: "Database error: Please contact the webmaster"});
     });
 });
 

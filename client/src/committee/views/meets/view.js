@@ -7,6 +7,7 @@ import Card from "react-bootstrap/Card";
 import Alert from "react-bootstrap/Alert";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
+import {CSVLink} from "react-csv";
 import {NavLink} from "react-router-dom";
 
 class ViewMeet extends React.Component {
@@ -17,66 +18,47 @@ class ViewMeet extends React.Component {
                 user: {},
                 questions: []
             },
+            signups: {
+                questions: [],
+                answers: []
+            },
         }
+
+        this.axiosPaypal = this.axiosPaypal.bind(this);
     }
 
     componentDidMount() {
-        axios.post('/api/meets/view', {id: this.props.match.params.id}).then(res => {
+        axios.post('/api/meets/signups', {id: this.props.match.params.id}).then(res => {
             if (res.data.err) {
                 this.setState({err: res.data.err});
                 window.scrollTo(0,0);
             } else {
                 this.setState({
-                    content: res.data
+                    content: res.data,
+                    signups: {
+                        questions: res.data.questions.sort(this.sortQuestions).map(q => q.title),
+                        answers: res.data.signups.map(mem => {
+                            return [mem.displayName, mem.user.email, new Date(mem.createdAt).toUTCString(), mem.authID]
+                                .concat(mem.answers
+                                    .sort(this.sortQuestions)
+                                    .map(a => a.value));
+                        })
+                    }
                 });
             }
         });
     }
 
-    capturePayments() {
-        axios.post('/api/paypal/capture', {id: this.props.match.params.id}).then(res => {
+    axiosPaypal(url, mem, success) {
+        let data = mem ? {id: this.props.match.params.id, authID: mem.authID} : {id: this.props.match.params.id}
+        axios.post(`/api/paypal/${url}`, data).then(res => {
             if (res.data.err) {
                 this.setState({err: res.data.err});
             } else {
                 this.setState({
-                    success: "Payments captured successfully. Please refresh the page"
+                    success: success
                 })
-            }
-        });
-    }
-
-    capturePayment(mem) {
-        axios.post('/api/paypal/capture', {id: this.props.match.params.id, authID: mem.authID}).then(res => {
-            if (res.data.err) {
-                this.setState({err: res.data.err});
-            } else {
-                this.setState({
-                    success: `Payment for ${mem.displayName} captured successfully, if it hadn't been already. Please refresh.`
-                })
-            }
-        });
-    }
-
-    voidPayment(mem) {
-        axios.post('/api/paypal/void', {id: this.props.match.params.id, authID: mem.authID}).then(res => {
-            if (res.data.err) {
-                this.setState({err: res.data.err});
-            } else {
-                this.setState({
-                    success: `Payment for ${mem.displayName} voided successfully, if it hadn't been captured. Please refresh.`
-                })
-            }
-        });
-    }
-
-    voidPayments() {
-        axios.post('/api/paypal/void', {id: this.props.match.params.id}).then(res => {
-            if (res.data.err) {
-                this.setState({err: res.data.err});
-            } else {
-                this.setState({
-                    success: "Payments voided successfully. Please refresh the page"
-                })
+                window.location.reload(true); //TODO: Should really code a state update here but I cba
             }
         });
     }
@@ -90,11 +72,23 @@ class ViewMeet extends React.Component {
         let str = "mailto:";
         if (this.state.content.signups && this.state.content.signups.length) {
             str = str + this.state.content.signups.map(signup => {
-                console.log(signup)
                 return signup.user.email
             }).toString().replaceAll(',', '; ');
         }
         return str;
+    }
+
+    deleteSignup(id) {
+        axios.post(`/api/meets/deleteSignup`, {id: id}).then(res => {
+            if (res.data.err) {
+                this.setState({err: res.data.err});
+            } else {
+                this.setState({
+                    success: "Successfully deleted signup."
+                })
+                window.location.reload(true); //TODO: Should really code a state update here but I cba
+            }
+        });
     }
 
     render() {
@@ -139,10 +133,7 @@ class ViewMeet extends React.Component {
                                             {
                                                 [
                                                     "Name", "Admin", "Created At", "Payment Status"
-                                                ].concat((this.state.content.questions ? this.state.content.questions : [])
-                                                    .sort(this.sortQuestions)
-                                                    .map(q => q.title)
-                                                ).map((e, key) => {
+                                                ].concat(this.state.signups.questions).map((e, key) => {
                                                     return <th key={key}>{e}</th>
                                                 })
                                             }
@@ -160,13 +151,22 @@ class ViewMeet extends React.Component {
                                                                 </NavLink>,
                                                                 <div>
                                                                     <span style={{color: '#1DC7EA', cursor: 'pointer'}}
-                                                                       onClick={() => this.voidPayment(mem)}>
+                                                                          onClick={() => this.axiosPaypal('void', mem,
+                                                                       `Payment for ${mem.displayName} voided successfully, if it hadn't been captured.`
+                                                                       )}>
                                                                         Reject
                                                                     </span>
                                                                     <br />
                                                                     <span style={{color: '#1DC7EA', cursor: 'pointer'}}
-                                                                       onClick={() => this.capturePayment(mem)}>
-                                                                         Capture
+                                                                          onClick={() => this.axiosPaypal('capture', mem,
+                                                                           `Payment for ${mem.displayName} captured successfully, if it hadn't been already.`
+                                                                       )}>
+                                                                        Capture
+                                                                    </span>
+                                                                    <br />
+                                                                    <span style={{color: '#1DC7EA', cursor: 'pointer'}}
+                                                                          onClick={() => this.deleteSignup(mem.id)}>
+                                                                        Delete
                                                                     </span>
                                                                 </div>,
                                                                 new Date(mem.createdAt).toUTCString(),
@@ -183,7 +183,7 @@ class ViewMeet extends React.Component {
                                                         }
                                                     </tr>
                                                 )
-                                            }) : <tr><td className="text-center" colSpan={2}>None yet!</td></tr>}
+                                            }) : <tr><td className="text-center" colSpan={"100%"}>None yet!</td></tr>}
                                         </tbody>
                                     </Table>
                                 </Card.Body>
@@ -244,19 +244,35 @@ class ViewMeet extends React.Component {
                             <Button block href={this.emailString()}>Email Signups</Button>
                         </Col>
                         <Col>
-                            <NavLink className="btn btn-block btn-danger" to={`/committee/meets/edit/${this.props.match.params.id}`}>
+                            <CSVLink filename={`meet-${this.props.match.params.id}-export.csv`} data={
+                                [
+                                    ["Name", "Email", "Created At", "Authorisation ID"].concat(this.state.signups.questions),
+                                ].concat(this.state.signups.answers)
+                            }>
+                                <Button block>
+                                    Export Signups
+                                </Button>
+                            </CSVLink>
+                        </Col>
+                        <Col>
+                            <NavLink className="btn btn-block btn-danger"
+                                     to={`/committee/meets/edit/${this.props.match.params.id}`}>
                                 Edit Meet</NavLink>
                         </Col>
                     </Row>
                     <br />
                     <Row>
                         <Col>
-                            <Button block variant="success" onClick={this.capturePayments.bind(this)}>
+                            <Button block variant="success"
+                                    onClick={() => this.axiosPaypal('capture', false,
+                                        "Payments captured successfully.")}>
                                 Capture Payments
                             </Button>
                         </Col>
                         <Col>
-                            <Button block variant="danger" onClick={this.voidPayments.bind(this)}>
+                            <Button block variant="danger"
+                                    onClick={() => this.axiosPaypal('void', false,
+                                "Payments voided successfully.")}>
                                 Void Payments
                             </Button>
                         </Col>

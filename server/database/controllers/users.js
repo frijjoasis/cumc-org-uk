@@ -26,7 +26,7 @@ function list() {
     return getModel().findAll({
         include: {
             model: sequelize.models.member,
-            attributes: ['hasPaid']
+            attributes: ['hasPaid', 'committee']
         }
     });
 }

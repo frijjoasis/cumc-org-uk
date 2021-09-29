@@ -5,7 +5,7 @@
 const committee = {
     president: {
         role: "President",
-        name: "Sam Reynolds",
+        name: "Bethan Davies-Williams",
         social: "president@cumc.org.uk",
         profile: require(`../../../../assets/img/committee/president.jpg`).default,
         cover: require(`../../../../assets/img/committee/presidentCover.jpg`).default,
@@ -27,17 +27,17 @@ const committee = {
     indoorMeets: [
         {
             role: "Indoor Meets Secretary",
-            name: "Anna Kelly",
+            name: "Humphrey Allen",
             social: "indoor-meets@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/indoorMeets2.png`).default,
-            cover: require(`../../../../assets/img/committee/indoorMeets2Cover.jpg`).default,
+            profile: require(`../../../../assets/img/committee/notFound.png`).default,
+            cover: require(`../../../../assets/img/committee/background.jpg`).default,
         },
         {
             role: "Indoor Meets Secretary",
-            name: "Alex Pantelides",
+            name: "Philip Sosnin",
             social: "indoor-meets@cumc.org.uk",
             profile: require(`../../../../assets/img/committee/indoorMeets1.jpg`).default,
-            cover: require(`../../../../assets/img/committee/notFound.png`).default,
+            cover: require(`../../../../assets/img/committee/background.jpg`).default,
         }
     ],
     outdoorMeets: [
@@ -47,58 +47,72 @@ const committee = {
             social: "outdoor-meets@cumc.org.uk",
             profile: require(`../../../../assets/img/committee/outdoorMeets1.jpg`).default,
             cover: require(`../../../../assets/img/committee/outdoorMeets1Cover.jpg`).default,
+        },
+        {
+            role: "Outdoor Meets Secretary",
+            name: "Tom de Csilléry",
+            social: "outdoor-meets@cumc.org.uk",
+            profile: require(`../../../../assets/img/committee/notFound.png`).default,
+            cover: require(`../../../../assets/img/committee/background.jpg`).default,
         }
     ],
     gear: {
         role: "Gear Secretary",
-        name: "Harry Piercy",
+        name: "Sidney Leedham",
         social: "gear@cumc.org.uk",
         profile: require(`../../../../assets/img/committee/gear.jpg`).default,
         cover: require(`../../../../assets/img/committee/gearCover.jpg`).default,
     },
     winterMeets: {
         role: "Alpine and Winter Secretary",
-        name: "Jacob Rose",
+        name: "Elizabeth Stephenson",
         social: "winter@cumc.org.uk",
-        profile: require(`../../../../assets/img/committee/notFound.png`).default,
-        cover: require(`../../../../assets/img/committee/notFound.png`).default,
+        profile: require(`../../../../assets/img/committee/outdoorMeets1.jpg`).default,
+        cover: require(`../../../../assets/img/committee/outdoorMeets1Cover.jpg`).default,
     },
     competitions: {
         role: "Competitions Secretary",
-        name: "Hugo Burgess",
+        name: "Matthew Fall",
         social: "competitions@cumc.org.uk",
         profile: require(`../../../../assets/img/committee/competitions.jpg`).default,
-        cover: require(`../../../../assets/img/committee/competitionsCover.jpg`).default,
+        cover: require(`../../../../assets/img/committee/background.jpg`).default,
     },
     socialMeets: [
         {
             role: "Social Secretary",
-            name: "Marcus Samuel",
+            name: "Holly Davis",
             social: "socials@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/socials1.jpg`).default,
+            profile: require(`../../../../assets/img/committee/socials1.png`).default,
             cover: require(`../../../../assets/img/committee/socials1Cover.jpg`).default,
         },
         {
             role: "Social Secretary",
-            name: "Isma'eel Zia",
+            name: "Arianna Chan",
             social: "socials@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.png`).default,
-            cover: require(`../../../../assets/img/committee/notFound.png`).default,
+            profile: require(`../../../../assets/img/committee/socials2.jpg`).default,
+            cover: require(`../../../../assets/img/committee/socials2Cover.jpg`).default,
         }
     ],
     webmaster: {
         role: "Webmaster",
-        name: "Edmund Ross",
+        name: "Max Fryer",
         social: "webmaster@cumc.org.uk",
-        profile: require(`../../../../assets/img/committee/treasurer.jpg`).default,
-        cover: require(`../../../../assets/img/committee/treasurerCover.jpg`).default,
+        profile: require(`../../../../assets/img/committee/notFound.png`).default,
+        cover: require(`../../../../assets/img/committee/background.jpg`).default,
     },
     journal: {
-        role: "Journal Editor",
-        name: "Sophie Miocevich",
+        role: "Journals & Librarian",
+        name: "Sam Reynolds",
         social: "journal@cumc.org.uk",
+        profile: require(`../../../../assets/img/committee/journals.jpg`).default,
+        cover: require(`../../../../assets/img/committee/journalsCover.jpg`).default,
+    },
+    diversity: {
+        role: "Diversity Officer",
+        name: "Isma'eel Zia",
+        social: "diversity@cumc.org.uk",
         profile: require(`../../../../assets/img/committee/notFound.png`).default,
-        cover: require(`../../../../assets/img/committee/notFound.png`).default,
+        cover: require(`../../../../assets/img/committee/background.jpg`).default,
     }
 };
 

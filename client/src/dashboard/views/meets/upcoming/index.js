@@ -82,7 +82,13 @@ class UpcomingMeets extends React.Component {
                         );
                     }) : <Row>
                         <Col>
-                            <p className="text-center">No meets are currently running :(</p>
+                            <Card>
+                                <Card.Body>
+                                    <Card.Title className="text-center">
+                                        No meets are currently running :(
+                                    </Card.Title>
+                                </Card.Body>
+                            </Card>
                         </Col>
                     </Row>}
                 </Container>

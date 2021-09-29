@@ -38,10 +38,18 @@ function getInfo(id) {
     });
 }
 
+function resetMembership() {
+    return getModel().update({hasPaid: false}, {
+        where: {
+            hasPaid: true
+        }
+    });
+}
+
 function upsert(data) {
     return getModel().upsert(data);
 }
 
 module.exports = {
-    getMember, getCommitteeRole, getCommittee, getInfo, upsert
+    getMember, getCommitteeRole, getCommittee, getInfo, resetMembership, upsert
 }

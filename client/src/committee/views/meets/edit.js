@@ -28,7 +28,7 @@ class EditMeet extends React.Component {
 
     componentDidMount() {
         if (this.props.match.params.id) {
-            axios.post('/api/meets/view', {id: this.props.match.params.id}).then(res => {
+            axios.post('/api/meets/signups', {id: this.props.match.params.id}).then(res => {
                 if (res.data.err) {
                     this.setState({err: res.data.err});
                     window.scrollTo(0, 0);
