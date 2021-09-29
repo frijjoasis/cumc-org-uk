@@ -86,6 +86,9 @@ class CommitteeAbout extends React.Component {
                         <Col md={3}>
                             <UserCard person={committee.journal} />
                         </Col>
+                        <Col md={3}>
+                            <UserCard person={committee.diversity} />
+                        </Col>
                     </Row>
                     <Row>
                         <Col md={12}>
