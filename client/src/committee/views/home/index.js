@@ -73,7 +73,7 @@ class CommitteeHome extends React.Component {
                                                         }
                                                     </tr>
                                                 )
-                                            }) : <tr><td className="text-center">Nothing here :(</td></tr>}
+                                            }) : <tr><td colSpan={2} className="text-center">Nothing here :(</td></tr>}
                                         </tbody>
                                     </Table>
                                 </Card.Body>

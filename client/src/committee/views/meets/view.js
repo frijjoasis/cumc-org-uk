@@ -58,7 +58,7 @@ class ViewMeet extends React.Component {
                 this.setState({
                     success: success
                 })
-                window.location.reload(true);
+                window.location.reload(true); //TODO: Should really code a state update here but I cba
             }
         });
     }
@@ -86,7 +86,7 @@ class ViewMeet extends React.Component {
                 this.setState({
                     success: "Successfully deleted signup."
                 })
-                window.location.reload(true);
+                window.location.reload(true); //TODO: Should really code a state update here but I cba
             }
         });
     }
