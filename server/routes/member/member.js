@@ -32,7 +32,7 @@ router.post('/update', rootAuth, async function(req, res) {
     await members.updateMembership(req.body.id, req.body.status).then(() => {
         res.json(true);
     }).catch(err => {
-        console.error("Database error: ", err);
+        logger.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
