@@ -36,7 +36,7 @@ fs.readFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', (err,
 
         // Reset mail.json. We don't have to worry about this being asynchronous from the child processes, the file has already been read
         fs.writeFile('/societies/cumc/cumc-org-uk/server/routes/mailman/mail.json', empty, 'utf-8', err => {
-            if (!err) logger.log("Reset mail.json successfully.");
+            if (!err) logger.info("Reset mail.json successfully.");
             else logger.error("Failed to write to mail.json: ", err);
         });
     } else logger.error("Failed to read mail.json: ", err);
