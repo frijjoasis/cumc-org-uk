@@ -38,6 +38,13 @@ function getInfo(id) {
     });
 }
 
+function updateMembership(id, status) {
+    return getModel().upsert({
+        id: id,
+        hasPaid: status
+    });
+}
+
 function resetMembership() {
     return getModel().update({hasPaid: false}, {
         where: {
@@ -51,5 +58,5 @@ function upsert(data) {
 }
 
 module.exports = {
-    getMember, getCommitteeRole, getCommittee, getInfo, resetMembership, upsert
+    getMember, getCommitteeRole, getCommittee, getInfo, updateMembership, resetMembership, upsert
 }

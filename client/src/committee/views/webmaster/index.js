@@ -10,20 +10,31 @@ import {NavLink} from "react-router-dom";
 import Form from "react-bootstrap/Form";
 import FormControl from "react-bootstrap/FormControl";
 import Alert from "react-bootstrap/Alert";
+import MembershipChanger from "../../../components/MembershipChanger/MembershipChanger";
 
 class Webmaster extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            content: []
+            content: [],
+            err: null,
+            success: null
         }
     }
 
     componentDidMount() {
+        this.refreshData(null, null);
+        this.setState({
+            filter: ""
+        });
+    }
+
+    refreshData(error, success) {
         axios.get("/api/user/list").then(res => {
             this.setState({
+                err: error,
+                success: success,
                 content: res.data,
-                filter: ""
             });
         });
     }
@@ -118,8 +129,11 @@ class Webmaster extends React.Component {
                                                                         u.displayName}
                                                                 </NavLink>,
                                                                 u.member ? u.member.committee : "",
-                                                                (u.member && u.member.hasPaid) ? <div className="text-success">Yes</div>
-                                                                    : <div className="text-danger">No</div>
+                                                                <MembershipChanger
+                                                                    callback={this.refreshData.bind(this)}
+                                                                    default={u.member && u.member.hasPaid}
+                                                                    id={u.id}
+                                                                />
                                                             ].map((e, key) => {
                                                                 return <td key={key}>{e}</td>;
                                                             })
@@ -130,11 +144,6 @@ class Webmaster extends React.Component {
                                         </tbody>
                                     </Table>
                                 </Card.Body>
-                                <Card.Footer>
-                                    <Button className="float-right btn" variant="info">
-                                        Update Roles
-                                    </Button>
-                                </Card.Footer>
                             </Card>
                         </Col>
                     </Row>
