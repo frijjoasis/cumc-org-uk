@@ -433,7 +433,7 @@ class Register extends React.Component {
                                                                 <Form.Label>Purchase Membership</Form.Label>
                                                                 <div className="text-center">
                                                                     <PayPalButtons
-                                                                        price='25.00'
+                                                                        price='27.00'
                                                                         description='Purchase Full Membership'
                                                                         intent='membership'
                                                                         onSuccess={() => window.location.href = "/home"}

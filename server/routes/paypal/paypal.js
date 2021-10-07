@@ -33,13 +33,13 @@ axios.post(PAYPAL_OAUTH_API, {}, {
 });
 
 router.post('/membership', userAuth, async function(req, res) {
-    return verify(req.body.data.orderID, '25.00').then(v => {
+    return verify(req.body.data.orderID, '27.00').then(v => {
         if (v.err) res.json(v.err);
         else {
             return authorise(req.body.data.orderID).then(auth => {
                 if (auth.err) res.json(auth.err);
                 else {
-                    return capture(auth, '25.00').then(cap => {
+                    return capture(auth, '27.00').then(cap => {
                         if (cap.err) res.json(cap.err);
                         else {
                             return members.upsert({
