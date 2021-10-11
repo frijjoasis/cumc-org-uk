@@ -324,4 +324,9 @@ router.get('/routes', function(req, res, next) {
     });
 });
 
+router.get('/whatsapp', function(req, res) {
+    res.json(req.isAuthenticated() ? process.env.WHATSAPP : 'https://www.cumc.org.uk/login')
+    // Hide whatsapp link from non-members :)
+});
+
 module.exports = router;

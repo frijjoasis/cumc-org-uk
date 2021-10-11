@@ -18,6 +18,7 @@ class Home extends React.Component {
         super(props);
         this.state = {
             member: false,
+            link: "https://www.cumc.org.uk/login",
             history: []
         }
     }
@@ -34,6 +35,11 @@ class Home extends React.Component {
                     history: res.data.map(h => h.meet).sort(this.sortMeets)
                });
            }
+        });
+        axios.get('/api/about/whatsapp').then(res => {
+            this.setState({
+                link: res.data
+            })
         });
     }
 
@@ -109,7 +115,7 @@ class Home extends React.Component {
                             </Card>
                         </Col>
                     </Row>
-                    <AboutCard title="About Us" text={aboutText} />
+                    <AboutCard title="About Us" text={aboutText(this.state.link)} />
                     <Row>
                         {homeImages.map((i, key) => {
                             return (

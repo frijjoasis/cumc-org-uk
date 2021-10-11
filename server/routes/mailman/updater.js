@@ -18,20 +18,24 @@ const empty = JSON.stringify({
 
 fs.readFile('mail.json', (err, data) => {
     if (!err) {
-        const lists = JSON.parse(data.toString());
+        try {
+            const lists = JSON.parse(data.toString());
 
-        ["add", "remove"].forEach(i => {
-            Object.keys(lists[i]).forEach(list => {
-                let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['-w', 'y', '-a', 'n', list]
-                    : ['-N', '-s', list]);
-                child.stdin.setEncoding('utf-8');
-                for (let e of lists[i][list]) {
-                    console.log(`${i} ${e} from ${list}`);
-                    child.stdin.write(e + '\r\n');
-                }
-                child.stdin.end();
+            ["add", "remove"].forEach(i => {
+                Object.keys(lists[i]).forEach(list => {
+                    let child = spawn(`srcf-mailman-${i}`, (i === "add") ? ['-w', 'y', '-a', 'n', list]
+                        : ['-N', '-s', list]);
+                    child.stdin.setEncoding('utf-8');
+                    for (let e of lists[i][list]) {
+                        console.log(`${i} ${e} from ${list}`);
+                        child.stdin.write(e + '\r\n');
+                    }
+                    child.stdin.end();
+                });
             });
-        });
+        } catch(err) {
+            console.error("Failed to update mail preferences: ", err);
+        }
 
         // Reset mail.json. We don't have to worry about this being asynchronous from the child processes, the file has already been read
         fs.writeFile('mail.json', empty, 'utf-8', err => {

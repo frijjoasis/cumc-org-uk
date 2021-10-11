@@ -2,8 +2,24 @@ import React from "react";
 import Container from "react-bootstrap/Container";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
+import axios from "axios";
 
 class Footer extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            link: 'https://www.cumc.org.uk/login'
+        };
+    }
+
+    componentDidMount() {
+        axios.get('/api/about/whatsapp').then(res => {
+            this.setState({
+                link: res.data,
+            })
+        });
+    }
+
     render() {
         return (
             <footer className="footer">
@@ -21,7 +37,7 @@ class Footer extends React.Component {
                                 </a>
                             </li>
                             <li>
-                                <a href="https://chat.whatsapp.com/ENfiw44UbM2AGnY9Jjtk9E">
+                                <a href={this.state.link}>
                                     <i className="fa fa-whatsapp" />
                                 </a>
                             </li>
