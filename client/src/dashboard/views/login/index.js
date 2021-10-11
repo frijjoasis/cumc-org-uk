@@ -85,7 +85,8 @@ class Register extends React.Component {
                 this.setState({err: res.data.err});
                 window.scrollTo(0,0);
             } else {
-                this.setState({success: "Successfully updated your mailing preferences."});
+                this.setState({success: "Successfully updated your mailing preferences. " +
+                        "Please note it may take up to 4 hours for the changes to take effect."});
             }
         });
         event.preventDefault();
