@@ -33,13 +33,13 @@ axios.post(PAYPAL_OAUTH_API, {}, {
 
 router.post('/membership', userAuth, async function(req, res) {
     return verify(req.body.data.orderID, '27.00').then(v => {
-        if (v.err) res.json(v.err);
+        if (v.err) res.json({err: v.err});
         else {
             return authorise(req.body.data.orderID).then(auth => {
-                if (auth.err) res.json(auth.err);
+                if (auth.err) res.json({err: auth.err});
                 else {
                     return capture(auth, '27.00').then(cap => {
-                        if (cap.err) res.json(cap.err);
+                        if (cap.err) res.json({err: cap.err});
                         else {
                             return members.upsert({
                                 id: req.user.id,
@@ -65,14 +65,24 @@ router.post('/register', userAuth, async function(req, res) {
         if (meet.disabled) {
             res.json({err: "Signups are not open for this meet!"});
         } else return verify(req.body.data.orderID, meet.price).then(v => {
-            if (v.err) res.json(v.err);
+            if (v.err) res.json({err: v.err});
             else {
                 return authorise(req.body.data.orderID).then(auth => {
-                    if (auth.err) res.json(auth.err);
+                    if (auth.err) res.json({err: auth.err});
                     else {
                         req.body.form.authID = auth;
                         return signups.handleRegister(req.body.form, req.user).then(() => {
-                            res.json(true);
+                            if (meet.price > 0) {
+                                return members.upsert({
+                                    id: req.user.id,
+                                    // hasPaid defaults to false
+                                    hasFree: false
+                                }).then(() => {
+                                    res.json(true);
+                                })
+                            } else {
+                                res.json(true);
+                            }
                         }); // An error here is caught by parent promise
                     }
                 });
@@ -154,15 +164,8 @@ function isPaymentNeeded(id, meetID) {
                         //TODO: Condition this on the first 3 months of the year, somehow...
                         if (!member || member.hasFree) {
                             // User not known to have gone on any meets
-                            return members.upsert({
-                                id: id,
-                                // hasPaid defaults to false
-                                hasFree: false
-                                //TODO: This should be updated on signup, not on checking if they need to pay...
-                            }).then(() => {
-                                return true;
-                                // Policy is that a user gets to attend one meet before having to become a full member
-                            });
+                            return true;
+                            // Policy is that a user gets to attend one meet before having to become a full member
                         } else if (member.hasPaid) {
                             // They are a current member
                             return true;
