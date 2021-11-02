@@ -5,6 +5,7 @@ const members = require('../../database/controllers/members');
 const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
 const meets = require('../../database/controllers/meets');
+const britrock = require("../../database/controllers/britrock");
 const logger = require('../../logger').logger;
 const axios = require('axios');
 
@@ -51,6 +52,30 @@ router.post('/membership', userAuth, async function(req, res) {
                                 res.json(true)
                             }).catch(err => {
                                 logger.error("Database error: ", err);
+                                res.json({err: "Database error: Please contact the webmaster"});
+                            });
+                        }
+                    });
+                }
+            });
+        } // Errors in verify, authorise and capture are caught by the respective functions
+    });
+});
+
+router.post('/britrock', async function(req, res) {
+    return verify(req.body.data.orderID, '7.50').then(v => {
+        if (v.err) res.json({err: v.err});
+        else {
+            return authorise(req.body.data.orderID).then(auth => {
+                if (auth.err) res.json({err: auth.err});
+                else {
+                    return capture(auth, '7.50').then(cap => {
+                        if (cap.err) res.json({err: cap.err});
+                        else {
+                            return britrock.upsert(req.body.form).then(() => {
+                                res.json(true)
+                            }).catch(err => {
+                                console.error("Database error: ", err);
                                 res.json({err: "Database error: Please contact the webmaster"});
                             });
                         }

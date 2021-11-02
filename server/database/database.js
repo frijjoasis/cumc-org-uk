@@ -17,6 +17,7 @@ const models = [
     require('./models/member'),
     require('./models/meet'),
     require('./models/signup'),
+    require('./models/britrock'),
 ]
 
 module.exports = {
