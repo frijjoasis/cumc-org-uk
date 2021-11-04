@@ -70,7 +70,8 @@ class BritRock extends React.Component {
                                     <Card.Body>
                                         <Card.Title>Tickets for Brit Rock Film Festival at CUMC</Card.Title>
                                         <Card.Subtitle>
-                                            Please fill out the form below
+                                            This will take place at 7.30pm on the 20th Nov, at McCrum Lecture Theatre in Corpus Christi.
+                                            It is open to both CUMC members and the general public.
                                         </Card.Subtitle>
                                         <Card.Text>
                                         <hr/>
@@ -104,7 +105,7 @@ class BritRock extends React.Component {
                                             <Row>
                                                 <Col>
                                                     <div>
-                                                        <Form.Label>Pay for Ticket</Form.Label>
+                                                        <Form.Label>Pay for Ticket (£7.50)</Form.Label>
                                                         <div className="text-center">
                                                             <PayPalButtons
                                                                 price={"7.50"}
