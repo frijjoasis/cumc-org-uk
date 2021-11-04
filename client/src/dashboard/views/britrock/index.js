@@ -49,7 +49,7 @@ class BritRock extends React.Component {
                         <p>
                             Please make a note of this number. It will be included with your payment confirmation email
                             from PayPal. Email us if you lose it, or you would like to cancel - but be aware that we
-                            cannot offer refunds after the 8th Nov.
+                            cannot offer refunds after the 13th Nov.
                         </p>
                     </Card.Text>
                 </Card.Body>
