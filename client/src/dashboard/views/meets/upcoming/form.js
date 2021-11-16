@@ -145,33 +145,9 @@ class MeetForm extends React.Component {
                                                             type="checkbox"
                                                             id="data"
                                                             required
-                                                            label="I have read, understand and agree to the club's data protection statement"
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Form.Group>
-                                                        <Form.Check
-                                                            custom
-                                                            type="checkbox"
-                                                            id="privacy"
-                                                            required
-                                                            label="I read, understand and agree to the club's safety policy"
-                                                        />
-                                                    </Form.Group>
-                                                </Col>
-                                            </Row>
-                                            <Row>
-                                                <Col>
-                                                    <Form.Group>
-                                                        <Form.Check
-                                                            custom
-                                                            type="checkbox"
-                                                            id="participation"
-                                                            required
-                                                            label="I have read, understand and agree to the BMC participation statement"
+                                                            label="I have read, understand and agree to the club's data
+                                                            safety policy, the club's protection statement and the BMC
+                                                            participation statement"
                                                         />
                                                     </Form.Group>
                                                 </Col>
