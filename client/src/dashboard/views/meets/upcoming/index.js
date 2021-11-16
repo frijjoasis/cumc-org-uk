@@ -37,7 +37,8 @@ class UpcomingMeets extends React.Component {
                     You will need to <NavLink to="/login">sign in</NavLink> and register before you can sign up to meets!
                 </Alert>}
                 <Container>
-                    {this.state.content.length ? this.state.content.sort(this.sortMeets).map(meet => {
+                    {this.state.content.filter(m => !m.hidden).length ?
+                            this.state.content.sort(this.sortMeets).filter(m => !m.hidden).map(meet => {
                         return(
                             <Row>
                                 <Col>

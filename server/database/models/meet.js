@@ -30,7 +30,13 @@ const schema = {
         type: DataTypes.BOOLEAN
     },
     questions: DataTypes.JSON,
-    price: DataTypes.FLOAT
+    price: DataTypes.FLOAT,
+    hidden: {
+        allowNull: false,
+        defaultValue: false,
+        type: DataTypes.BOOLEAN
+    } // Note this option is not secure, the API will still leak hidden meets. The IDs are sequential anyway.
+      // It just hides it from the upcoming menu for cleanliness.
 };
 
 function define(sequelize) {

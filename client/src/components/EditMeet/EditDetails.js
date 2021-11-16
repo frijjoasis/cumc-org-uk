@@ -56,6 +56,7 @@ class EditDetails extends React.Component {
             );
             // Reconstruct date objects
             answers.disabled = form.elements.disabled.checked;
+            answers.hidden = form.elements.hidden.checked;
 
             answers.id = this.props.pathname.includes("edit") ? this.props.id : null
             // Only include a meetID if we want to edit a meet. Otherwise we assume clone/new
@@ -253,6 +254,23 @@ class EditDetails extends React.Component {
                                 }))}
                                 checked={this.state.content.disabled}
                                 label="Disable signups?"
+                            />
+                        </Form.Group>
+                    </Col>
+                    <Col md={4}>
+                        <Form.Group controlId="hidden">
+                            <Form.Check
+                                custom
+                                type="checkbox"
+                                id="hidden"
+                                onClick={() => this.setState(prevState => ({
+                                    content: {
+                                        ...prevState.content,
+                                        hidden: !prevState.content.hidden
+                                    }
+                                }))}
+                                checked={this.state.content.hidden}
+                                label="Hide meet from the upcoming menu?"
                             />
                         </Form.Group>
                     </Col>
