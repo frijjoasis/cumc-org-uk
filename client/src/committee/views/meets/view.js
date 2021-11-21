@@ -33,6 +33,7 @@ class ViewMeet extends React.Component {
                 this.setState({err: res.data.err});
                 window.scrollTo(0,0);
             } else {
+                res.data.questions = res.data.questions ? res.data.questions : []
                 this.setState({
                     content: res.data,
                     signups: {

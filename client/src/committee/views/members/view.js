@@ -60,16 +60,16 @@ class ViewMember extends React.Component {
                                                         <br />,
                                                         c.address1, <br />,
                                                         c.address2, <br />,
-                                                        c.postCode ? c.postCode : ""
-                                                            + ", " + c.city ? c.city : ""
-                                                            + " " + c.country ? c.country : ""
+                                                        (c.postCode ? c.postCode : "")
+                                                            + ", " + (c.city ? c.city : "")
+                                                            + " " + (c.country ? c.country : "")
                                                     ]
                                                 },
                                                 {name: "Date of Birth", display: (c) => c.dob},
                                                 {name: "Phone", display: (c) => c.phone},
                                                 {name: "Emergency Contact", display: (c) =>
-                                                        c.emergencyName ? c.emergencyName : ""
-                                                            + " " + c.emergencyPhone ? c.emergencyPhone : ""
+                                                        (c.emergencyName ? c.emergencyName : "")
+                                                            + ", " + (c.emergencyPhone ? c.emergencyPhone : "")
                                                 },
                                                 {name: "BMC Number", display: (c) => c.bmc},
                                                 {name: "Current Member", display: (c) => (c.member && c.member.hasPaid) ?

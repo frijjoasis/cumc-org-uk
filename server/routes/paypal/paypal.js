@@ -31,6 +31,8 @@ axios.post(PAYPAL_OAUTH_API, {}, {
     console.error('PayPal API error: ', err);
 });
 
+//TODO: Refactor this file. It's a mess.
+
 router.post('/membership', userAuth, async function(req, res) {
     return verify(req.body.data.orderID, '27.00').then(v => {
         if (v.err) res.json({err: v.err});
@@ -62,31 +64,38 @@ router.post('/membership', userAuth, async function(req, res) {
 
 router.post('/register', userAuth, async function(req, res) {
     await meets.getOneUpcoming(req.body.form.meetID).then(meet => {
-        if (meet.disabled) {
-            res.json({err: "Signups are not open for this meet!"});
-        } else return verify(req.body.data.orderID, meet.price).then(v => {
-            if (v.err) res.json({err: v.err});
-            else {
-                return authorise(req.body.data.orderID).then(auth => {
-                    if (auth.err) res.json({err: auth.err});
-                    else {
-                        req.body.form.authID = auth;
-                        return signups.handleRegister(req.body.form, req.user).then(() => {
-                            if (meet.price > 0) {
-                                return members.upsert({
-                                    id: req.user.id,
-                                    // hasPaid defaults to false
-                                    hasFree: false
-                                }).then(() => {
+        return isPaymentNeeded(req.user.id, meet.id).then(isNeeded => {
+            if (!isNeeded || isNeeded.err) {
+                res.json({err: "You are not eligible to sign up to this meet! Please contact the webmaster."})
+                // Possible to reach this error if a malicious actor crafts a POST request to this URL
+            }
+            if (meet.disabled) {
+                res.json({err: "Signups are not open for this meet!"});
+            } else return verify(req.body.data.orderID, meet.price).then(v => {
+                if (v.err) res.json({err: v.err});
+                else {
+                    return authorise(req.body.data.orderID).then(auth => {
+                        if (auth.err) res.json({err: auth.err});
+                        else {
+                            req.body.form.authID = auth;
+                            return signups.handleRegister(req.body.form, req.user).then(() => {
+                                if (meet.signupControl !== 'Everyone') {
+                                    // Meet type causes loss of free waiver
+                                    return members.upsert({
+                                        id: req.user.id,
+                                        // hasPaid defaults to false
+                                        hasFree: false
+                                    }).then(() => {
+                                        res.json(true);
+                                    })
+                                } else {
                                     res.json(true);
-                                })
-                            } else {
-                                res.json(true);
-                            }
-                        }); // An error here is caught by parent promise
-                    }
-                });
-            } // Errors in verify and authorise are caught by the respective functions
+                                }
+                            }); // An error here is caught by parent promise
+                        }
+                    });
+                } // Errors in verify and authorise are caught by the respective functions
+            });
         });
     }).catch(err => {
         console.error("Database error: ", err);
@@ -141,8 +150,20 @@ router.post('/required', userAuth, async function(req, res) {
             res.json(isNeeded); // Error or payment required
         } else {
             req.body.captureID = 'Not Paying';
-            return signups.handleRegister(req.body, req.user).then(() => {
-                res.json(isNeeded);
+            return meets.getOneUpcoming(req.body.meetID).then(meet => {
+                return signups.handleRegister(req.body, req.user).then(() => {
+                    if (meet.signupControl !== 'Everyone') {
+                        // Meet type causes loss of free waiver
+                        return members.upsert({
+                            id: req.user.id,
+                            // hasPaid defaults to false
+                            hasFree: false
+                        }).then(() => {
+                            res.json(isNeeded);
+                        })
+                    } //TODO: urghhhhhhhhhh refactor
+                    res.json(isNeeded);
+                });
             });
         } // Payment not required
     }).catch(err => {
@@ -155,22 +176,29 @@ function isPaymentNeeded(id, meetID) {
     return users.isMissing(id).then(missing => {
         if (!missing) {
             return meets.getOneUpcoming(meetID).then(meet => {
-                if (!meet.price || parseFloat(meet.price) < 0.01) {
-                    return false; // Meet is free!
-                } else if (meet.disabled) {
+                if (meet.disabled) {
                     return {err: "Signups are not open for this meet!"}
                 } else {
                     return members.getMember(id).then(member => {
                         //TODO: Condition this on the first 3 months of the year, somehow...
+                        const isFree = !meet.price || parseFloat(meet.price) < 0.01;
                         if (!member || member.hasFree) {
                             // User not known to have gone on any meets
-                            return true;
+                            if (meet.signupControl !== 'Members') {
+                                return !isFree;
+                                // Return based on if meet is paid or not
+                            } // Meet is not members only
+                            return {err: "You need to pay for membership to do that!"}
                             // Policy is that a user gets to attend one meet before having to become a full member
                         } else if (member.hasPaid) {
-                            // They are a current member
-                            return true;
+                            // They are a current member. Always allowed to sign up.
+                            return !isFree;
                         } else {
                             // Neither paid nor a free meet remaining
+                            if (meet.signupControl === 'Everyone') {
+                                return !isFree;
+                            } // Everyone allowed to signup
+                            // Else return an error
                             return {err: "You need to pay for membership to do that!"}
                         }
                     });

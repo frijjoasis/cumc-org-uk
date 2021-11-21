@@ -240,6 +240,37 @@ class EditDetails extends React.Component {
                     </Col>
                 </Row>
                 <Row>
+                    <Col>
+                        <Form.Group controlId="signupControl">
+                            <Form.Label>Signup Control</Form.Label>
+                            <Form.Control
+                                as="select"
+                                required
+                            >
+                                {
+                                    ["Default - Allow members and meet waivers",
+                                        "Members - Allow only paid up members",
+                                        "Everyone - Allow anyone with an account (and don't remove waivers)"]
+                                        .map(i => {
+                                            return <option
+                                                selected={this.state.content.signupControl === i.split(" ")[0]}
+                                                value={i.split(" ")[0]}
+                                            >
+                                                {i}
+                                            </option>
+                                        })
+                                }
+                            </Form.Control>
+                            <Form.Text muted>
+                                Who should be allowed to sign up to this meet?
+                            </Form.Text>
+                            <Form.Control.Feedback type="invalid">
+                                This field is required
+                            </Form.Control.Feedback>
+                        </Form.Group>
+                    </Col>
+                </Row>
+                <Row>
                     <Col md={4}>
                         <Form.Group controlId="disabled">
                             <Form.Check

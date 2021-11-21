@@ -25,6 +25,11 @@ const schema = {
         allowNull: false,
         type: DataTypes.ENUM('Indoor', 'Outdoor', 'Social', 'Other')
     },
+    signupControl: {
+        allowNull: false,
+        type: DataTypes.ENUM('Default', 'Members', 'Everyone'),
+        defaultValue: 'Default',
+    },
     disabled: { // Are signups disabled?
         allowNull: false,
         type: DataTypes.BOOLEAN
