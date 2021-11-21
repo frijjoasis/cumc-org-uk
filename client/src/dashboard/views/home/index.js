@@ -68,7 +68,7 @@ class Home extends React.Component {
                                         {this.props.user ? `You are signed in as ${this.props.user.displayName}`
                                             : "You are not signed in"}
                                     </Card.Subtitle>
-                                    {this.state.member ?
+                                    {this.state.member && this.state.member.hasPaid ?
                                         <Card.Text as="span"><hr />
                                             You are a current member.
                                             Control your mailing preferences by clicking 'Profile' and then 'Mailing Lists'.
