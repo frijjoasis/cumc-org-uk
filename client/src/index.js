@@ -18,6 +18,10 @@ ReactDOM.render(
               // Redirect to backend, since requests via <a> aren't proxied
               return null;
           }}/>
+          <Route exact path='/login/other' component={() => {
+              window.location.href = 'http://localhost:5000/api/auth/login/other';
+              return null;
+          }}/>
           <Route exact path='/logout' component={() => {
               window.location.href = 'http://localhost:5000/api/auth/logout';
               return null;

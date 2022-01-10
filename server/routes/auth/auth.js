@@ -8,6 +8,11 @@ router.get('/login', passport.authenticate('google', {
     // This argument is required to obtain the Raven login box
 }));
 
+router.get('/login/other', passport.authenticate('google', {
+    scope: ['profile', 'email', 'openid'],
+    // An alternative login for people without Raven accounts
+}));
+
 router.get('/logout', function(req, res) {
     if (req.isAuthenticated()) {
         req.logout();
