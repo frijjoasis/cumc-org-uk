@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "react-bootstrap/Navbar";
 import Nav from "react-bootstrap/Nav";
+import NavDropdown from "react-bootstrap/NavDropdown";
 import {NavLink} from "react-router-dom";
 
 class Header extends React.Component {
@@ -55,8 +56,18 @@ class Header extends React.Component {
                             </Navbar.Text>,
                             <NavLink key="logout-text" className="nav-link" to="/logout">Logout</NavLink>
                         ] : [
-                            <NavLink key="login" className="nav-link" to="/login">Login</NavLink>,
-                            <NavLink key="register" className="nav-link" to="/login">Register</NavLink>
+                            <NavDropdown title="Login" alignRight id="account-nav-dropdown" >
+                                <NavDropdown.Item>
+                                    <NavLink key="login" className="nav-link" to="/login">Login</NavLink>
+                                </NavDropdown.Item>
+                                <NavDropdown.Item>
+                                    <NavLink key="register" className="nav-link" to="/login">Register</NavLink>
+                                </NavDropdown.Item>
+                                <NavDropdown.Divider />
+                                <NavDropdown.Item>
+                                    <NavLink key="alternate" className="nav-link" to="/login/other">No Raven account?</NavLink>
+                                </NavDropdown.Item>
+                            </NavDropdown>,
                         ]}
                     </Nav>
                 </Navbar.Collapse>
