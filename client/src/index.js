@@ -19,7 +19,8 @@ ReactDOM.render(
               return null;
           }}/>
           <Route exact path='/login/other' component={() => {
-              window.location.href = 'http://localhost:5000/api/auth/login/other';
+              window.location.href = '/api/auth/login/other';
+              // Alternate login route
               return null;
           }}/>
           <Route exact path='/logout' component={() => {
