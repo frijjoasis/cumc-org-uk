@@ -89,7 +89,6 @@ class PayPalButtons extends React.Component {
                 />
             )
         } else if (this.state.error) {
-            this.props.onError('An error occurred in processing payment. Please try again.')
             return (
                 <Form.Control type="text"
                               className="text-danger"
