@@ -248,6 +248,7 @@ function verify(orderID, price) {
         }
     }).catch(err => {
         logger.error(err);
+        if (err.response && err.response.data) logger.error(err.response.data.details);
         return {err: "An error occurred verifying the payment. You have not been charged"};
     });
 }
@@ -261,7 +262,9 @@ function authorise(orderID) {
         return authRes.data.purchase_units[0].payments.authorizations[0].id;
     }).catch(err => {
         logger.error(err);
-        return {err: "An error occurred authorising payment. You may be charged. Please contact the webmaster"};
+        if (err.response && err.response.data) logger.error(err.response.data.details);
+        return {err: "An error occurred authorising payment. This may be due to the transaction being declined by " +
+                "your bank. Please contact the webmaster for more information"};
     });
 }
 
@@ -279,6 +282,7 @@ function capture(authID, price) {
         return captureRes.data.id;
     }).catch(err => {
         logger.error(err);
+        if (err.response && err.response.data) logger.error(err.response.data.details);
         return {err: "An error occurred capturing payment. You may have been charged. Please contact the webmaster"};
     });
 }
@@ -293,6 +297,7 @@ function voidPayment(authID) {
         // Returns 204 No Content
     }).catch(err => {
         logger.error(err);
+        if (err.response && err.response.data) logger.error(err.response.data.details);
         return {err: "An error occurred voiding payment. Please contact the webmaster"};
     });
 }
