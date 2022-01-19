@@ -9,7 +9,8 @@ function transport(path, level) {
         datePattern: 'YYYY-MM-DD-HH',
         auditFile: '/societies/cumc/cumc-org-uk/logs/audit.json',
         level: level ? level : 'info',
-        maxFiles: '120' // 3 levels, 4 restarts a day gives 10 days of logging
+        maxSize: '50m',
+        maxFiles: '14d'
     });
 }
 
