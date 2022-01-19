@@ -184,17 +184,17 @@ function isPaymentNeeded(id, meetID) {
                     return members.getMember(id).then(member => {
                         //TODO: Condition this on the first 3 months of the year, somehow...
                         const isFree = !meet.price || parseFloat(meet.price) < 0.01;
-                        if (!member || member.hasFree) {
-                            // User not known to have gone on any meets
+                        if (member && member.hasPaid) {
+                            // They are a current member. Always allowed to sign up.
+                            return !isFree;
+                        } else if (!member || member.hasFree) {
+                            // User not known to have gone on any meets, and also not a member.
                             if (meet.signupControl !== 'Members') {
                                 return !isFree;
                                 // Return based on if meet is paid or not
                             } // Meet is not members only
                             return {err: "You need to pay for membership to do that!"}
                             // Policy is that a user gets to attend one meet before having to become a full member
-                        } else if (member.hasPaid) {
-                            // They are a current member. Always allowed to sign up.
-                            return !isFree;
                         } else {
                             // Neither paid nor a free meet remaining
                             if (meet.signupControl === 'Everyone') {
