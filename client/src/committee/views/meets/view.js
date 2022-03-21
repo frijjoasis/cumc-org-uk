@@ -43,7 +43,7 @@ class ViewMeet extends React.Component {
                                 .concat(mem.answers
                                     .sort(this.sortQuestions)
                                     .map(a => a.value));
-                        })
+                        }).sort(this.sortSignups)
                     }
                 });
             }
@@ -68,6 +68,13 @@ class ViewMeet extends React.Component {
         if (q.id === w.id) return 0;
         return q.id > w.id ? 1 : -1;
     } // Quick sort by ID function, so that questions (and answers) will be listed consistently
+
+    sortSignups(m, n) {
+        const mStart = new Date(m.createdAt);
+        const nStart = new Date(n.createdAt);
+        if (mStart === nStart) return 0;
+        return mStart > nStart ? -1 : 1;
+    }
 
     emailString() {
         let str = "mailto:";
