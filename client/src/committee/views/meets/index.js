@@ -35,7 +35,7 @@ class MeetManager extends React.Component {
         const mStart = new Date(m.startDate);
         const nStart = new Date(n.startDate);
         if (mStart === nStart) return 0;
-        return mStart > nStart ? 1 : -1;
+        return (mStart > nStart) ^ (this.state.archive) ? 1 : -1;  // XOR operator
     }
 
     render() {
@@ -66,7 +66,7 @@ class MeetManager extends React.Component {
                                     </thead>
                                     <tbody>
                                     {this.state.content.length
-                                        ? this.state.content.sort(this.sortMeets).map((meet, key) => {
+                                        ? this.state.content.sort(this.sortMeets.bind(this)).map((meet, key) => {
                                             return (
                                                 <tr key={key}>
                                                     {
