@@ -36,13 +36,13 @@ axios.post(PAYPAL_OAUTH_API, {}, {
 //TODO: Refactor this file. It's a mess.
 
 router.post('/membership', userAuth, async function(req, res) {
-    return verify(req.body.data.orderID, '27.00').then(v => {
+    return verify(req.body.data.orderID, process.env.MEMBERSHIP_PRICE).then(v => {
         if (v.err) res.json({err: v.err});
         else {
             return authorise(req.body.data.orderID).then(auth => {
                 if (auth.err) res.json({err: auth.err});
                 else {
-                    return capture(auth, '27.00').then(cap => {
+                    return capture(auth, process.env.MEMBERSHIP_PRICE).then(cap => {
                         if (cap.err) res.json({err: cap.err});
                         else {
                             return members.upsert({

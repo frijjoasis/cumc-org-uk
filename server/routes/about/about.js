@@ -329,4 +329,9 @@ router.get('/whatsapp', function(req, res) {
     // Hide whatsapp link from non-members :)
 });
 
+router.get('/easter', function(req, res) {
+    res.json(process.env.MEMBERSHIP_PRICE)
+    // Is it Easter term? For the purposes of the price reduction.
+});
+
 module.exports = router;
