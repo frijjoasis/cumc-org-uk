@@ -19,7 +19,8 @@ class Register extends React.Component {
             validated: false,
             err: false,
             form: {},
-            member: {}
+            member: {},
+            price: '27.00'
         }
     }
 
@@ -48,7 +49,12 @@ class Register extends React.Component {
                     member: {hasFree: true}
                 })
             }
-        })
+        });
+        axios.get('/api/about/easter/').then(res => {
+            this.setState({
+                price: res.data
+            });
+        });
     }
 
     handleSubmit(event) {
@@ -395,8 +401,9 @@ class Register extends React.Component {
                                                 <Card.Title>CUMC Membership</Card.Title>
                                                 <Card.Subtitle>
                                                     In order to come on club meets, you must purchase membership. It
-                                                    currently costs £27. Newcomers are entitled attend one meet before
-                                                    purchasing, as long as it is in the first three months of the year.
+                                                    currently costs £27, and £22 in Easter term. Newcomers are entitled
+                                                    attend one meet before purchasing, as long as it is in the first
+                                                    three months of the year.
                                                 </Card.Subtitle>
                                                 <hr />
                                                 <Row>
@@ -434,7 +441,7 @@ class Register extends React.Component {
                                                                 <Form.Label>Purchase Membership</Form.Label>
                                                                 <div className="text-center">
                                                                     <PayPalButtons
-                                                                        price='27.00'
+                                                                        price={this.state.price}
                                                                         description='Purchase Full Membership'
                                                                         intent='membership'
                                                                         onSuccess={() => window.location.href = "/home"}
