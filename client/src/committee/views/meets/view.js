@@ -70,8 +70,8 @@ class ViewMeet extends React.Component {
     } // Quick sort by ID function, so that questions (and answers) will be listed consistently
 
     sortSignups(m, n) {
-        const mStart = new Date(m.createdAt);
-        const nStart = new Date(n.createdAt);
+        const mStart = m[2];
+        const nStart = n[2];
         if (mStart === nStart) return 0;
         return mStart > nStart ? -1 : 1;
     }
@@ -97,6 +97,21 @@ class ViewMeet extends React.Component {
                 window.location.reload(true); //TODO: Should really code a state update here but I cba
             }
         });
+    }
+
+    captureStatusFormat(authID, captureID) {
+        if (authID) {
+            if (captureID) {
+                if (captureID === "Capture Failed" || captureID === "Void Failed")
+                    return <div className="text-danger">{captureID}</div>
+                else if (captureID === "Void")
+                    return <div className="text-info">{captureID}</div>
+                else
+                    return <div className="text-success">{captureID}</div>
+            } else
+                return <div className="text-warning">Not Captured</div>
+        } else
+            return <div className="text-danger">Not Valid</div>
     }
 
     render() {
@@ -178,10 +193,7 @@ class ViewMeet extends React.Component {
                                                                     </span>
                                                                 </div>,
                                                                 new Date(mem.createdAt).toUTCString(),
-                                                                mem.authID ? <div className="text-success">
-                                                                        {mem.captureID ? mem.captureID : 'Not Captured'}
-                                                                </div> :
-                                                                    <div className="text-danger">Not Valid</div>
+                                                                this.captureStatusFormat(mem.authID, mem.captureID)
                                                             ].concat(mem.answers
                                                                 .sort(this.sortQuestions)
                                                                 .map(a => a.value)
