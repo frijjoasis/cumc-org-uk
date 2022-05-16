@@ -36,14 +36,14 @@ class ViewMeet extends React.Component {
                 res.data.questions = res.data.questions ? res.data.questions : []
                 this.setState({
                     content: res.data,
-                    signups: {
+                    signups: { // This is for CSV download. Rest of the page uses this.state.content
                         questions: res.data.questions.sort(this.sortQuestions).map(q => q.title),
                         answers: res.data.signups.map(mem => {
                             return [mem.displayName, mem.user.email, new Date(mem.createdAt).toUTCString(), mem.authID]
                                 .concat(mem.answers
                                     .sort(this.sortQuestions)
                                     .map(a => a.value));
-                        }).sort(this.sortSignups)
+                        })
                     }
                 });
             }
@@ -70,11 +70,11 @@ class ViewMeet extends React.Component {
     } // Quick sort by ID function, so that questions (and answers) will be listed consistently
 
     sortSignups(m, n) {
-        const mStart = m[2];
-        const nStart = n[2];
+        const mStart = new Date(m.createdAt);
+        const nStart = new Date(n.createdAt);
         if (mStart === nStart) return 0;
         return mStart > nStart ? -1 : 1;
-    }
+    } // Sort listed signups by signup date
 
     emailString() {
         let str = "mailto:";
@@ -164,7 +164,7 @@ class ViewMeet extends React.Component {
                                         </thead>
                                         <tbody>
                                         {this.state.content.signups && this.state.content.signups.length
-                                            ? this.state.content.signups.map((mem, key) => {
+                                            ? this.state.content.signups.sort(this.sortSignups).map((mem, key) => {
                                                 return (
                                                     <tr key={key}>
                                                         {
