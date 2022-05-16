@@ -73,7 +73,7 @@ class ViewMeet extends React.Component {
         const mStart = new Date(m.createdAt);
         const nStart = new Date(n.createdAt);
         if (mStart === nStart) return 0;
-        return mStart > nStart ? -1 : 1;
+        return mStart < nStart ? -1 : 1;
     } // Sort listed signups by signup date
 
     emailString() {
