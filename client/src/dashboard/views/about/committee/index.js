@@ -65,29 +65,38 @@ class CommitteeAbout extends React.Component {
                         <Col>
                             <UserCard person={committee.gear} />
                         </Col>
-                        <Col>
-                            <UserCard person={committee.competitions} />
-                        </Col>
-                        <Col>
-                            <UserCard person={committee.webmaster} />
-                        </Col>
-                        <Col>
-                            <UserCard person={committee.winterMeets} />
-                        </Col>
-                    </Row>
-                    <Row className="justify-content-md-center">
-                        {committee.socialMeets.map((i, key) => {
+                        {committee.competitions.map((i, key) => {
                             return (
                                 <Col md={3} key={key}>
                                     <UserCard person={i} />
                                 </Col>
                             )
                         })}
+                        <Col>
+                            <UserCard person={committee.webmaster} />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        {committee.socialMeets.map((i, key) => {
+                            return (
+                                <Col sm={3} key={key}>
+                                    <UserCard person={i} />
+                                </Col>
+                            )
+                        })}
+                        <Col sm={3}>
+                            <UserCard person={committee.winterMeets} />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
                         <Col md={3}>
                             <UserCard person={committee.journal} />
                         </Col>
                         <Col md={3}>
-                            <UserCard person={committee.diversity} />
+                            <UserCard person={committee.librarian} />
+                        </Col>
+                        <Col md={3}>
+                            <UserCard person={committee.welfare} />
                         </Col>
                     </Row>
                     <Row>

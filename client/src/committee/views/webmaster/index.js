@@ -80,7 +80,7 @@ class Webmaster extends React.Component {
                                     </Card.Subtitle>
                                     <hr />
                                     <Button onClick={() => this.resetMemberships()} block variant="danger" className="btn-fill" style={{fontWeight: 'bold'}}>
-                                        Reset ALL Memberships (ILYA DO NOT TOUCH)</Button>
+                                        Reset ALL Memberships (GABE DO NOT TOUCH)</Button>
                                 </Card.Body>
                             </Card>
                         </Col>
