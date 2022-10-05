@@ -8,6 +8,7 @@ import Container from "react-bootstrap/Container";
 import {withRouter} from "react-router-dom";
 
 import img from './assets/img/404.jpg'
+import img1 from './assets/img/4041.jpg'
 
 class NotFound extends React.Component {
     constructor(props) {
@@ -25,7 +26,7 @@ class NotFound extends React.Component {
                     <Row className="justify-content-center">
                         <Col style={{flex: 0}}>
                             <Card>
-                                <Image rounded src={img} />
+                                <Image rounded src={this.state.egg ? img1 : img} />
                             </Card>
                         </Col>
                     </Row>
