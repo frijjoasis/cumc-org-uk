@@ -76,14 +76,14 @@ const committee = {
 			name: "Hannah Zia",
 			social: "competitions@cumc.org.uk",
 			profile: require(`../../../../assets/img/committee/competitions1.jpg`).default,
-			cover: require(`../../../../assets/img/committee/background.jpg`).default,
+			cover: require(`../../../../assets/img/committee/competitions1Cover.jpg`).default,
 		},
 		{
 			role: "Competitions Secretary",
 			name: "Matthew Fall",
 			social: "competitions@cumc.org.uk",
 			profile: require(`../../../../assets/img/committee/competitions2.jpg`).default,
-			cover: require(`../../../../assets/img/committee/background.jpg`).default,
+			cover: require(`../../../../assets/img/committee/competitions2Cover.jpg`).default,
 		}
 	],
     socialMeets: [
@@ -113,22 +113,22 @@ const committee = {
         role: "Journals",
         name: "Lily Olliver",
         social: "journal@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.jpg`).default,
-            cover: require(`../../../../assets/img/committee/background.jpg`).default,
+		profile: require(`../../../../assets/img/committee/journals.jpg`).default,
+		cover: require(`../../../../assets/img/committee/journalsCover.jpg`).default,
     },
     librarian: {
         role: "Librarian",
         name: "Lauren Charnley-Parr",
         social: "librarian@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.jpg`).default,
-            cover: require(`../../../../assets/img/committee/background.jpg`).default,
+		profile: require(`../../../../assets/img/committee/librarian.jpg`).default,
+		cover: require(`../../../../assets/img/committee/librarianCover.jpg`).default,
     },
     welfare: {
         role: "Access & Welfare",
         name: "Caitlin van Bommel",
         social: "welfare@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.jpg`).default,
-            cover: require(`../../../../assets/img/committee/background.jpg`).default,
+		profile: require(`../../../../assets/img/committee/access.jpg`).default,
+		cover: require(`../../../../assets/img/committee/accessCover.jpg`).default,
     }
 };
 
