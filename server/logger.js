@@ -11,9 +11,10 @@ format = winston.format.combine(
 
 function transport(path, level) {
     return new winston.transports.DailyRotateFile({
-        stream: fs.createWriteStream(`/societies/cumc/cumc-org-uk/logs/${path}`, {flags: 'a'}),
+        stream: `/societies/cumc/cumc-org-uk/logs/${path}`,
         options: {mode: 0o660}, // File permissions
-        datePattern: 'YYYY-MM-DD',
+        datePattern: 'YYYY-MM-DD_HH-mm-ss',
+        frequency: '24h',
         auditFile: '/societies/cumc/cumc-org-uk/logs/audit.json',
         level: level ? level : 'info',
         handleExceptions: true,
