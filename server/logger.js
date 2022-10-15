@@ -28,6 +28,14 @@ transports = [transport('access-%DATE%.log'),
     transport('exceptions-%DATE%.log', 'error')
 ]
 
+transports.forEach(t => {
+    t.on('new', function(newFilename) {
+        if (fs.existsSync(newFilename)) {
+            fs.renameSync(newFilename, `${newFilename}-${new Date().toLocaleTimeString()}`)
+        }
+    });
+});
+
 let expressLogger = expressWinston.logger({
     transports: [
         transports[0]
@@ -42,17 +50,6 @@ const logger = winston.createLogger({
         transports[2]
     ],
     format: format
-});
-
-transports.forEach(t => {
-    t.on('new', function (newFilename) {
-        let data = fs.readFileSync(newFilename);
-        let fd = fs.openSync(newFilename, 'w+');
-        let buffer = Buffer.from('_____PROCESS RESTART_____\n');
-        fs.writeSync(fd, buffer, 0, buffer.length, 0); // Write new data
-        fs.writeSync(fd, data, 0, data.length, buffer.length); // Append old data
-        fs.close(fd);
-    });
 });
 
 module.exports = {
