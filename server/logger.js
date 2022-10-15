@@ -6,7 +6,7 @@ function transport(path, level) {
     return new winston.transports.DailyRotateFile({
         filename: `/societies/cumc/cumc-org-uk/logs/${path}`,
         options: {mode: 0o660}, // File permissions
-        datePattern: 'YYYY-MM-DD',
+        datePattern: 'YYYY-MM-DD HH:mm:ss',
         auditFile: '/societies/cumc/cumc-org-uk/logs/audit.json',
         level: level ? level : 'info',
         maxSize: '50m',
@@ -20,6 +20,7 @@ let expressLogger = expressWinston.logger({
     ],
     format: winston.format.combine(
         winston.format.colorize(),
+        winston.format.timestamp(),
         winston.format.json()
     ),
     msg: "HTTP {{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
@@ -37,6 +38,7 @@ const logger = winston.createLogger({
     ],
     format: winston.format.combine(
         winston.format.colorize(),
+        winston.format.timestamp(),
         winston.format.json()
     )
 });
