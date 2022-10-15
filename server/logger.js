@@ -8,7 +8,7 @@ format = winston.format.combine(
 )
 
 dateStr = new Date().toISOString()
-    .replace(/T/, '_').substr(0, 19).replace(":", "-")
+    .replace(/T/, '_').substr(0, 19).replaceAll(":", "-")
 
 function transport(path, level) {
     return new winston.transports.File({
