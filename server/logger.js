@@ -1,7 +1,5 @@
-const fs = require('fs')
 const winston = require('winston');
 const expressWinston = require('express-winston');
-require('winston-daily-rotate-file');
 
 format = winston.format.combine(
     winston.format.colorize(),
@@ -9,24 +7,22 @@ format = winston.format.combine(
     winston.format.json()
 )
 
+dateStr = new Date().toISOString()
+    .replace(/T/, '_').substr(0, 19).replace(":", "-")
+
 function transport(path, level) {
-    return new winston.transports.DailyRotateFile({
-        filename: `/societies/cumc/cumc-org-uk/logs/${path}`,
+    return new winston.transports.File({
+        filename: `/societies/cumc/cumc-org-uk/logs/${path.replace('%DATE%', dateStr)}`,
         options: {mode: 0o660}, // File permissions
-        datePattern: 'YYYY-MM-DD_HH-mm-ss',
-        frequency: '24h',
-        auditFile: '/societies/cumc/cumc-org-uk/logs/audit.json',
         level: level ? level : 'info',
         handleExceptions: true,
-        handleRejections: true,
-        maxSize: '50m',
-        maxFiles: '14d'
+        handleRejections: true
     });
 }
 
 let expressLogger = expressWinston.logger({
     transports: [
-        transport('access-%DATE%.log')
+        transport('access_%DATE%.log')
     ],
     format: format,
     msg: "HTTP {{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}"
@@ -34,8 +30,8 @@ let expressLogger = expressWinston.logger({
 
 const logger = winston.createLogger({
     transports: [
-        transport('application-%DATE%.log'),
-        transport('exceptions-%DATE%.log', 'error')
+        transport('application_%DATE%.log'),
+        transport('exceptions_%DATE%.log', 'error')
     ],
     format: format
 });
