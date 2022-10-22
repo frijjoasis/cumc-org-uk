@@ -52,8 +52,8 @@ const committee = {
             role: "Outdoor Meets Secretary",
             name: "Joe McDermott",
             social: "outdoor-meets@cumc.org.uk",
-            profile: require(`../../../../assets/img/committee/notFound.jpg`).default,
-            cover: require(`../../../../assets/img/committee/background.jpg`).default,
+            profile: require(`../../../../assets/img/committee/outdoorMeets2.jpg`).default,
+            cover: require(`../../../../assets/img/committee/outdoorMeets2Cover.jpg`).default,
         }
     ],
     gear: {
