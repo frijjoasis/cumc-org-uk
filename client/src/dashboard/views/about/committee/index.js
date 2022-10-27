@@ -11,6 +11,9 @@ import Table from "react-bootstrap/Table";
 
 import {committee} from "./committee";
 
+import Image from "react-bootstrap/Image";
+import img from "../../../../assets/img/committee-1.jpg";
+
 class CommitteeAbout extends React.Component {
     constructor(props) {
         super(props);
@@ -131,6 +134,15 @@ class CommitteeAbout extends React.Component {
                                         </div>
                                     </Table>
                                 </Card.Body>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    <Row className="justify-content-center">
+                        <Col md={12}>
+                            <Card>
+                                <Image src={img} fluid />
+                                <Card.Footer className="text-center text-muted">The committee members of 2021 and 2022, at the Annual General Meeting</Card.Footer>
                             </Card>
                         </Col>
                     </Row>

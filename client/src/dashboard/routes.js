@@ -14,6 +14,7 @@ import MeetForm from "./views/meets/upcoming/form";
 import IndoorMeets from "./views/meets/indoor";
 import OutdoorMeets from "./views/meets/outdoor";
 import SocialMeets from "./views/meets/social";
+import BritRock from "./views/britrock";
 
 // Warning: Order matters here. It's an array!
 const routes = [
@@ -124,6 +125,13 @@ const routes = [
     Component: Register,
     layout: "",
   },
+  {
+    path: "/britrock",
+    name: "Brit Rock",
+    icon: "pe-7s-film",
+    Component: BritRock,
+    layout: ""
+  }
 ];
 
 export default routes;
