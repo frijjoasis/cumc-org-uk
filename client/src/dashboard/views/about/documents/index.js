@@ -2,9 +2,9 @@ import React from 'react';
 import Container from "react-bootstrap/Container";
 
 import {safetyAbout} from "./safety";
+import {codeOfConductAbout} from "./codeOfConduct";
 import {dataAbout} from "./privacy";
 import {constitutionAbout} from "./constitution";
-import {covidAbout} from "./covid";
 
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
@@ -34,13 +34,13 @@ class DocumentsAbout extends React.Component {
                                                 <Nav.Link eventKey="safety">Safety Policy</Nav.Link>
                                             </Nav.Item>
                                             <Nav.Item>
+                                                <Nav.Link eventKey="codeOfConduct">Code of Conduct</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
                                                 <Nav.Link eventKey="privacy">Privacy Policy</Nav.Link>
                                             </Nav.Item>
                                             <Nav.Item>
                                                 <Nav.Link eventKey="constitution">Constitution</Nav.Link>
-                                            </Nav.Item>
-                                            <Nav.Item>
-                                                <Nav.Link eventKey="covid">COVID</Nav.Link>
                                             </Nav.Item>
                                         </Nav>
                                     </Card.Header>
@@ -54,6 +54,12 @@ class DocumentsAbout extends React.Component {
                                                     {safetyAbout}
                                                 </Card.Text>
                                             </Tab.Pane>
+                                            <Tab.Pane eventKey="codeOfConduct">
+                                                <Card.Text as="span">
+                                                    <hr />
+                                                    {codeOfConductAbout}
+                                                </Card.Text>
+                                            </Tab.Pane>
                                             <Tab.Pane eventKey="privacy">
                                                 <Card.Title>Privacy Policy</Card.Title>
                                                 <Card.Subtitle>How we use your personal information</Card.Subtitle>
@@ -65,12 +71,6 @@ class DocumentsAbout extends React.Component {
                                             <Tab.Pane eventKey="constitution">
                                                 <Card.Text as="span">
                                                     {constitutionAbout}
-                                                </Card.Text>
-                                            </Tab.Pane>
-                                            <Tab.Pane eventKey="covid">
-                                                <Card.Text as="span">
-                                                    <hr />
-                                                    {covidAbout}
                                                 </Card.Text>
                                             </Tab.Pane>
                                         </Tab.Content>

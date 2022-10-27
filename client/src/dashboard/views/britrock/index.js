@@ -49,12 +49,20 @@ class BritRock extends React.Component {
                         <p>
                             Please make a note of this number. It will be included with your payment confirmation email
                             from PayPal. Email us if you lose it, or you would like to cancel - but be aware that we
+<<<<<<< HEAD
                             cannot offer refunds after the 13th Nov.
+=======
+                            cannot offer refunds after the 15th Nov.
+>>>>>>> development
                         </p>
                     </Card.Text>
                 </Card.Body>
             </Card>
+<<<<<<< HEAD
         )
+=======
+        ) // latest refund date is usually a week before the date of the event
+>>>>>>> development
     }
 
     render() {
@@ -70,7 +78,11 @@ class BritRock extends React.Component {
                                     <Card.Body>
                                         <Card.Title>Tickets for Brit Rock Film Festival at CUMC</Card.Title>
                                         <Card.Subtitle>
+<<<<<<< HEAD
                                             This will take place at 7.30pm on the 20th Nov, at McCrum Lecture Theatre in Corpus Christi.
+=======
+                                            This will take place at 7.30pm on the 22nd Nov, at the Yusuf Hamied Theatre in Christ's College.
+>>>>>>> development
                                             It is open to both CUMC members and the general public.
                                         </Card.Subtitle>
                                         <Card.Text>
@@ -105,10 +117,17 @@ class BritRock extends React.Component {
                                             <Row>
                                                 <Col>
                                                     <div>
+<<<<<<< HEAD
                                                         <Form.Label>Pay for Ticket (£7.50)</Form.Label>
                                                         <div className="text-center">
                                                             <PayPalButtons
                                                                 price={"7.50"}
+=======
+                                                        <Form.Label>Pay for Ticket (£8.00)</Form.Label>
+                                                        <div className="text-center">
+                                                            <PayPalButtons
+                                                                price={"8.00"}
+>>>>>>> development
                                                                 description={`Brit Rock Ticket - ID ${this.state.ticket}`}
                                                                 intent='britrock'
                                                                 form={{
@@ -141,4 +160,8 @@ class BritRock extends React.Component {
     }
 }
 
+<<<<<<< HEAD
 export default BritRock;
+=======
+export default BritRock;
+>>>>>>> development
