@@ -6,12 +6,11 @@ const users = require('../../database/controllers/users');
 const signups = require('../../database/controllers/signups');
 const meets = require('../../database/controllers/meets');
 const britrock = require("../../database/controllers/britrock");
-const logger = require('../../logger').logger;
 const axios = require('axios');
 
-const PAYPAL_OAUTH_API = 'https://api.paypal.com/v1/oauth2/token/';
-const PAYPAL_ORDER_API = 'https://api.paypal.com/v2/checkout/orders/';
-const PAYPAL_AUTHORIZATION_API = 'https://api.paypal.com/v2/payments/authorizations/';
+const PAYPAL_OAUTH_API = 'https://api.sandbox.paypal.com/v1/oauth2/token/';
+const PAYPAL_ORDER_API = 'https://api.sandbox.paypal.com/v2/checkout/orders/';
+const PAYPAL_AUTHORIZATION_API = 'https://api.sandbox.paypal.com/v2/payments/authorizations/';
 
 let accessToken;
 
@@ -28,9 +27,9 @@ axios.post(PAYPAL_OAUTH_API, {}, {
     }
 }).then(res => {
     accessToken = res.data.access_token;
-    logger.info("PayPal API access token obtained.")
+    console.info("PayPal API access token obtained.")
 }).catch(err => {
-    logger.error('PayPal API error: ', err);
+    console.error('PayPal API error: ', err);
 });
 
 //TODO: Refactor this file. It's a mess.
@@ -53,7 +52,7 @@ router.post('/membership', userAuth, async function(req, res) {
                             }).then(() => {
                                 res.json(true)
                             }).catch(err => {
-                                logger.error("Database error: ", err);
+                                console.error("Database error: ", err);
                                 res.json({err: "Database error: Please contact the webmaster"});
                             });
                         }
@@ -124,7 +123,7 @@ router.post('/register', userAuth, async function(req, res) {
             });
         });
     }).catch(err => {
-        logger.error("Database error: ", err);
+        console.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -141,11 +140,11 @@ router.post('/capture', committeeAuth, async function(req, res) {
             }
         });
         return Promise.all(promises).then(() => res.json(true)).catch(err => {
-            logger.error(err);
+            console.error(err);
             res.json({err: "Encountered an error. Please contact the webmaster"});
         })
     }).catch(err => {
-        logger.error("Database error: ", err);
+        console.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -161,11 +160,11 @@ router.post('/void', committeeAuth, async function(req, res) {
             }
         });
         return Promise.all(promises).then(() => res.json(true)).catch(err => {
-            logger.error(err);
+            console.error(err);
             res.json({err: "Encountered an error. Please contact the webmaster"});
         })
     }).catch(err => {
-        logger.error("Database error: ", err);
+        console.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -193,7 +192,7 @@ router.post('/required', userAuth, async function(req, res) {
             });
         } // Payment not required
     }).catch(err => {
-        logger.error("Database error: ", err);
+        console.error("Database error: ", err);
         res.json({err: "Database error: Please contact the webmaster"});
     });
 });
@@ -247,8 +246,8 @@ function verify(orderID, price) {
             return {err: "An error occurred verifying the amount paid. You have not been charged"};
         }
     }).catch(err => {
-        logger.error(err);
-        if (err.response && err.response.data) logger.error(err.response.data.details);
+        console.error(err);
+        if (err.response && err.response.data) console.error(err.response.data.details);
         return {err: "An error occurred verifying the payment. You have not been charged"};
     });
 }
@@ -261,8 +260,8 @@ function authorise(orderID) {
     }).then(authRes => {
         return authRes.data.purchase_units[0].payments.authorizations[0].id;
     }).catch(err => {
-        logger.error(err);
-        if (err.response && err.response.data) logger.error(err.response.data.details);
+        console.error(err);
+        if (err.response && err.response.data) console.error(err.response.data.details);
         return {err: "An error occurred authorising payment. This may be due to the transaction being declined by " +
                 "your bank. Please contact the webmaster for more information"};
     });
@@ -281,8 +280,8 @@ function capture(authID, price) {
     }).then(captureRes => {
         return captureRes.data.id;
     }).catch(err => {
-        logger.error(err);
-        if (err.response && err.response.data) logger.error(err.response.data.details);
+        console.error(err);
+        if (err.response && err.response.data) console.error(err.response.data.details);
         return {err: "An error occurred capturing payment. You may have been charged. Please contact the webmaster"};
     });
 }
@@ -296,8 +295,8 @@ function voidPayment(authID) {
         return true;
         // Returns 204 No Content
     }).catch(err => {
-        logger.error(err);
-        if (err.response && err.response.data) logger.error(err.response.data.details);
+        console.error(err);
+        if (err.response && err.response.data) console.error(err.response.data.details);
         return {err: "An error occurred voiding payment. Please contact the webmaster"};
     });
 }
