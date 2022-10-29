@@ -5,7 +5,7 @@ const {committeeAuth} = require('../middleware');
 const oldCommittee = {
     head : ["Year","President","Secretary","Treasurer","Gear","Outdoor Meet","Indoor Meet","Alpine and Winter","Competition","Social","Journal","Librarian","Webmaster"],
     body : [
-        ["2021-2022", "Bethan Davies-Williams", "Ilya Carey", "Edmund Ross", "Sidney Leedham", "Elizabeth Stephenson & Tom de Csilléry", "Humphrey Allen & Philip Sosnin", "Elizabeth Stephenson", "Hannah Zia & Matthew Fall", "Holly Davis & Arianna Chan", "Sam Reynolds", "Sam Reynolds", "Max Fryer"],
+        ["2021-2022", "Bethan Davies-Williams", "Ilya Carey", "Edmund Ross", "Sidney Leedham", "Elizabeth Stephenson & Tom de Csilléry", "Humphrey Allen & Philip Sosnin", "Elizabeth Stephenson", "Matthew Fall", "Holly Davis & Arianna Chan", "Sam Reynolds", "Sam Reynolds", "Max Fryer"],
         ["2020-2021", "Sam Reynolds", "Ilya Carey", "Edmund Ross", "Harry Piercy", "Elizabeth Stephenson", "Anna Kelly & Alex Pantelides", "Jacob Rose", "Hugo Burgess", "Marcus Samuel & Isma'eel Zia", "Sophie Miocevich", "", "Humphrey Allen"],
         ["2019-2020","Timo Zheng","Robert Ryan","Ed Mabon","Sam Reynolds","Ollie Carr","Mikey Matthews & Alice Kirk","Igor Mazur","Ilya Carey","Anna Kelly","Sophie Miocevich & Nina","Nina","Mikey Matthews"],
         ["2018-2019","Holly Rowland","Izzy Bentley","Sophie Miocevich","Elin Falla","Omar Shah & Timo Zheng","Alex Nicol & Bethan Morris","Charlie Fraser","Ed Mabon","Joe Taylor & Sophia Georgescu","Sophie Miocevich","Francesca Rigg","Daniel Wainwright"],
