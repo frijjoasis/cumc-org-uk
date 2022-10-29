@@ -59,6 +59,16 @@ class PayPalButtons extends React.Component {
                             this.setState({paid: true});
                         }
                     });
+                } else if (this.props.intent === 'britrock') {
+                    return axios.post('/api/paypal/britrock', {data: data, form: this.props.form}).then(res => {
+                        if (res.data.err) {
+                            this.props.onError(res.data.err);
+                            this.setState({error: true})
+                        } else {
+                            this.props.onSuccess();
+                            this.setState({paid: true});
+                        }
+                    });
                 }
             },
 
