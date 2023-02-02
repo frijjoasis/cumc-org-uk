@@ -1,11 +1,14 @@
 import React from 'react';
 import axios from "axios";
 import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Alert from "react-bootstrap/Alert";
 import Container from "react-bootstrap/Container";
 import {NavLink} from "react-router-dom";
+
+import img1 from '../../../../assets/img/upcoming-1.jpg';
 
 class UpcomingMeets extends React.Component {
     constructor(props) {
@@ -92,6 +95,16 @@ class UpcomingMeets extends React.Component {
                             </Card>
                         </Col>
                     </Row>}
+                </Container>
+
+                <Container>
+                    <Row className="justify-content-center">
+                        <Col>
+                            <Card>
+                                <Image src={img1} fluid />
+                            </Card>
+                        </Col>
+                    </Row>
                 </Container>
             </div>
         )

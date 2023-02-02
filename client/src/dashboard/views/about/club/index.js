@@ -3,8 +3,12 @@ import axios from 'axios';
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
+import Image from "react-bootstrap/Image";
 import Container from "react-bootstrap/Container";
 import Table from "react-bootstrap/Table";
+
+import img1 from "../../../../assets/img/theClub-1.jpg";
+import img2 from "../../../../assets/img/theClub-2.jpg";
 
 import {clubAbout, historyAbout} from "./text";
 import AboutCard from "../../../../components/AboutCard/AboutCard";
@@ -33,6 +37,24 @@ class ClubAbout extends React.Component {
             <div className="content">
                 <Container>
                     <AboutCard title="About CUMC" text={clubAbout} />
+					<Row className="justify-content-center">
+						<Col md={6}>
+							<Card>
+								<Image fluid src={img1} />
+                                <Card.Footer className="text-center text-muted">
+                                    The 2022 CIC Hut winter climbing trip
+                                </Card.Footer>
+							</Card>
+						</Col>
+						<Col md={6}>
+							<Card>
+								<Image fluid src={img2} />
+                                <Card.Footer className="text-center text-muted">
+                                    One of our current outdoor meets secretaries, Joe
+                                </Card.Footer>
+							</Card>
+						</Col>
+					</Row>
                     <AboutCard title="Club History" text={historyAbout} />
                     <Row>
                         <Col md={12}>

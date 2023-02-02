@@ -8,7 +8,7 @@ import Image from "react-bootstrap/Image";
 import Carousel from '../../../components/Carousel/Carousel';
 import AboutCard from "../../../components/AboutCard/AboutCard";
 
-import {aboutText, slides, membershipText, homeImages} from './text';
+import {aboutText, slides, membershipText, homeImagesOne, homeImagesTwo, homeImagesThree} from './text';
 import {NavLink} from "react-router-dom";
 import axios from "axios";
 import Table from "react-bootstrap/Table";
@@ -117,7 +117,7 @@ class Home extends React.Component {
                     </Row>
                     <AboutCard title="About Us" text={aboutText(this.state.link)} />
                     <Row>
-                        {homeImages.map((i, key) => {
+                        {homeImagesOne.map((i, key) => {
                             return (
                                 <Col key={key}>
                                     <Card>
@@ -132,6 +132,36 @@ class Home extends React.Component {
                         })}
                     </Row>
                     <AboutCard title="Membership" text={membershipText} />
+                    <Row>
+                        {homeImagesTwo.map((i, key) => {
+                            return (
+                                <Col key={key}>
+                                    <Card>
+                                        <Image
+                                            className="d-block w-100"
+                                            rounded
+                                            src={i}
+                                        />
+                                    </Card>
+                                </Col>
+                            );
+                        })}
+                    </Row>
+                    <Row>
+                        {homeImagesThree.map((i, key) => {
+                            return (
+                                <Col key={key}>
+                                    <Card>
+                                        <Image
+                                            className="d-block w-100"
+                                            rounded
+                                            src={i}
+                                        />
+                                    </Card>
+                                </Col>
+                            );
+                        })}
+                    </Row>
                 </Container>
             </div>
         )
