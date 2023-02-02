@@ -20,11 +20,11 @@ const slides = [
     {
         img: require('../../../assets/img/carousel/bouldering.jpg').default,
         header: "Outdoor Bouldering",
-        desc: "Elizabeth (our current president!) sending hard on the Stanage Edge gritstone",
+        desc: "Elizabeth (our current president!) bouldering at Stanage",
     },
     {
         img: require('../../../assets/img/carousel/alpine.jpg').default,
-        header: "Alpine",
+        header: "Scottish Winter",
         desc: "Green Gully, Ben Nevis",
     },
 ];

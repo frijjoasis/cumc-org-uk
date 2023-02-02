@@ -101,7 +101,7 @@ class UpcomingMeets extends React.Component {
                     <Row className="justify-content-center">
                         <Col>
                             <Card>
-                                <Image src={img1} fluid />
+                                <Image src={img1} rounded fluid />
                             </Card>
                         </Col>
                     </Row>

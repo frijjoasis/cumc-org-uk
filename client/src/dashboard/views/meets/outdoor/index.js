@@ -31,7 +31,7 @@ class OutdoorMeets extends React.Component {
                             <Card>
                                 <Image fluid src={img2} />
                                 <Card.Footer className="text-center text-muted">
-                                    Trad climbing!
+                                    Sport climbing!
                                 </Card.Footer>
                             </Card>
                         </Col>
