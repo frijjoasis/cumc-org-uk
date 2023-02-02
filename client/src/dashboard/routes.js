@@ -125,13 +125,13 @@ const routes = [
     Component: Register,
     layout: "",
   },
-  {
+  /*{
     path: "/britrock",
     name: "Brit Rock",
     icon: "pe-7s-film",
     Component: BritRock,
     layout: ""
-  }
+}*/
 ];
 
 export default routes;

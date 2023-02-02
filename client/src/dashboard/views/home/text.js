@@ -2,6 +2,16 @@ import {NavLink} from "react-router-dom";
 import React from "react";
 
 const slides = [
+	{
+		img: require('../../../assets/img/carousel/welcome.jpg').default,
+		header: "Welcome!",
+		desc: "Welcome to the Cambridge University Mountaineering Club website!",
+	},
+	{
+		img: require('../../../assets/img/carousel/competitions.jpg').default,
+		header: "Indoor Bouldering",
+		desc: "Our competition team crushing in a training session",
+	},
     {
         img: require('../../../assets/img/carousel/trad.jpg').default,
         header: "Trad Climbing",
@@ -9,13 +19,13 @@ const slides = [
     },
     {
         img: require('../../../assets/img/carousel/bouldering.jpg').default,
-        header: "Bouldering",
-        desc: "Elizabeth sending hard on the gritstone of the Peak District",
+        header: "Outdoor Bouldering",
+        desc: "Elizabeth (our current president!) sending hard on the Stanage Edge gritstone",
     },
     {
         img: require('../../../assets/img/carousel/alpine.jpg').default,
         header: "Alpine",
-        desc: "A nice view in Chamonix",
+        desc: "Green Gully, Ben Nevis",
     },
 ];
 
@@ -107,9 +117,18 @@ const membershipText = [
 ];
 
 // Images here should have the same aspect ratio
-const homeImages = [
+const homeImagesOne = [ // appear between about and membership sections
     require('../../../assets/img/home-1.jpg').default,
     require('../../../assets/img/home-2.jpg').default,
+    require('../../../assets/img/home-3.jpg').default,
+];
+const homeImagesTwo = [ // appear below membership section
+    require('../../../assets/img/home-4.jpg').default,
+    require('../../../assets/img/home-5.jpg').default,
+];
+const homeImagesThree = [ // second row below membership section
+    require('../../../assets/img/home-6.jpg').default,
+    require('../../../assets/img/home-7.jpg').default,
 ];
 
-export {slides, aboutText, membershipText, homeImages};
+export {slides, aboutText, membershipText, homeImagesOne, homeImagesTwo, homeImagesThree};
