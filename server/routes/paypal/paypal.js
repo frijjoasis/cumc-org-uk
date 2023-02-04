@@ -77,7 +77,7 @@ router.post('/britrock', async function(req, res) {
                             return britrock.upsert(req.body.form).then(() => {
                                 res.json(true)
                             }).catch(err => {
-                                console.error("Database error: ", err);
+                                logger.error("Database error: ", err);
                                 res.json({err: "Database error: Please contact the webmaster"});
                             });
                         }
