@@ -128,7 +128,7 @@ const routes = [
   /*{
     path: "/britrock",
     name: "Brit Rock",
-    icon: "pe-7s-film",
+    hide: true,
     Component: BritRock,
     layout: ""
 }*/
