@@ -88,7 +88,7 @@ const welfareAbout = [
     </h2>,
 	<p>
 	The Sports Service has a number of staff available to support Clubs in setting up a positive welfare culture supported by clear policies and procedures. The Sports Service Welfare Officers are also available to students if they feel unable to speak to their Club Welfare Officer or College Tutor regarding sports related matters.
-	</p>
+	</p>,
     <ul>
         <li>Sports Service Welfare Officer, Tristan Coles (Head of Fitness, S&C). Tel: 01223 768215. Email: welfare@sport.cam.ac.uk</li>
         <li>Sports Service Welfare Officer, Lucy McGennity (Sports Club Support Manager). Tel: 01223 336997. Email: welfare@sport.cam.ac.uk</li>
