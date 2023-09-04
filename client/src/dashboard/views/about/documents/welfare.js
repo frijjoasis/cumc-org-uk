@@ -99,4 +99,4 @@ const welfareAbout = [
     </p>,
 ];
 
-export {dataAbout}
+export {welfareAbout}
