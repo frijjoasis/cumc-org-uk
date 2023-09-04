@@ -338,6 +338,23 @@ class Register extends React.Component {
                                                         </Col>
                                                     </Row>
                                                     <br />
+													
+                                                    <Row>
+                                                        <Col>
+                                                            <Form.Group controlId="medicalInfo">
+                                                                <Form.Label>Any Additional Medical Info?</Form.Label>
+                                                                <Form.Control type="text"
+                                                                              defaultValue={this.state.form.medicalInfo}
+                                                                              placeholder="Not Set"
+                                                                />
+                                                                <Form.Text muted>
+                                                                    E.g. allergies or chronic health conditions
+                                                                </Form.Text>
+                                                            </Form.Group>
+                                                        </Col>
+                                                    </Row>
+                                                    <br />
+													
                                                     <Row>
                                                         <Col>
                                                             <Form.Group controlId="bmc">

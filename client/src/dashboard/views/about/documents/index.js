@@ -5,6 +5,7 @@ import {safetyAbout} from "./safety";
 import {codeOfConductAbout} from "./codeOfConduct";
 import {dataAbout} from "./privacy";
 import {constitutionAbout} from "./constitution";
+import {welfareAbout} from "./welfare";
 
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
@@ -37,6 +38,9 @@ class DocumentsAbout extends React.Component {
                                                 <Nav.Link eventKey="codeOfConduct">Code of Conduct</Nav.Link>
                                             </Nav.Item>
                                             <Nav.Item>
+                                                <Nav.Link eventKey="welfare">Welfare Policy</Nav.Link>
+                                            </Nav.Item>
+                                            <Nav.Item>
                                                 <Nav.Link eventKey="privacy">Privacy Policy</Nav.Link>
                                             </Nav.Item>
                                             <Nav.Item>
@@ -56,8 +60,12 @@ class DocumentsAbout extends React.Component {
                                             </Tab.Pane>
                                             <Tab.Pane eventKey="codeOfConduct">
                                                 <Card.Text as="span">
-                                                    <hr />
                                                     {codeOfConductAbout}
+                                                </Card.Text>
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="welfare">
+                                                <Card.Text as="span">
+                                                    {welfareAbout}
                                                 </Card.Text>
                                             </Tab.Pane>
                                             <Tab.Pane eventKey="privacy">

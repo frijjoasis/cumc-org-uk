@@ -1,30 +1,29 @@
 import React from "react";
 
 const dataAbout = [
+    <h2>
+        CUMC WELFARE POLICY
+    </h2>,
+    <b>
+        Aims
+    </b>,
     <p>
-        This statement explains how the Cambridge University Mountaineering Club (“the
-        club”, “we”, “us” and “our”) handles and uses the personal information we
-        collect about our members for processes relating to our operations and
-        activities
+        CUMC regards the health, safety and welfare of all members to be of paramount importance. The fundamental basis for our welfare policy is the desire to treat our athletes’ responsibly and with respect and to support them in their pursuit of both their academic and sporting goals. The Club recognises that welfare is not just about safety on the pitch but covers the full breadth of Club activities from training and competition through to socials and our media presence.
     </p>,
     <p>
-        When changes are made to this statement, we will publish the updated version on
-        our website.
+        To this end, the CUMC aims to ensure, so far as is reasonably practicable, that policies, procedures and practices are in place to maintain a safe and healthy environment and promote a positive club culture, not only for its members but also for other people and organisations that may be affected by the activities of the Club.
     </p>,
+    <h2>
+        ROLES AND RESPONSIBILITIES
+    </h2>,
+    <b>
+        Everyone Involved in the Club
+    </b>,
     <p>
-        The controller for your personal information is Cambridge University
-        Mountaineering Club The person responsible for data protection within our
-        society is the President who can be contacted at president@cumc.org.uk.
-    </p>,
-    <p>
-        <strong>How we use your personal information</strong>
-    </p>,
-    <p>
-        We collect and process your personal information for a number of purposes,
-        including:
+        Everyone involved in the club regardless of whether they are a participant, committee member, coach, volunteer or spectator is expected to:-
     </p>,
     <ul>
-        <li>Contacting you with news, updates, and information from the club.</li>
+        <li>Respect the rights, dignity and values of others;</li>
         <li>Keeping a record of meet attendance.</li>
         <li>Signing up paid members for BMC membership.</li>
     </ul>,

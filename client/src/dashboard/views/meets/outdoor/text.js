@@ -25,8 +25,8 @@ const outdoorMeets = [
     </p>,
     <p>
         We also run a 'Winter Sun' trip. This happens soon after Michaelmas term ends and sees the club travel off to
-        somewhere nice and sunny (unlike the UK in December!) for a week’s sport climbing. In 2019 we went to Antalya
-        in Turkey, who knows where we’ll go this year?
+        somewhere nice and sunny (unlike the UK in December!) for a week’s sport climbing. In the past we've been to
+		Antalya in Turkey and El Chorro in Spain - who knows where we’ll go this year?
     </p>,
     <br />,
     <h3>What kind of climbing happens on outdoor meets?</h3>,
