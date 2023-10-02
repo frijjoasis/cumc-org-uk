@@ -45,6 +45,9 @@ class CommitteeAbout extends React.Component {
                             <UserCard person={committee.president} />
                         </Col>
                         <Col sm={3}>
+                            <UserCard person={committee.vicePresident} />
+                        </Col>
+                        <Col sm={3}>
                             <UserCard person={committee.secretary} />
                         </Col>
                     </Row>
@@ -142,7 +145,7 @@ class CommitteeAbout extends React.Component {
                         <Col md={12}>
                             <Card>
                                 <Image src={img} fluid />
-                                <Card.Footer className="text-center text-muted">The committee members of 2021 and 2022, at the 2022 Annual General Meeting</Card.Footer>
+                                <Card.Footer className="text-center text-muted">The current committee members, at the 2023 Annual General Meeting</Card.Footer>
                             </Card>
                         </Col>
                     </Row>

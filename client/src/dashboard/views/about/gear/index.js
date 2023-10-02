@@ -36,7 +36,6 @@ class GearAbout extends React.Component {
 						<Col md={6}>
 							<Card>
 								<Image src={img} fluid />
-								<Card.Footer className="text-center text-muted">Ari, the current Gear Sec</Card.Footer>
 							</Card>
 						</Col>
 					</Row>

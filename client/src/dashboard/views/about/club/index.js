@@ -50,7 +50,7 @@ class ClubAbout extends React.Component {
 							<Card>
 								<Image fluid src={img2} />
                                 <Card.Footer className="text-center text-muted">
-                                    One of our current outdoor meets secretaries, Joe
+                                    One of the 2023 outdoor meets secretaries, Joe
                                 </Card.Footer>
 							</Card>
 						</Col>

@@ -27,7 +27,8 @@ const schema = {
     country: DataTypes.STRING,
     emergencyName: DataTypes.STRING,
     emergencyPhone: DataTypes.STRING,
-    bmc: DataTypes.STRING
+    bmc: DataTypes.STRING,
+	medicalInfo: DataTypes.STRING
 };
 
 const required = [

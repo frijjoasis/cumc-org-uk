@@ -20,7 +20,7 @@ const slides = [
     {
         img: require('../../../assets/img/carousel/bouldering.jpg').default,
         header: "Outdoor Bouldering",
-        desc: "Elizabeth (our current president!) bouldering at Stanage",
+        desc: "Bouldering at Stanage",
     },
     {
         img: require('../../../assets/img/carousel/alpine.jpg').default,
