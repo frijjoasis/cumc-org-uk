@@ -112,7 +112,7 @@ const membershipText = [
     <br />,
     <p>
         To become a member simply create an account (sign in with Raven) on the website and follow the instructions.
-        Membership costs £27 for the academic year (£22 if you sign up in Easter term).
+        Membership costs £30 for the academic year (£25 if you sign up in Easter term).
     </p>
 ];
 

@@ -418,7 +418,7 @@ class Register extends React.Component {
                                                 <Card.Title>CUMC Membership</Card.Title>
                                                 <Card.Subtitle>
                                                     In order to come on club meets, you must purchase membership. It
-                                                    currently costs £27, and £22 in Easter term. Newcomers are entitled
+                                                    currently costs £30, and £25 in Easter term. Newcomers are entitled
                                                     attend one meet before purchasing, as long as it is in the first
                                                     three months of the year.
                                                 </Card.Subtitle>
