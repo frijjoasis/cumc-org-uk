@@ -38,27 +38,20 @@ class CommitteeAbout extends React.Component {
             <div className="content">
                 <Container>
                     <Row className="justify-content-md-center">
-                        <Col sm={3}>
+                        <Col>
                             <UserCard person={committee.treasurer} />
                         </Col>
-                        <Col sm={3}>
+                        <Col>
                             <UserCard person={committee.president} />
                         </Col>
-                        <Col sm={3}>
+                        <Col>
                             <UserCard person={committee.vicePresident} />
                         </Col>
-                        <Col sm={3}>
+                        <Col>
                             <UserCard person={committee.secretary} />
                         </Col>
                     </Row>
                     <Row className="justify-content-md-center">
-                        {committee.indoorMeets.map((i, key) => {
-                            return (
-                                <Col key={key}>
-                                    <UserCard person={i} />
-                                </Col>
-                            )
-                        })}
                         {committee.outdoorMeets.map((i, key) => {
                             return (
                                 <Col key={key}>
@@ -68,9 +61,6 @@ class CommitteeAbout extends React.Component {
                         })}
                     </Row>
                     <Row className="justify-content-md-center">
-                        <Col>
-                            <UserCard person={committee.gear} />
-                        </Col>
                         {committee.competitions.map((i, key) => {
                             return (
                                 <Col md={3} key={key}>
@@ -78,21 +68,22 @@ class CommitteeAbout extends React.Component {
                                 </Col>
                             )
                         })}
-                        <Col>
-                            <UserCard person={committee.webmaster} />
-                        </Col>
-                    </Row>
-                    <Row className="justify-content-md-center">
-                        {committee.socialMeets.map((i, key) => {
+                        {committee.indoorMeets.map((i, key) => {
                             return (
-                                <Col sm={3} key={key}>
+                                <Col md={3} key={key}>
                                     <UserCard person={i} />
                                 </Col>
                             )
                         })}
-                        <Col sm={3}>
-                            <UserCard person={committee.winterMeets} />
-                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        {committee.socialMeets.map((i, key) => {
+                            return (
+                                <Col key={key}>
+                                    <UserCard person={i} />
+                                </Col>
+                            )
+                        })}
                     </Row>
                     <Row className="justify-content-md-center">
                         <Col md={3}>
@@ -102,7 +93,19 @@ class CommitteeAbout extends React.Component {
                             <UserCard person={committee.librarian} />
                         </Col>
                         <Col md={3}>
-                            <UserCard person={committee.welfare} />
+                            <UserCard person={committee.gear} />
+                        </Col>
+                    </Row>
+                    <Row className="justify-content-md-center">
+                        {committee.welfare.map((i, key) => {
+                            return (
+                                <Col md={3} key={key}>
+                                    <UserCard person={i} />
+                                </Col>
+                            )
+                        })}
+                        <Col md={3}>
+                            <UserCard person={committee.webmaster} />
                         </Col>
                     </Row>
                     <Row>
