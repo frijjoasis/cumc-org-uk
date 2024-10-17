@@ -5,6 +5,7 @@ const {committeeAuth} = require('../middleware');
 const oldCommittee = {
     head : ["Year","President","Secretary","Treasurer","Gear","Outdoor Meet","Indoor Meet","Alpine and Winter","Competition","Social","Journal","Librarian","Webmaster","Welfare"],
     body : [
+        ["2023-2024", "Noah Grodzinski & Eren Ozturk", "Alice Ward", "Jake Thakur", "Leo Ellis", "Tom de Csilléry", "Seb Gentile & Fin Chetham", "Lev Davies", "Jade Westfoot & Inigo Holman", "Tessa Mullen & Josh Davies", "Eren Ozturk", "Tessa Mullen", "Jake Thakur", "Keying Guao"],
         ["2022-2023", "Elizabeth Stephenson", "Eren Ozturk", "Holly Davis", "Ari Chan", "Eve Seymour & Joe McDermott", "Gabe Gentile & Leo Petchey", "Eren Ozturk", "Hannah Zia & Matthew Fall", "Tilly Corcoran & Noah Grodzinski", "Lily Olliver", "Lauren Charnley-Parr", "Jake Thakur", "Caitlin van Bommel"],
         ["2021-2022", "Bethan Davies-Williams", "Ilya Carey", "Edmund Ross", "Sidney Leedham", "Elizabeth Stephenson & Tom de Csilléry", "Humphrey Allen & Philip Sosnin", "Elizabeth Stephenson", "Matthew Fall", "Holly Davis & Arianna Chan", "Sam Reynolds", "Sam Reynolds", "Max Fryer", ""],
         ["2020-2021", "Sam Reynolds", "Ilya Carey", "Edmund Ross", "Harry Piercy", "Elizabeth Stephenson", "Anna Kelly & Alex Pantelides", "Jacob Rose", "Hugo Burgess", "Marcus Samuel & Isma'eel Zia", "Sophie Miocevich", "", "Humphrey Allen", ""],
