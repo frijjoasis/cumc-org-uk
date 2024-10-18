@@ -147,7 +147,7 @@ const committee = {
     welfare: [
         {
             role: "Access & Welfare",
-            name: "Isobelle Oppon",
+            name: "Izzie Iveson",
             social: "welfare@cumc.org.uk",
             profile: require(`../../../../assets/img/committee/access1.jpg`).default,
             cover: require(`../../../../assets/img/committee/access1Cover.jpg`).default,
