@@ -148,7 +148,7 @@ class CommitteeAbout extends React.Component {
                         <Col md={12}>
                             <Card>
                                 <Image src={img} fluid />
-                                <Card.Footer className="text-center text-muted">The current committee members, at the 2023 Annual General Meeting</Card.Footer>
+                                <Card.Footer className="text-center text-muted">The current committee members, at the 2024 Annual General Meeting</Card.Footer>
                             </Card>
                         </Col>
                     </Row>
