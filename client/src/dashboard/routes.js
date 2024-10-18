@@ -7,6 +7,7 @@ import CommitteeAbout from "./views/about/committee";
 import DocumentsAbout from "./views/about/documents";
 import CompetitionsAbout from "./views/about/competitions";
 import GearAbout from "./views/about/gear";
+import ResourcesAbout from "./views/about/resources"
 
 import UpcomingMeets from "./views/meets/upcoming";
 import ViewMeet from "./views/meets/upcoming/view";
@@ -62,6 +63,13 @@ const routes = [
     name: "Gear",
     icon: "pe-7s-config",
     Component: GearAbout,
+    layout: "",
+  },
+  {
+    path: "/about/resources",
+    name: "Resources",
+    icon: "pe-7s-note2",
+    Component: ResourcesAbout,
     layout: "",
   },
   {
