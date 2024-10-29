@@ -133,13 +133,13 @@ const routes = [
     Component: Register,
     layout: "",
   },
-  /*{
+  {
     path: "/britrock",
     name: "Brit Rock",
     hide: true,
     Component: BritRock,
     layout: ""
-}*/
+},
 ];
 
 export default routes;

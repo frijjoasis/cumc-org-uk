@@ -68,10 +68,12 @@ class BritRock extends React.Component {
                             {this.state.success ? this.renderSuccess() :
                                 <Card>
                                     <Card.Body>
-                                        <Card.Title>Tickets for Brit Rock Film Festival at CUMC</Card.Title>
+                                        <Card.Title>Tickets for Brit Rock Film Tour 2024 at CUMC</Card.Title>
                                         <Card.Subtitle>
-                                            This will take place at 7.30pm on the 22nd Nov, at the Yusuf Hamied Theatre in Christ's College.
-                                            It is open to both CUMC members and the general public.
+                                            The Brit Rock Film Tour 2024 program presents a stunning line-up of the UK’s best climbing and adventure films. Three superb films capturing all the action, wild characters and stunning locations in what are truly inspiring stories. <br/>
+                                            This will be hosted in the Main Lecture Theatre, Divinity School, St John's College, Cambridge, on the 14 Nov 2024 at 7pm. <br/>
+                                            For more information, see the <a href="/meets/upcoming/view/279">meets page</a>. <br/>
+                                            Please Note: This sign up is for Non-Members of CUMC only. If you are a member, please sign in, and sign up <a href="/meets/upcoming/view/279">here</a>.
                                         </Card.Subtitle>
                                         <Card.Text>
                                         <hr/>
@@ -105,10 +107,10 @@ class BritRock extends React.Component {
                                             <Row>
                                                 <Col>
                                                     <div>
-                                                        <Form.Label>Pay for Ticket (£8.00)</Form.Label>
+                                                        <Form.Label>Pay for Ticket (£12.00)</Form.Label>
                                                         <div className="text-center">
                                                             <PayPalButtons
-                                                                price={"8.00"}
+                                                                price={"12.00"}
                                                                 description={`Brit Rock Ticket - ID ${this.state.ticket}`}
                                                                 intent='britrock'
                                                                 form={{
