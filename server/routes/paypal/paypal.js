@@ -65,13 +65,13 @@ router.post('/membership', userAuth, async function(req, res) {
 });
 
 router.post('/britrock', async function(req, res) {
-    return verify(req.body.data.orderID, '8.00').then(v => {
+    return verify(req.body.data.orderID, process.env.BRITROCK_PRICE).then(v => {
         if (v.err) res.json({err: v.err});
         else {
             return authorise(req.body.data.orderID).then(auth => {
                 if (auth.err) res.json({err: auth.err});
                 else {
-                    return capture(auth, '8.00').then(cap => {
+                    return capture(auth, process.env.BRITROCK_PRICE).then(cap => {
                         if (cap.err) res.json({err: cap.err});
                         else {
                             return britrock.upsert(req.body.form).then(() => {
