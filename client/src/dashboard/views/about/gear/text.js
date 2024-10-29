@@ -10,6 +10,10 @@ const gearAbout = [
         please contact the {gearSecLink}.
     </p>,
     <p>
+        Membership is required to borrow gear, with the exception of shoes, which can be borrowed without a membership
+        for a £5 refundable deposit.
+    </p>,
+    <p>
         In term time, gear should be returned within one week of it being issued. If you want to keep it for longer,
         then you need to contact the gear secretary to ‘renew’ it. If gear is not returned, and the gear sec is not
         given a legitimate reason as to why (e.g. illness so couldn't make the gear tea), then the borrower will be
