@@ -134,8 +134,8 @@ const routes = [
     layout: "",
   },
   {
-    path: "/britrock",
-    name: "Brit Rock",
+    path: "/skitour",
+    name: "SKI - film screening",
     icon: "pe-7s-film",
     Component: BritRock,
     layout: ""

@@ -49,7 +49,7 @@ class BritRock extends React.Component {
                         <p>
                             Please make a note of this number. It will be included with your payment confirmation email
                             from PayPal. Email us if you lose it, or you would like to cancel - but be aware that we
-                            cannot offer refunds after the 15th Nov.
+                            cannot offer refunds after the 30th Jan.
                         </p>
                     </Card.Text>
                 </Card.Body>
@@ -68,12 +68,20 @@ class BritRock extends React.Component {
                             {this.state.success ? this.renderSuccess() :
                                 <Card>
                                     <Card.Body>
-                                        <Card.Title>Tickets for Brit Rock Film Tour 2024 at CUMC</Card.Title>
+                                        <Card.Title>Screening: Nikolai Schirmer - The Greatest Ski Tour of All Time - at CUMC [EARLY BIRD SALE - ENDS 22 JAN]</Card.Title>
                                         <Card.Subtitle>
-                                            The Brit Rock Film Tour 2024 program presents a stunning line-up of the UK’s best climbing and adventure films. Three superb films capturing all the action, wild characters and stunning locations in what are truly inspiring stories. <br/>
-                                            This will be hosted in the Main Lecture Theatre, Divinity School, St John's College, Cambridge, on the 14 Nov 2024 at 7pm. <br/>
-                                            For more information, see the <a href="/meets/upcoming/view/279">meets page</a>. <br/>
-                                            Please Note: This sign up is for Non-Members of CUMC only. If you are a member, please sign in, and sign up <a href="/meets/upcoming/view/279">here</a>.
+                                        The hyper commercial world of professional freeride skiing collides with the purist misanthropic ways of the mountaineer, when skier and filmmaker Nikolai Schirmer discovers that his reclusive childhood friend is embarking on a ski tour like nothing done before, and that he’s not planning to tell a soul.
+                                        <br/><br/>
+                                        Vegard Rye is training to climb and ski 27 mountains in a single push. The equivalent of running four marathons while climbing Mount Everest from sea level - three times. To be able to achieve this inhuman feat Vegard is isolating himself from friends and family, living in caves and dedicating his entire existence to better himself.
+                                        <br/><br/>
+                                        Nikolai sets out to share his friend’s story with the world, telling his sponsors it'll be The Greatest Ski Tour of All Time, and attempts to appropriate his friend’s snow warrior monk ways of training to lift his own skiing to new heights.
+                                        <br/><br/>
+                                        Nikolai quickly learns it’s easier to sell a story than to live through it though. All the while the bigger question of why he lost his best friend and mountain partner so many years ago lingers.
+                                        <br/><br/>
+                                        Date: Thu, 06 Feb 2025 19:15-22:00<br/>
+                                        Location: Main Lecture Theatre, Divinity School, St John's College
+                                        <br/><br/>
+                                        Please Note: This sign up is for Non-Members of CUMC only. If you are a member, please sign in, and sign up <a href="/meets/upcoming/view/299">here</a>.
                                         </Card.Subtitle>
                                         <Card.Text>
                                         <hr/>
@@ -107,11 +115,11 @@ class BritRock extends React.Component {
                                             <Row>
                                                 <Col>
                                                     <div>
-                                                        <Form.Label>Pay for Ticket (£12.00)</Form.Label>
+                                                        <Form.Label>Pay for Ticket (£8.00)</Form.Label>
                                                         <div className="text-center">
                                                             <PayPalButtons
-                                                                price={"12.00"}
-                                                                description={`Brit Rock Ticket - ID ${this.state.ticket}`}
+                                                                price={"8.00"}
+                                                                description={`"Nikolai Schirmer - The Greatest Ski Tour of All Time" Ticket - ID ${this.state.ticket}`}
                                                                 intent='britrock'
                                                                 form={{
                                                                     name: this.state.name,
