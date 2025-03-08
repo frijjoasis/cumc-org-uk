@@ -77,7 +77,7 @@ class DocumentsAbout extends React.Component {
                                                 </Card.Text>
                                             </Tab.Pane>
                                             <Tab.Pane eventKey="constitution">
-                                                <Card.Text as="span">
+                                                <Card.Text as="span" class="legallist">
                                                     {constitutionAbout}
                                                 </Card.Text>
                                             </Tab.Pane>

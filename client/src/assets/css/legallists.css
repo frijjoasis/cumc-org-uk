@@ -1,0 +1,17 @@
+.legallist ol {
+    counter-reset: item;
+    padding-left: 60px;
+}
+
+.legallist ol > li {
+    counter-increment: item;
+}
+
+.legallist ol ol > li {
+    display: block;
+}
+
+.legallist ol ol > li:before {
+    content: counters(item, ".") ". ";
+    margin-left: -30px;
+}

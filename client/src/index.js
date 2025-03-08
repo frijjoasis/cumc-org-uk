@@ -6,6 +6,7 @@ import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 
 import "./assets/css/animate.min.css";
+import "./assets/css/legallists.css"
 import "./assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0";
 import "./assets/css/pe-icon-7-stroke.css";
 
