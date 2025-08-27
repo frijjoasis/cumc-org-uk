@@ -6,6 +6,7 @@ import {codeOfConductAbout} from "./codeOfConduct";
 import {dataAbout} from "./privacy";
 import {constitutionAbout} from "./constitution";
 import {welfareAbout} from "./welfare";
+import {wherryDonationPolicy} from "./wherryDonationPolicy"
 
 import Col from "react-bootstrap/Col";
 import Card from "react-bootstrap/Card";
@@ -46,6 +47,9 @@ class DocumentsAbout extends React.Component {
                                             <Nav.Item>
                                                 <Nav.Link eventKey="constitution">Constitution</Nav.Link>
                                             </Nav.Item>
+                                            <Nav.Item>
+                                                <Nav.Link eventKey="wherryDonation">Wherry Donation Policy</Nav.Link>
+                                            </Nav.Item>
                                         </Nav>
                                     </Card.Header>
                                     <Card.Body>
@@ -79,6 +83,14 @@ class DocumentsAbout extends React.Component {
                                             <Tab.Pane eventKey="constitution">
                                                 <Card.Text as="span" class="legallist">
                                                     {constitutionAbout}
+                                                </Card.Text>
+                                            </Tab.Pane>
+                                            <Tab.Pane eventKey="wherryDonation">
+                                                <Card.Title>Wherry Book Donations Policy</Card.Title>
+                                                <Card.Subtitle>How to donate books to the club library</Card.Subtitle>
+                                                <Card.Text as="span">
+                                                    <hr />
+                                                    {wherryDonationPolicy}
                                                 </Card.Text>
                                             </Tab.Pane>
                                         </Tab.Content>
