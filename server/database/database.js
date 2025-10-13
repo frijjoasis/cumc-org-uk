@@ -4,10 +4,10 @@ const logger = require('../logger').logger;
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: "postgres",
     dialectOptions: {
-        ssl: {
+        ssl: process.env.NODE_ENV === 'production' ? {
             require: true,
             rejectUnauthorized: false
-        }
+        } : false
     },
     logging: false
 });
@@ -18,6 +18,8 @@ const models = [
     require('./models/meet'),
     require('./models/signup'),
     require('./models/britrock'),
+    require('./models/committee'),
+    require('./models/committeeRole'),
 ]
 
 module.exports = {
