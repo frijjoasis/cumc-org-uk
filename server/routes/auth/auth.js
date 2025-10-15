@@ -29,4 +29,49 @@ router.get('/callback',
     }
 );
 
+// Development-only routes
+if (process.env.NODE_ENV === 'development') {
+    // Bypass login for development
+    router.get('/dev-login', function(req, res) {
+        if (process.env.DEV_ADMIN_BYPASS !== 'true') {
+            return res.status(403).json({err: "Development admin bypass not enabled"});
+        }
+        
+        // Create a fake dev user session
+        req.login({
+            id: 999999999,
+            email: 'dev-admin@cumc.org.uk',
+            displayName: 'Development Admin',
+            picture: 'https://via.placeholder.com/150',
+            isDevUser: true
+        }, function(err) {
+            if (err) {
+                console.error('Dev login error:', err);
+                return res.status(500).json({err: "Failed to create dev session"});
+            }
+            
+            console.log('🔓 DEV MODE: Logged in as development admin');
+            res.json({
+                success: true,
+                message: 'Logged in as development admin',
+                user: req.user
+            });
+        });
+    });
+
+    // Check dev auth status
+    router.get('/dev-status', function(req, res) {
+        if (process.env.DEV_ADMIN_BYPASS !== 'true') {
+            return res.status(403).json({err: "Development admin bypass not enabled"});
+        }
+        
+        res.json({
+            authenticated: req.isAuthenticated(),
+            user: req.user,
+            devMode: true,
+            adminBypass: process.env.DEV_ADMIN_BYPASS === 'true'
+        });
+    });
+}
+
 module.exports = router;

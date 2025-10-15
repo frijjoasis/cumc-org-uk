@@ -1,9 +1,21 @@
 const router = require('express').Router();
 const members = require('../../database/controllers/members');
 const logger = require('../../logger').logger;
-const {userAuth, rootAuth} = require('../middleware');
+const {userAuth, rootAuth, committeeAuth} = require('../middleware');
 
 router.get('/', userAuth, async function(req, res) {
+    // Handle dev users - they don't exist in the database
+    if (req.user.isDevUser) {
+        return res.json({
+            member: {
+                id: req.user.id,
+                hasPaid: true,
+                hasFree: false,
+                committee: 'Dev Admin'
+            }
+        });
+    }
+
     await members.getMember(req.user.id).then(member => {
         res.json({
             member: member
@@ -13,6 +25,11 @@ router.get('/', userAuth, async function(req, res) {
 
 router.get('/committee', async function(req, res) {
     if (req.isAuthenticated()) {
+        // Dev users have full committee access
+        if (req.user.isDevUser) {
+            return res.json('Dev Admin');
+        }
+
         await members.getCommitteeRole(req.user.id).then(role => {
             res.json(role);
         });

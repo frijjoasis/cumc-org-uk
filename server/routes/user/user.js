@@ -19,6 +19,25 @@ router.post('/register', userAuth, async function(req, res) {
 });
 
 router.get('/info', userAuth, async function(req, res) {
+    // Handle dev users - they don't exist in the database
+    if (req.user.isDevUser) {
+        return res.json({
+            id: req.user.id,
+            email: req.user.email,
+            displayName: req.user.displayName,
+            firstName: 'Dev',
+            lastName: 'Admin',
+            dob: '1990-01-01',
+            phone: '07700000000',
+            college: 'Dev College',
+            address1: 'Dev Address',
+            postCode: 'CB1 1AA',
+            country: 'UK',
+            emergencyName: 'Dev Emergency',
+            emergencyPhone: '07700000000'
+        });
+    }
+
     await users.getInfo(req.user.id).then(info => {
         res.json(info);
     });

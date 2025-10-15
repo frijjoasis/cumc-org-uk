@@ -8,7 +8,6 @@
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.21.4",
     "bootstrap": "^4.5.3",
-    "node-sass": "^7.0.1",
     "react": "^16.14.0",
     "react-bootstrap": "^1.6.4",
     "react-csv": "^2.0.3",
@@ -38,9 +37,10 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000",
   "devDependencies": {
+    "http-proxy-middleware": "^3.0.5",
     "prettier": "^3.6.2",
-    "react-scripts": "^4.0.3"
+    "react-scripts": "^5.0.1",
+    "sass": "^1.93.2"
   }
 }

@@ -34,7 +34,11 @@ class Frame extends React.Component {
             this.setState({
                 user: res.data.user,
             })
+        }).catch(err => {
+            console.log('User not authenticated:', err.response?.status);
+            // User not logged in, which is fine
         });
+    
         axios.get('/api/member/committee').then(res => {
            if (res.data) {
                this.setState({
@@ -44,6 +48,9 @@ class Frame extends React.Component {
                    }
                })
            }
+        }).catch(err => {
+            console.log('Not a committee member:', err.response?.status);
+            // User not in committee, which is fine
         });
     }
 

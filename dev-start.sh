@@ -117,15 +117,6 @@ fi
 echo "🚀 Starting backend server..."
 cd server
 
-# Set development environment variables for admin bypass
-export NODE_ENV=development
-export DEV_ADMIN_BYPASS=true
-
-echo "🔓 Development admin bypass enabled"
-echo "💡 You can access admin features without login!"
-echo "   - Visit: http://localhost:5000/api/auth/dev-login to auto-login"
-echo "   - Or use committee management directly"
-
 npm start &
 SERVER_PID=$!
 cd ..
@@ -136,7 +127,7 @@ sleep 2
 # Start the frontend client  
 echo "🎨 Starting frontend client..."
 cd client
-npm start &
+BROWSER=none FORCE_COLOR=true npm start &
 CLIENT_PID=$!
 cd ..
 

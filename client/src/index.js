@@ -2,34 +2,57 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Frame from './dashboard';
 import Admin from './committee';
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import * as serviceWorker from './serviceWorker';
 
-import "./assets/css/animate.min.css";
-import "./assets/css/legallists.css"
-import "./assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0";
-import "./assets/css/pe-icon-7-stroke.css";
+import './assets/css/animate.min.css';
+import './assets/css/legallists.css';
+import './assets/sass/light-bootstrap-dashboard-react.scss?v=1.3.0';
+import './assets/css/pe-icon-7-stroke.css';
 
 ReactDOM.render(
   <React.StrictMode>
     <Router>
       <Switch>
-          <Route exact path='/login' component={() => {
-              window.location.href = '/api/auth/login';
-              // Redirect to backend, since requests via <a> aren't proxied
+        <Route
+          exact
+          path="/login"
+          component={() => {
+            window.location.href = '/api/auth/login';
+            // Redirect to backend, since requests via <a> aren't proxied
+            return null;
+          }}
+        />
+        {process.env.NODE_ENV === 'development' && (
+          // Dev only login
+          <Route
+            exact
+            path="/login/dev"
+            component={() => {
+              window.location.href = '/api/auth/dev-login';
               return null;
-          }}/>
-          <Route exact path='/login/other' component={() => {
-              window.location.href = '/api/auth/login/other';
-              // Alternate login route
-              return null;
-          }}/>
-          <Route exact path='/logout' component={() => {
-              window.location.href = '/api/auth/logout';
-              return null;
-          }}/>
-          <Route path="/committee" render={(props) => <Admin {...props} />} />
-          <Route path="/" render={(props) => <Frame {...props} />} />
+            }}
+          />
+        )}
+        <Route
+          exact
+          path="/login/other"
+          component={() => {
+            window.location.href = '/api/auth/login/other';
+            // Alternate login route
+            return null;
+          }}
+        />
+        <Route
+          exact
+          path="/logout"
+          component={() => {
+            window.location.href = '/api/auth/logout';
+            return null;
+          }}
+        />
+        <Route path="/committee" render={props => <Admin {...props} />} />
+        <Route path="/" render={props => <Frame {...props} />} />
       </Switch>
     </Router>
   </React.StrictMode>,

@@ -27,7 +27,10 @@ class ClubAbout extends React.Component {
     componentDidMount() {
         axios.get("/api/about/routes").then(res => {
             this.setState({
-                content: res.data,
+                content: {
+                    head: res.data?.head || [],
+                    body: res.data?.body || [],
+                }
             })
         })
     }

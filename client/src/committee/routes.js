@@ -2,6 +2,8 @@ import Home from "./views/home/index";
 
 import Treasure from "./views/treasure";
 import Webmaster from "./views/webmaster";
+import CommitteeManager from "./views/committee";
+import RolesManager from "./views/roles";
 
 import Members from "./views/members";
 import ViewMember from "./views/members/view";
@@ -79,6 +81,20 @@ const routes = [
         name: "Member Details",
         hide: true,
         Component: ViewMember,
+        layout: "/committee"
+    },
+    {
+        path: "/committee",
+        name: "Committee",
+        icon: "pe-7s-users",
+        Component: CommitteeManager,
+        layout: "/committee"
+    },
+    {
+        path: "/roles",
+        name: "Committee Roles",
+        icon: "pe-7s-config",
+        Component: RolesManager,
         layout: "/committee"
     },
     {
