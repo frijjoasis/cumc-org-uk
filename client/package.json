@@ -20,7 +20,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,css,scss,html}\""
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -39,6 +40,7 @@
   },
   "proxy": "http://localhost:5000",
   "devDependencies": {
+    "prettier": "^3.6.2",
     "react-scripts": "^4.0.3"
   }
 }
