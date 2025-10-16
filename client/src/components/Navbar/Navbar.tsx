@@ -4,8 +4,25 @@ import Nav from 'react-bootstrap/Nav';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import { NavLink } from 'react-router-dom';
 
-class Header extends React.Component {
-  constructor(props) {
+interface HeaderProps {
+  brandText: string;
+  committee?: { link: string; text: string };
+  routes: Array<{
+    category?: boolean;
+    name: string;
+    path?: string;
+    layout?: string;
+    hide?: boolean;
+  }>;
+  user?: { displayName: string };
+}
+
+interface HeaderState {
+  width: number;
+}
+
+class Header extends React.Component<HeaderProps, HeaderState> {
+  constructor(props: HeaderProps) {
     super(props);
     this.state = {
       width: window.innerWidth,
@@ -44,6 +61,7 @@ class Header extends React.Component {
                   } else if (!prop.hide) {
                     return (
                       <NavLink
+                        key={prop.path || index}
                         to={prop.layout + prop.path}
                         className="nav-link"
                       >
@@ -79,7 +97,7 @@ class Header extends React.Component {
                   <NavDropdown
                     key="login-dropdown"
                     title="Login"
-                    alignRight
+                    align="end"
                     id="account-nav-dropdown"
                   >
                     <NavDropdown.Item>
