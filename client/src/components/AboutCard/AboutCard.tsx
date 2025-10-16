@@ -7,9 +7,9 @@ import { NavLink } from 'react-router-dom';
 
 interface AboutCardProps {
   title: string;
-  text: string;
+  text: string | JSX.Element[];
   button?: {
-    type: 'button' | string; // You can use string for type
+    type?: 'button' | string; // You can use string for type
     to: string;
     text: string;
   };

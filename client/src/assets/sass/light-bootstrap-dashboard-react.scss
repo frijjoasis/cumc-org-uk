@@ -14,22 +14,22 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
  */
-@import "~bootstrap/scss/bootstrap.scss";
+@import 'bootstrap/scss/bootstrap.scss';
 
-@import "lbd/variables";
-@import "lbd/mixins";
+@import 'lbd/variables';
+@import 'lbd/mixins';
 
 // Core CSS
-@import "lbd/typography";
-@import "lbd/misc";
-@import "lbd/sidebar-and-main-panel";
-@import "lbd/buttons";
-@import "lbd/inputs";
-@import "lbd/tables";
+@import 'lbd/typography';
+@import 'lbd/misc';
+@import 'lbd/sidebar-and-main-panel';
+@import 'lbd/buttons';
+@import 'lbd/inputs';
+@import 'lbd/tables';
 
-@import "lbd/navbars";
-@import "lbd/footers";
+@import 'lbd/navbars';
+@import 'lbd/footers';
 
 // Fancy Stuff
-@import "lbd/cards";
-@import "lbd/responsive";
+@import 'lbd/cards';
+@import 'lbd/responsive';

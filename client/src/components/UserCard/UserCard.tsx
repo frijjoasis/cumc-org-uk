@@ -1,14 +1,7 @@
+import { CommitteePersonData } from '@/types/committee';
 import { User } from '@/types/models';
 import React from 'react';
 import Card from 'react-bootstrap/Card';
-
-interface CommitteePersonData {
-  role: string;
-  name: string;
-  social?: string;
-  profile: string;
-  cover: string;
-}
 
 interface UserCardProps {
   person: CommitteePersonData;
