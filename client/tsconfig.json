@@ -29,7 +29,8 @@
 
     "paths": {
       "@assets/*": ["./src/assets/*"],
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@cumc/shared-types": ["../shared/types"]
     }
   },
   "include": ["src"],

@@ -8,6 +8,7 @@ export default defineConfig({
     alias: {
       '@assets': path.resolve(__dirname, './src/assets'),
       '@': path.resolve(__dirname, './src'),
+      '@cumc/shared-types': path.resolve(__dirname, '../shared/types'),
     },
   },
   esbuild: {
