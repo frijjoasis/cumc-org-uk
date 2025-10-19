@@ -5,8 +5,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
 
-import Carousel from '../../../components/Carousel/Carousel';
-import AboutCard from '../../../components/AboutCard/AboutCard';
+import Carousel from '@/components/Carousel/Carousel';
+import AboutCard from '@/components/AboutCard/AboutCard';
 
 import {
   aboutText,
