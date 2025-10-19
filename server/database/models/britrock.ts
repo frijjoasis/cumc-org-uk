@@ -7,9 +7,9 @@ import {
   CreationOptional,
 } from 'sequelize';
 
-class BritRock extends Model<
-  InferAttributes<BritRock>,
-  InferCreationAttributes<BritRock>
+class BritRockModel extends Model<
+  InferAttributes<BritRockModel>,
+  InferCreationAttributes<BritRockModel>
 > {
   declare id: CreationOptional<number>;
   declare name: string;
@@ -22,7 +22,7 @@ class BritRock extends Model<
 }
 
 function define(sequelize: Sequelize) {
-  BritRock.init(
+  BritRockModel.init(
     {
       id: {
         allowNull: false,
@@ -48,14 +48,15 @@ function define(sequelize: Sequelize) {
     {
       sequelize,
       tableName: 'BritRock',
+      modelName: 'britrock',
     }
   );
 
-  return BritRock;
+  return BritRockModel;
 }
 
 function associate(sequelize: Sequelize) {
   // No associations for britrock model
 }
 
-export { BritRock, define, associate };
+export { BritRockModel, define, associate };

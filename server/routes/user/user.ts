@@ -1,0 +1,63 @@
+import { Router, Request, Response } from 'express';
+import { userService } from '../../services';
+import { logger } from '../../logger';
+import { userAuth, committeeAuth } from '../middleware';
+
+const router = Router();
+
+router.get('/', userAuth, function (req: Request, res: Response) {
+  res.json({
+    user: req.user,
+  });
+});
+
+router.post('/register', userAuth, async function (req: Request, res: Response) {
+  try {
+    await userService.updateInfo(req.body, req.user.id);
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.get('/info', userAuth, async function (req: Request, res: Response) {
+  // Handle dev users - they don't exist in the database
+  if ((req.user as any).isDevUser) {
+    return res.json({
+      id: req.user.id,
+      email: (req.user as any).email,
+      displayName: (req.user as any).displayName,
+      firstName: 'Dev',
+      lastName: 'Admin',
+      dob: '1990-01-01',
+      phone: '07700000000',
+      college: 'Dev College',
+      address1: 'Dev Address',
+      postCode: 'CB1 1AA',
+      country: 'UK',
+      emergencyName: 'Dev Emergency',
+      emergencyPhone: '07700000000',
+    });
+  }
+
+  const user = await userService.getById(req.user.id);
+  res.json(user);
+});
+
+router.post('/member', committeeAuth, async function (req: Request, res: Response) {
+  try {
+    const user = await userService.getWithMember(req.body.id);
+    res.json(user);
+  } catch (err: any) {
+    logger.error('Database err: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.get('/list', committeeAuth, async function (req: Request, res: Response) {
+  const list = await userService.list();
+  res.json(list);
+});
+
+export default router;

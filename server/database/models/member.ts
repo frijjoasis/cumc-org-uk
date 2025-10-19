@@ -8,15 +8,15 @@ import {
   NonAttribute,
   ForeignKey,
 } from 'sequelize';
-import type { User } from './user';
-import type { Committee } from './committee';
+import type { UserModel } from './user';
+import type { CommitteeModel } from './committee';
 
-class Member extends Model<
-  InferAttributes<Member>,
-  InferCreationAttributes<Member>
+class MemberModel extends Model<
+  InferAttributes<MemberModel>,
+  InferCreationAttributes<MemberModel>
 > {
   // id is both primary key AND foreign key to User
-  declare id: ForeignKey<User['id']>;
+  declare id: ForeignKey<UserModel['id']>;
 
   declare hasPaid: CreationOptional<boolean>;
   declare hasFree: CreationOptional<boolean>;
@@ -24,8 +24,8 @@ class Member extends Model<
   declare committee: string | null;
 
   // Associations
-  declare user?: NonAttribute<User>;
-  declare committeeMembers?: NonAttribute<Committee[]>;
+  declare user?: NonAttribute<UserModel>;
+  declare committeeMembers?: NonAttribute<CommitteeModel[]>;
 
   // Timestamps
   declare createdAt: CreationOptional<Date>;
@@ -33,7 +33,7 @@ class Member extends Model<
 }
 
 function define(sequelize: Sequelize) {
-  Member.init(
+  MemberModel.init(
     {
       id: {
         primaryKey: true,
@@ -57,14 +57,15 @@ function define(sequelize: Sequelize) {
     {
       sequelize,
       tableName: 'Members',
+      modelName: 'member',
     }
   );
 
-  return Member;
+  return MemberModel;
 }
 
 function associate(sequelize: Sequelize) {
-  Member.belongsTo(sequelize.models.user as typeof User, {
+  MemberModel.belongsTo(sequelize.models.user as typeof UserModel, {
     foreignKey: {
       name: 'id',
       field: 'id',
@@ -73,11 +74,11 @@ function associate(sequelize: Sequelize) {
 
   // Associate with committee if it exists
   if (sequelize.models.committee) {
-    Member.hasMany(sequelize.models.committee as typeof Committee, {
+    MemberModel.hasMany(sequelize.models.committee as typeof CommitteeModel, {
       foreignKey: 'member_id',
       as: 'committeeMembers',
     });
   }
 }
 
-export { Member, define, associate };
+export { MemberModel, define, associate };

@@ -57,20 +57,12 @@ async function init(): Promise<void> {
   logger.info('All models synchronized successfully.');
 }
 
-// Export the Model classes with "Model" suffix to avoid conflicts
-export const UserModel = UserModule.User;
-export const MemberModel = MemberModule.Member;
-export const MeetModel = MeetModule.Meet;
-export const SignupModel = SignupModule.Signup;
-export const BritRockModel = BritRockModule.BritRock;
-export const CommitteeModel = CommitteeModule.Committee;
-export const CommitteeRoleModel = CommitteeRoleModule.CommitteeRole;
-
 // Export additional exports from user and signup modules
 export const required = UserModule.required;
 export const userFields = SignupModule.userFields;
 
 export { init, sequelize };
+export * from './models';
 
 // Export types with clean names (no "Model" suffix)
 export type {

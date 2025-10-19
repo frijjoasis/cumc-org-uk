@@ -8,11 +8,13 @@ import {
   NonAttribute,
   ForeignKey,
 } from 'sequelize';
-import type { User } from './user';
-import type { Signup } from './signup';
-import { MeetType } from '@cumc/shared-types';
+import type { UserModel } from './user';
+import type { SignupModel } from './signup';
 
-class Meet extends Model<InferAttributes<Meet>, InferCreationAttributes<Meet>> {
+class MeetModel extends Model<
+  InferAttributes<MeetModel>,
+  InferCreationAttributes<MeetModel>
+> {
   declare id: CreationOptional<number>;
   declare title: string;
   declare subtitle: string | null;
@@ -27,18 +29,18 @@ class Meet extends Model<InferAttributes<Meet>, InferCreationAttributes<Meet>> {
   declare hidden: CreationOptional<boolean>;
 
   // Foreign keys
-  declare organiser: ForeignKey<User['id']>;
+  declare organiser: ForeignKey<UserModel['id']>;
 
   // Associations
-  declare organiserUser?: NonAttribute<User>;
-  declare signups?: NonAttribute<Signup[]>;
+  declare organiserUser?: NonAttribute<UserModel>;
+  declare signups?: NonAttribute<SignupModel[]>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
 
 function define(sequelize: Sequelize) {
-  Meet.init(
+  MeetModel.init(
     {
       id: {
         allowNull: false,
@@ -86,14 +88,15 @@ function define(sequelize: Sequelize) {
     {
       sequelize,
       tableName: 'Meets',
+      modelName: 'meet',
     }
   );
 
-  return Meet;
+  return MeetModel;
 }
 
 function associate(sequelize: Sequelize) {
-  Meet.belongsTo(sequelize.models.user as typeof User, {
+  MeetModel.belongsTo(sequelize.models.user as typeof UserModel, {
     foreignKey: {
       name: 'organiser',
       allowNull: false,
@@ -101,7 +104,7 @@ function associate(sequelize: Sequelize) {
     as: 'organiserUser',
   });
 
-  Meet.hasMany(sequelize.models.signup as typeof Signup, {
+  MeetModel.hasMany(sequelize.models.signup as typeof SignupModel, {
     foreignKey: {
       name: 'meetID',
       allowNull: false,
@@ -109,4 +112,4 @@ function associate(sequelize: Sequelize) {
   });
 }
 
-export { Meet, define, associate };
+export { MeetModel, define, associate };

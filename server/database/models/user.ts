@@ -7,11 +7,14 @@ import {
   CreationOptional,
   NonAttribute,
 } from 'sequelize';
-import type { Member } from './member';
-import type { Meet } from './meet';
-import type { Signup } from './signup';
+import { MemberModel } from './member';
+import { MeetModel } from './meet';
+import { SignupModel } from './signup';
 
-class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
+class UserModel extends Model<
+  InferAttributes<UserModel>,
+  InferCreationAttributes<UserModel>
+> {
   declare id: number;
   declare email: string;
   declare displayName: string;
@@ -35,13 +38,13 @@ class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
   declare updatedAt: CreationOptional<Date>;
 
   // Associations
-  declare member?: NonAttribute<Member>;
-  declare meets?: NonAttribute<Meet[]>;
-  declare signups?: NonAttribute<Signup[]>;
+  declare member?: NonAttribute<MemberModel>;
+  declare meets?: NonAttribute<MeetModel[]>;
+  declare signups?: NonAttribute<SignupModel[]>;
 }
 
 function define(sequelize: Sequelize) {
-  User.init(
+  UserModel.init(
     {
       id: {
         allowNull: false,
@@ -77,29 +80,30 @@ function define(sequelize: Sequelize) {
     {
       sequelize,
       tableName: 'Users',
+      modelName: 'user',
       // timestamps: false,
     }
   );
 
-  return User;
+  return UserModel;
 }
 
 function associate(sequelize: Sequelize) {
-  User.hasOne(sequelize.models.member as typeof Member, {
+  UserModel.hasOne(sequelize.models.member as typeof MemberModel, {
     foreignKey: {
       name: 'id',
       field: 'id',
     },
   });
 
-  User.hasMany(sequelize.models.meet as typeof Meet, {
+  UserModel.hasMany(sequelize.models.meet as typeof MeetModel, {
     foreignKey: {
       name: 'organiser',
       allowNull: false,
     },
   });
 
-  User.hasMany(sequelize.models.signup as typeof Signup, {
+  UserModel.hasMany(sequelize.models.signup as typeof SignupModel, {
     foreignKey: {
       name: 'userID',
       allowNull: false,
@@ -120,4 +124,4 @@ const required = [
   'emergencyPhone',
 ];
 
-export { User, define, associate, required };
+export { UserModel, define, associate, required };

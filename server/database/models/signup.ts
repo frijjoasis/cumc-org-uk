@@ -8,12 +8,12 @@ import {
   NonAttribute,
   ForeignKey,
 } from 'sequelize';
-import type { User } from './user';
-import type { Meet } from './meet';
+import type { UserModel } from './user';
+import type { MeetModel } from './meet';
 
-class Signup extends Model<
-  InferAttributes<Signup>,
-  InferCreationAttributes<Signup>
+class SignupModel extends Model<
+  InferAttributes<SignupModel>,
+  InferCreationAttributes<SignupModel>
 > {
   declare id: CreationOptional<number>;
   declare displayName: string | null;
@@ -22,12 +22,12 @@ class Signup extends Model<
   declare answers: object | null;
 
   // Foreign keys
-  declare userID: ForeignKey<User['id']>;
-  declare meetID: ForeignKey<Meet['id']>;
+  declare userID: ForeignKey<UserModel['id']>;
+  declare meetID: ForeignKey<MeetModel['id']>;
 
   // Associations
-  declare user?: NonAttribute<User>;
-  declare meet?: NonAttribute<Meet>;
+  declare user?: NonAttribute<UserModel>;
+  declare meet?: NonAttribute<MeetModel>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -36,7 +36,7 @@ class Signup extends Model<
 const userFields = ['displayName', 'userID', 'meetID', 'answers'];
 
 function define(sequelize: Sequelize) {
-  Signup.init(
+  SignupModel.init(
     {
       id: {
         allowNull: false,
@@ -54,6 +54,7 @@ function define(sequelize: Sequelize) {
     {
       sequelize,
       tableName: 'Signups',
+      modelName: 'signup',
       indexes: [
         {
           unique: true,
@@ -63,18 +64,18 @@ function define(sequelize: Sequelize) {
     }
   );
 
-  return Signup;
+  return SignupModel;
 }
 
 function associate(sequelize: Sequelize) {
-  Signup.belongsTo(sequelize.models.meet as typeof Meet, {
+  SignupModel.belongsTo(sequelize.models.meet as typeof MeetModel, {
     foreignKey: {
       name: 'meetID',
       allowNull: false,
     },
   });
 
-  Signup.belongsTo(sequelize.models.user as typeof User, {
+  SignupModel.belongsTo(sequelize.models.user as typeof UserModel, {
     foreignKey: {
       name: 'userID',
       allowNull: false,
@@ -82,4 +83,4 @@ function associate(sequelize: Sequelize) {
   });
 }
 
-export { Signup, define, associate, userFields };
+export { SignupModel, define, associate, userFields };

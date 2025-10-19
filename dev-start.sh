@@ -38,18 +38,18 @@ fi
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then
     echo "❌ Error: Node.js is not installed"
-    echo "📥 Please install Node.js v16.14.2"
+    echo "📥 Please install Node.js v22.14.0"
     echo "💡 Recommended: Use nvm to manage Node versions:"
     echo "   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
     echo "   source ~/.bashrc"
-    echo "   nvm install 16.14.2"
-    echo "   nvm use 16.14.2"
+    echo "   nvm install 22.14.0"
+    echo "   nvm use 22.14.0"
     exit 1
 fi
 
 # Check Node.js version
 NODE_VERSION=$(node -v)
-REQUIRED_VERSION="v16.14.2"
+REQUIRED_VERSION="v22.14.0"
 
 echo "📦 Current Node.js version: $NODE_VERSION"
 
@@ -58,9 +58,9 @@ if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
     
     if command -v nvm &> /dev/null; then
         echo "🔄 Attempting to auto-fix with nvm..."
-        nvm install 16.14.2 2>/dev/null || true
-        nvm use 16.14.2
-        
+        nvm install 22.14.0 2>/dev/null || true
+        nvm use 22.14.0
+
         # Re-check version after nvm use
         NODE_VERSION=$(node -v)
         if [ "$NODE_VERSION" = "$REQUIRED_VERSION" ]; then
@@ -68,8 +68,8 @@ if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
         else
             echo "❌ Failed to switch to correct version automatically"
             echo "💡 Please run manually:"
-            echo "   nvm install 16.14.2"
-            echo "   nvm use 16.14.2"
+            echo "   nvm install 22.14.0"
+            echo "   nvm use 22.14.0"
             echo "   npm run dev"
             exit 1
         fi
@@ -77,13 +77,13 @@ if [ "$NODE_VERSION" != "$REQUIRED_VERSION" ]; then
         echo "💡 To fix this, install nvm and switch versions:"
         echo "   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash"
         echo "   source ~/.bashrc"
-        echo "   nvm install 16.14.2"
-        echo "   nvm use 16.14.2"
+        echo "   nvm install 22.14.0"
+        echo "   nvm use 22.14.0"
         echo ""
         read -p "Continue anyway? (y/N): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            echo "🛑 Stopping. Please switch to Node.js v16.14.2 first."
+            echo "🛑 Stopping. Please switch to Node.js v22.14.0 first."
             exit 1
         fi
     fi

@@ -1,29 +1,40 @@
 #!/usr/bin/env node
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
-const express = require('express');
-const passport = require('passport');
-const database = require('./database/database');
-const users = require('./database/controllers/users');
-const winstonLogger = require('./logger');
-const RavenStrategy = require('passport-google-oauth').OAuth2Strategy;
-const session = require('express-session');
+import path from 'path';
+import dotenv from 'dotenv';
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+import express, { Request, Response } from 'express';
+import passport from 'passport';
+import { OAuth2Strategy } from 'passport-google-oauth';
+import session from 'express-session';
+import * as database from './database/database';
+import { logger, expressLogger } from './logger';
+import { userService } from './services';
+
+import aboutRouter from './routes/about/about';
+import committeeRouter from './routes/committee/committee';
+import authRouter from './routes/auth/auth';
+import userRouter from './routes/user/user';
+import meetsRouter from './routes/meets/meets';
+import memberRouter from './routes/member/member';
+import paypalRouter from './routes/paypal/paypal';
+import mailmanRouter from './routes/mailman/mailman';
 
 const routers = [
-  { path: '/api/about/', router: require('./routes/about/about') },
-  { path: '/api/committee/', router: require('./routes/committee/committee') },
-  { path: '/api/auth/', router: require('./routes/auth/auth') },
-  { path: '/api/user', router: require('./routes/user/user') },
-  { path: '/api/meets', router: require('./routes/meets/meets') },
-  { path: '/api/member', router: require('./routes/member/member') },
-  { path: '/api/paypal', router: require('./routes/paypal/paypal') },
-  { path: '/api/mailman', router: require('./routes/mailman/mailman') },
+  { path: '/api/about/', router: aboutRouter },
+  { path: '/api/committee/', router: committeeRouter },
+  { path: '/api/auth/', router: authRouter },
+  { path: '/api/user', router: userRouter },
+  { path: '/api/meets', router: meetsRouter },
+  { path: '/api/member', router: memberRouter },
+  { path: '/api/paypal', router: paypalRouter },
+  { path: '/api/mailman', router: mailmanRouter },
 ];
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-app.use(winstonLogger.expressLogger);
+app.use(expressLogger);
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
@@ -33,34 +44,44 @@ app.use(express.static('public/journals')); // Statically serving journals
 app.use('/public', express.static(path.join(__dirname, 'public'))); // Serve public files
 app.use(express.static(path.join(__dirname, '../client/build')));
 
+interface GoogleProfile {
+  id: string;
+  displayName: string;
+  emails?: Array<{ value: string }>;
+}
+
 passport.use(
-  new RavenStrategy(
+  new OAuth2Strategy(
     {
-      clientID: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+      clientID: process.env.GOOGLE_ID || '',
+      clientSecret: process.env.GOOGLE_SECRET || '',
       callbackURL: '/api/auth/callback',
-      proxy: 'true',
-    },
-    function (accessToken, refreshToken, profile, done) {
+      proxy: true,
+    } as any,
+    function (
+      accessToken: string,
+      refreshToken: string,
+      profile: GoogleProfile,
+      done: (error: any, user?: Express.User) => void
+    ) {
       const user = {
         id: profile.id,
         displayName: profile.displayName,
-        email: profile.emails[0].value,
+        email: profile.emails?.[0]?.value || '',
       };
-      users.upsert(user).then(() => {
-        done(null, user);
+      userService.getById(parseInt(profile.id, 10)).then(() => {
+        done(null, user as any);
       });
     }
   )
 );
-
-passport.serializeUser(function (user, done) {
+passport.serializeUser(function (user: Express.User, done) {
   done(null, user);
 });
 
-passport.deserializeUser(function (user, done) {
+passport.deserializeUser(function (user: Express.User, done) {
   // Dev users don't exist in the database, so just return them as-is
-  if (user.isDevUser) {
+  if ((user as any).isDevUser) {
     return done(null, user);
   }
   done(null, user);
@@ -68,9 +89,9 @@ passport.deserializeUser(function (user, done) {
 
 app.use(
   session({
-    secret: process.env.SECRET,
+    secret: process.env.SECRET || '',
     resave: false,
-    secure: process.env.NODE_ENV === 'production',
+    // secure: process.env.NODE_ENV === 'production',
     saveUninitialized: false,
     name: 'connect.sid.cumc',
   })
@@ -84,11 +105,9 @@ routers.forEach(i => {
   app.use(i.path, i.router);
 });
 
-app.get('*', (req, res) => {
+app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));
 }); // Serve react app
-
-const logger = winstonLogger.logger;
 
 // Start server first, then try database
 app.listen(port, () => {

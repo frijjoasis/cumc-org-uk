@@ -3,7 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "ts-node app.ts",
+    "start:prod": "node dist/app.js",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "dev": "ts-node app.ts",
+    "dev:watch": "nodemon --watch '**/*.ts' --exec ts-node app.ts",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "axios": "^0.21.4",
@@ -17,8 +24,21 @@
     "passport-google-oauth": "^2.0.0",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.6.5",
+    "sequelize": "^6.37.7",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.3",
+    "@types/express-serve-static-core": "^5.1.0",
+    "@types/express-session": "^1.18.2",
+    "@types/node": "^24.8.1",
+    "@types/passport": "^1.0.17",
+    "@types/passport-google-oauth": "^1.0.45",
+    "@types/pg": "^8.15.5",
+    "@types/sequelize": "^4.28.20",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   }
 }

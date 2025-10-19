@@ -7,16 +7,17 @@ import {
   CreationOptional,
   NonAttribute,
   ForeignKey,
+  Association,
 } from 'sequelize';
-import type { Member } from './member';
-import type { CommitteeRole } from './committeeRole';
+import type { MemberModel } from './member';
+import type { CommitteeRoleModel } from './committeeRole';
 
-class Committee extends Model<
-  InferAttributes<Committee>,
-  InferCreationAttributes<Committee>
+class CommitteeModel extends Model<
+  InferAttributes<CommitteeModel>,
+  InferCreationAttributes<CommitteeModel>
 > {
   declare id: CreationOptional<number>;
-  declare member_id: ForeignKey<Member['id']> | null;
+  declare member_id: ForeignKey<MemberModel['id']> | null;
   declare year: string;
   declare role: string;
   declare person_name: string;
@@ -25,17 +26,28 @@ class Committee extends Model<
   declare end_date: string | null;
   declare is_current: CreationOptional<boolean | null>;
   declare sort_order: CreationOptional<number | null>;
-  declare role_id: ForeignKey<CommitteeRole['id']> | null;
+  declare role_id: ForeignKey<CommitteeRoleModel['id']> | null;
   declare status: CreationOptional<string | null>;
   declare staging_year: string | null;
 
   // Associations
-  declare member?: NonAttribute<Member>;
-  declare committeeRole?: NonAttribute<CommitteeRole>;
+  declare member?: NonAttribute<MemberModel>;
+  declare committeeRole?: NonAttribute<CommitteeRoleModel>;
+
+  // Association methods
+  declare getCommitteeRole: () => Promise<CommitteeRoleModel | null>;
+  declare setCommitteeRole: (role: CommitteeRoleModel | null) => Promise<void>;
+  declare getMember: () => Promise<MemberModel | null>;
+  declare setMember: (member: MemberModel | null) => Promise<void>;
+
+  declare static associations: {
+    member: Association<CommitteeModel, MemberModel>;
+    committeeRole: Association<CommitteeModel, CommitteeRoleModel>;
+  };
 }
 
 function define(sequelize: Sequelize) {
-  Committee.init(
+  CommitteeModel.init(
     {
       id: {
         primaryKey: true,
@@ -97,17 +109,18 @@ function define(sequelize: Sequelize) {
     {
       sequelize,
       tableName: 'Committee',
+      modelName: 'committee',
       timestamps: false,
     }
   );
 
-  return Committee;
+  return CommitteeModel;
 }
 
 function associate(sequelize: Sequelize) {
   // Associate with member if member model exists
   if (sequelize.models.member) {
-    Committee.belongsTo(sequelize.models.member as typeof Member, {
+    CommitteeModel.belongsTo(sequelize.models.member as typeof MemberModel, {
       foreignKey: 'member_id',
       as: 'member',
     });
@@ -115,8 +128,8 @@ function associate(sequelize: Sequelize) {
 
   // Associate with committee role
   if (sequelize.models.committeeRole) {
-    Committee.belongsTo(
-      sequelize.models.committeeRole as typeof CommitteeRole,
+    CommitteeModel.belongsTo(
+      sequelize.models.committeeRole as typeof CommitteeRoleModel,
       {
         foreignKey: 'role_id',
         as: 'committeeRole',
@@ -124,5 +137,4 @@ function associate(sequelize: Sequelize) {
     );
   }
 }
-
-export { Committee, define, associate };
+export { CommitteeModel, define, associate };

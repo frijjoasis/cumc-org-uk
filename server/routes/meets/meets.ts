@@ -1,0 +1,100 @@
+import { Router, Request, Response } from 'express';
+import { meetService, signupService } from '../../services';
+import { logger } from '../../logger';
+import { committeeAuth, userAuth } from '../middleware';
+
+const router = Router();
+
+router.get('/upcoming', async function (req: Request, res: Response) {
+  const upcoming = await meetService.getAllUpcoming();
+  res.json(upcoming);
+});
+
+router.get('/all', committeeAuth, async function (req: Request, res: Response) {
+  const all = await meetService.getAll();
+  res.json(all);
+});
+
+router.post('/view', async function (req: Request, res: Response) {
+  try {
+    const meet = await meetService.getByIdRestricted(req.body.id);
+    if (meet) {
+      res.json(meet);
+    } else {
+      res.json({ err: 'Database error: Could not find meet' });
+    }
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.post('/edit', committeeAuth, async function (req: Request, res: Response) {
+  try {
+    const [meet] = await meetService.create(req.body, req.user.id.toString());
+    if (meet) {
+      res.json(meet.id);
+    } else {
+      res.json({ err: 'Could not find that meet!' });
+    }
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.post('/questions', committeeAuth, async function (req: Request, res: Response) {
+  try {
+    await meetService.updateQuestions(req.body.id, req.body.questions);
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.post('/delete', committeeAuth, async function (req: Request, res: Response) {
+  try {
+    await meetService.delete(req.body.id);
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.post('/deleteSignup', committeeAuth, async function (req: Request, res: Response) {
+  try {
+    await signupService.delete(req.body.id);
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.post('/historyOther', committeeAuth, async function (req: Request, res: Response) {
+  const history = await signupService.getHistory(req.body.id);
+  res.json(history);
+});
+
+router.post('/signups', committeeAuth, async function (req: Request, res: Response) {
+  try {
+    const meet = await meetService.getById(req.body.id);
+    if (meet) {
+      res.json(meet);
+    } else {
+      res.json({ err: 'Database error: Could not find meet' });
+    }
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+});
+
+router.get('/history', userAuth, async function (req: Request, res: Response) {
+  const history = await signupService.getHistory(req.user.id.toString());
+  res.json(history);
+});
+
+export default router;
