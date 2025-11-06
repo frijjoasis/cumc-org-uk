@@ -29,13 +29,19 @@ interface RoleCreateData {
   is_active?: boolean;
 }
 
-interface LegacyCommitteeFormat {
-  head: string[];
-  body: string[][];
+interface PublicCommitteeModel {
+  person_name: string;
+  test: string;
 }
 
 class CommitteeService {
-  // Get current committee
+  async getExposedModel(cm: CommitteeModel): Promise<PublicCommitteeModel> {
+    return {
+      person_name: cm.person_name,
+      test: 'asd',
+    };
+  }
+
   async getCurrent(): Promise<CommitteeModel[]> {
     return CommitteeModel.findAll({
       where: {
@@ -51,7 +57,7 @@ class CommitteeService {
       order: [
         [
           sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "Committee"."sort_order")'
+            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
           ),
           'ASC',
         ],
@@ -74,7 +80,7 @@ class CommitteeService {
       order: [
         [
           sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "Committee"."sort_order")'
+            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
           ),
           'ASC',
         ],
@@ -83,8 +89,8 @@ class CommitteeService {
     });
   }
 
-  // Get past committees in legacy format
-  async getPastInLegacyFormat(): Promise<LegacyCommitteeFormat> {
+  // Get past committees
+  async getPast(): Promise<Map<string, CommitteeModel[]>> {
     const committees = await CommitteeModel.findAll({
       where: {
         [Op.or]: [
@@ -103,141 +109,32 @@ class CommitteeService {
         ['year', 'DESC'],
         [
           sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "Committee"."sort_order")'
+            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
           ),
           'ASC',
         ],
       ],
     });
 
-    if (committees.length === 0) {
-      return this.getLegacyHardcodedData();
-    }
-
-    return this.convertToLegacyFormat(committees);
+    return this.groupCommitteesByYear(committees);
   }
 
-  // Convert database format to legacy table format
-  private convertToLegacyFormat(
+  private groupCommitteesByYear(
     committees: CommitteeModel[]
-  ): LegacyCommitteeFormat {
-    const yearMap = new Map<string, Record<string, string[]>>();
+  ): Map<string, CommitteeModel[]> {
+    const yearMap = new Map<string, CommitteeModel[]>();
 
     committees.forEach(committee => {
       const year = committee.year;
       if (!yearMap.has(year)) {
-        yearMap.set(year, {});
+        yearMap.set(year, []);
       }
-      const yearData = yearMap.get(year)!;
-      const roleName = committee.committeeRole?.role_name || committee.role;
 
-      if (!yearData[roleName]) {
-        yearData[roleName] = [];
-      }
-      yearData[roleName].push(committee.person_name);
+      // Push committee into year
+      yearMap.get(year)!.push(committee);
     });
 
-    const head = [
-      'Year',
-      'President',
-      'Secretary',
-      'Treasurer',
-      'Gear',
-      'Outdoor Meet',
-      'Indoor Meet',
-      'Alpine and Winter',
-      'Competition',
-      'Social',
-      'Journal',
-      'Librarian',
-      'Webmaster',
-      'Welfare',
-    ];
-    const body: string[][] = [];
-
-    for (const [year, roles] of yearMap.entries()) {
-      const row = [year];
-
-      for (let i = 1; i < head.length; i++) {
-        const roleName = head[i];
-        const members =
-          roles[roleName] ||
-          this.getAlternativeRoleMembers(roleName, roles) ||
-          [];
-        row.push(members.join(' & ') || '');
-      }
-
-      body.push(row);
-    }
-
-    return { head, body };
-  }
-
-  // Helper for alternative role names
-  private getAlternativeRoleMembers(
-    roleName: string,
-    roles: Record<string, string[]>
-  ): string[] {
-    const alternativeNames: Record<string, string[]> = {
-      President: ['Co-President'],
-      'Outdoor Meet': [
-        'Trad/Alpine Meets Secretary',
-        'Sport/Boulder Meets Secretary',
-      ],
-      'Indoor Meet': ['Indoor Meets Secretary'],
-      'Alpine and Winter': ['Trad/Alpine Meets Secretary'],
-      Competition: ['Competitions Secretary'],
-      Social: ['Social Secretary', 'Postgrad Social Secretary'],
-      Journal: ['Journal Editor'],
-      Webmaster: ['Webmaster'],
-      Welfare: ['Access & Welfare Officer'],
-    };
-
-    const alternatives = alternativeNames[roleName] || [];
-    for (const alt of alternatives) {
-      if (roles[alt]) {
-        return roles[alt];
-      }
-    }
-    return [];
-  }
-
-  // Legacy hardcoded data as fallback
-  private getLegacyHardcodedData(): LegacyCommitteeFormat {
-    return {
-      head: [
-        'Year',
-        'President',
-        'Secretary',
-        'Treasurer',
-        'Gear',
-        'Outdoor Meet',
-        'Indoor Meet',
-        'Alpine and Winter',
-        'Competition',
-        'Social',
-        'Journal',
-        'Librarian',
-        'Webmaster',
-        'Welfare',
-      ],
-      body: [
-        [
-          '2024-2025',
-          'Jade Westfoot & Tessa Mullen',
-          'Danylo Mankovsky',
-          'Fin Chetham',
-          'Inigo Holman',
-          'Hermione Boyle & Isaac Miller',
-          'Seb Gentile & Rebecca Jesson',
-          'Alex Maltby',
-          'Nat Tompkins',
-          'Oliver Gaskell',
-          'Anastasia Marine & Izzie Iveson',
-        ],
-        // ... rest of hardcoded data
-      ],
-    };
+    return yearMap;
   }
 
   // Get committee status summary

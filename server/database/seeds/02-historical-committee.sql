@@ -48,7 +48,7 @@ BEGIN
     ('2024-2025', 'Indoor Meet', indoor_meet_role_id, 'Rebecca Jesson', 'past', FALSE, 9),
     ('2024-2025', 'Alpine and Winter', alpine_winter_role_id, 'Alex Maltby', 'past', FALSE, 10),
     ('2024-2025', 'Competition', competition_role_id, 'Nat Tompkins', 'past', FALSE, 11),
-    ('2024-2025', 'Social', social_role_id, 'Oliver Gaskell', 'past', FALSE, 12),
+    ('2024-2025', 'Webmaster', webmaster, 'Oliver Gaskell', 'past', FALSE, 12),
     ('2024-2025', 'Welfare', welfare_role_id, 'Anastasia Marine', 'past', FALSE, 13),
     ('2024-2025', 'Welfare', welfare_role_id, 'Izzie Iveson', 'past', FALSE, 14)
     ON CONFLICT DO NOTHING;

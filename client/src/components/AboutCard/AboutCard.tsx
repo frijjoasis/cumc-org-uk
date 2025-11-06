@@ -1,9 +1,18 @@
 import React from 'react';
-import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import Row from 'react-bootstrap/Row';
-import Button from 'react-bootstrap/Button';
 import { NavLink } from 'react-router-dom';
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '../ui/button';
+import { Link } from 'react-router-dom';
 
 interface AboutCardProps {
   title: string;
@@ -20,20 +29,22 @@ export class AboutCard extends React.Component<AboutCardProps> {
     return (
       <Row>
         <Col>
-          <Card>
-            <Card.Body>
+          <Card className="py-0">
+            <CardContent>
               <h2>{this.props.title}</h2>
               <span>
                 <hr />
                 {this.props.text}
               </span>
-            </Card.Body>
+            </CardContent>
             {this.props.button ? (
-              <Card.Footer>
+              <CardFooter className="flex justify-end gap-2 bg-muted p-2 rounded-b-xl border-t border-accent">
                 {this.props.button.type === 'button' ? (
-                  <Button className="float-right" href={this.props.button.to}>
-                    {this.props.button.text}
-                  </Button>
+                  <Link to={this.props.button.to}>
+                    <Button className="float-right" variant="outline">
+                      {this.props.button.text}
+                    </Button>
+                  </Link>
                 ) : (
                   <NavLink
                     className="float-right btn btn-primary"
@@ -42,7 +53,7 @@ export class AboutCard extends React.Component<AboutCardProps> {
                     {this.props.button.text}
                   </NavLink>
                 )}
-              </Card.Footer>
+              </CardFooter>
             ) : null}
           </Card>
         </Col>

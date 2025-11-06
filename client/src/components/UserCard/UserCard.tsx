@@ -1,7 +1,8 @@
 import { CommitteePersonData } from '@/types/committee';
 import { User } from '@/types/models';
 import React from 'react';
-import Card from 'react-bootstrap/Card';
+import { Card, CardContent } from '../ui/card';
+import { CardFooter } from 'react-bootstrap';
 
 interface UserCardProps {
   person: CommitteePersonData;
@@ -11,10 +12,10 @@ export class UserCard extends React.Component<UserCardProps> {
   render() {
     return (
       <Card className="card-user">
-        <div className="image">
+        <div className="h-30">
           <img src={this.props.person.cover} alt="Cover" />
         </div>
-        <Card.Body>
+        <CardContent>
           <div className="author">
             <img
               className="avatar border-gray"
@@ -24,10 +25,10 @@ export class UserCard extends React.Component<UserCardProps> {
             <h6>{this.props.person.role}</h6>
             <h4 className="title">{this.props.person.name}</h4>
           </div>
-        </Card.Body>
-        <Card.Footer className="text-muted text-center">
+        </CardContent>
+        <CardFooter className="text-muted text-center">
           <h6>{this.props.person.social}</h6>
-        </Card.Footer>
+        </CardFooter>
       </Card>
     );
   }

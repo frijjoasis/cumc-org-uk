@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { committeeAuth } from '../middleware';
 import { committeeService, committeeRoleService } from '../../services';
+import { CommitteeModel } from '../../database/models';
 
 const router = Router();
 
@@ -8,7 +9,13 @@ const router = Router();
 
 router.get('/current', async (req: Request, res: Response) => {
   try {
-    const committee = await committeeService.getCurrent();
+    const committee = (await committeeService.getCurrent()).map(
+      CommitteeModel => {
+        return {
+          name: CommitteeModel.person_name,
+        };
+      }
+    );
     res.json(committee);
   } catch (error) {
     console.error('Error fetching current committee:', error);
@@ -38,8 +45,16 @@ router.get('/status', async (req: Request, res: Response) => {
 
 router.get('/past', async (req: Request, res: Response) => {
   try {
-    const past = await committeeService.getPastInLegacyFormat();
-    res.json(past);
+    const past = await committeeService.getPast();
+
+    const exposedData = {};
+
+    past.forEach((data, year) => {
+      console.log(data[0].person_name);
+      exposedData[year] = data.map(committeeService.getExposedModel);
+    });
+
+    res.json(exposedData);
   } catch (error) {
     console.error('Error fetching past committees:', error);
     // Fallback handled in service
