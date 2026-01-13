@@ -1,25 +1,31 @@
-import Home from './views/home/';
-import Blog from '../components/UnderConstruction/Construction';
-import Register from './views/login/';
-
-import ClubAbout from './views/about/club';
-import CommitteeAbout from './views/about/committee';
-import DocumentsAbout from './views/about/documents';
-import CompetitionsAbout from './views/about/competitions';
-import GearAbout from './views/about/gear';
-import ResourcesAbout from './views/about/resources';
-
-import UpcomingMeets from './views/meets/upcoming';
-import ViewMeet from './views/meets/upcoming/view';
-import MeetForm from './views/meets/upcoming/form';
-import IndoorMeets from './views/meets/indoor';
-import OutdoorMeets from './views/meets/outdoor';
-import SocialMeets from './views/meets/social';
-import BritRock from './views/britrock';
-
+import { lazy } from 'react';
 import { RouteConfig } from '../types';
 
-// Warning: Order matters here. It's an array!
+const Home = lazy(() => import('./views/home/'));
+const Blog = lazy(() => import('../components/UnderConstruction/Construction'));
+const Register = lazy(() => import('./views/login/'));
+
+// About Views
+const ClubAbout = lazy(() => import('./views/about/club'));
+const CommitteeAbout = lazy(() => import('./views/about/committee'));
+const DocumentsAbout = lazy(() => import('./views/about/documents'));
+const CompetitionsAbout = lazy(() => import('./views/about/competitions'));
+const GearAbout = lazy(() => import('./views/about/gear'));
+const ResourcesAbout = lazy(() => import('./views/about/resources'));
+
+// Meets Views
+const UpcomingMeets = lazy(() => import('./views/meets/upcoming'));
+const ViewMeet = lazy(() => import('./views/meets/upcoming/view'));
+const MeetForm = lazy(() => import('./views/meets/upcoming/form'));
+const IndoorMeets = lazy(() => import('./views/meets/indoor'));
+const OutdoorMeets = lazy(() => import('./views/meets/outdoor'));
+const SocialMeets = lazy(() => import('./views/meets/social'));
+const BritRock = lazy(() => import('./views/britrock'));
+
+/**
+ * Route Configuration
+ * Note: The order in this array determines the order in the Sidebar.
+ */
 const routes: RouteConfig[] = [
   {
     path: '/home',
@@ -35,6 +41,8 @@ const routes: RouteConfig[] = [
     Component: Blog,
     layout: '',
   },
+
+  /* --- ABOUT SECTION --- */
   {
     category: true,
     name: 'About',
@@ -81,6 +89,8 @@ const routes: RouteConfig[] = [
     Component: DocumentsAbout,
     layout: '',
   },
+
+  /* --- MEETS SECTION --- */
   {
     category: true,
     name: 'Meets',
@@ -95,7 +105,7 @@ const routes: RouteConfig[] = [
   {
     path: '/meets/upcoming/view/:id',
     name: 'View Meet',
-    hide: true,
+    hide: true, // Only accessible via links, not Sidebar
     Component: ViewMeet,
     layout: '',
   },
@@ -127,17 +137,19 @@ const routes: RouteConfig[] = [
     Component: SocialMeets,
     layout: '',
   },
+
+  /* --- OTHER --- */
   {
     path: '/register',
     name: 'Register',
-    hide: true, // Hide from sidebar
-    auth: true, // Requires auth
+    hide: true,
+    auth: true,
     Component: Register,
     layout: '',
   },
   {
     path: '/skitour',
-    name: 'SKI - film screening',
+    name: 'SKI Screening',
     icon: 'pe-7s-film',
     Component: BritRock,
     layout: '',

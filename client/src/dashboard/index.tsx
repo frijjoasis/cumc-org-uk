@@ -80,7 +80,7 @@ const Frame = () => {
         />
 
         {/* 3. Scrollable Content Area */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
+        <main className="flex-1 p-4 pb-0 md:pb-0 lg:pb-0 md:p-6 lg:p-8">
           <div className="mx-auto min-h-[calc(100vh-160px)] max-w-7xl">
             <Routes>
               {routes.map((prop, key) => {
