@@ -1,32 +1,48 @@
-import React from "react";
-import {NavLink} from "react-router-dom";
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
-const gearSecLink = <NavLink to="/about/committee">gear sec</NavLink>
+const gearSecLink = (
+  <NavLink
+    to="/about/committee"
+    className="text-primary font-bold hover:underline"
+  >
+    gear secretary
+  </NavLink>
+);
 
 const gearAbout = [
-    <p>
-        The table below shows what equipment is owned by the club, along with its availability. Gear can be borrowed
-        and returned at regular "teas" during term time, which are advertised via the mailing list. Outside term time
-        please contact the {gearSecLink}.
-    </p>,
-    <p>
-        Membership is required to borrow gear, with the exception of shoes, which can be borrowed without a membership
-        for a £5 refundable deposit.
-    </p>,
-    <p>
-        In term time, gear should be returned within one week of it being issued. If you want to keep it for longer,
-        then you need to contact the gear secretary to ‘renew’ it. If gear is not returned, and the gear sec is not
-        given a legitimate reason as to why (e.g. illness so couldn't make the gear tea), then the borrower will be
-        expected to pay for the gear.
-    </p>,
-    <p>
-        If gear is lost or damaged, but the borrower had taken reasonable precautions to look after it, then the club
-        will cover the cost at their discretion. If the club decides that reasonable precautions weren't taken, then
-        you will be expected to cover the cost of replacement/repair, using the formula:
-    </p>,
-    <p className="text-center">
-        <code>estimated value = cost * (1-age/recommend max age)</code>
-    </p>,
+  <p>
+    The club maintains an extensive rack of equipment available for member use.
+    Gear can be borrowed and returned at regular <strong>"gear teas"</strong>{' '}
+    during term time, which are advertised via the mailing list. Outside of term
+    time, please contact the {gearSecLink} directly.
+  </p>,
+  <p>
+    <strong>Membership is required</strong> to borrow technical gear. However,
+    climbing shoes can be borrowed by non-members for a{' '}
+    <strong>£5 refundable deposit</strong>—perfect for those just trying out the
+    sport.
+  </p>,
+  <p>
+    In term time, gear must be returned within <strong>one week</strong> of
+    issue. To keep equipment for longer trips, you must contact the gear
+    secretary to renew the loan. Failure to return gear without a legitimate
+    reason may result in the borrower being invoiced for the replacement cost.
+  </p>,
+  <p>
+    The club covers the cost of gear lost or damaged during normal, responsible
+    use. If reasonable precautions were not taken, the borrower will be expected
+    to cover replacement costs calculated using the following depreciation
+    formula:
+  </p>,
+  <div className="py-8 my-6 bg-zinc-50 rounded-xl border border-zinc-200 flex flex-col items-center justify-center shadow-inner">
+    <span className="text-zinc-400 uppercase text-[10px] font-black tracking-[0.2em] mb-4">
+      Depreciation Formula
+    </span>
+    <div className="text-lg md:text-xl font-mono font-bold text-zinc-800 tracking-tight">
+      Value = Cost × (1 — [Age / Max Age])
+    </div>
+  </div>,
 ];
 
-export {gearAbout}
+export { gearAbout };

@@ -22,13 +22,13 @@ interface AboutCardProps {
 const AboutCard = ({ title, text, button }: AboutCardProps) => {
   return (
     <div className="w-full">
-      <Card className="shadow-md overflow-hidden">
-        <CardHeader className="pb-2">
+      <Card className="shadow-md overflow-hidden p-0">
+        <CardHeader className="pb-2 pt-6">
           <CardTitle className="text-2xl font-bold">{title}</CardTitle>
           <div className="h-[1px] bg-border mt-2" />
         </CardHeader>
 
-        <CardContent>
+        <CardContent className={button ? '' : 'pb-6'}>
           <div className="text-muted-foreground leading-relaxed">{text}</div>
         </CardContent>
 
