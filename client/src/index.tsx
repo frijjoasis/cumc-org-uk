@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import Frame from './dashboard';
 import Admin from './committee';
+import { createRoot } from 'react-dom/client';
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,9 +10,9 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import '@/assets/css/animate.min.css';
+// import '@/assets/css/animate.min.css';
 import '@/assets/css/legallists.css';
-import '@/assets/sass/light-bootstrap-dashboard-react.scss';
+// import '@/assets/sass/light-bootstrap-dashboard-react.scss';
 import '@/assets/css/pe-icon-7-stroke.css';
 import '@/index.css';
 
@@ -35,7 +36,8 @@ const LogoutRedirect = () => {
   return null;
 };
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const container = document.getElementById('root');
+const root = createRoot(container!);
 root.render(
   <React.StrictMode>
     <Router>
