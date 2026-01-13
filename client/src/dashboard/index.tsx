@@ -69,7 +69,7 @@ const Frame = () => {
       {/* 2. Main Panel - flex-1 expands to fill remaining width */}
       <div
         id="main-panel"
-        className="relative flex flex-1 flex-col overflow-hidden"
+        className="relative flex flex-1 overflow-y-auto flex-col overflow-hidden"
       >
         {/* Navbar / Header */}
         <Header
@@ -80,11 +80,10 @@ const Frame = () => {
         />
 
         {/* 3. Scrollable Content Area */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto min-h-[calc(100vh-160px)] max-w-7xl">
             <Routes>
               {routes.map((prop, key) => {
-                // Only render route if not a category and matches auth requirements
                 if (!prop.category && ((prop.auth && user) || !prop.auth)) {
                   return (
                     <Route
@@ -102,9 +101,8 @@ const Frame = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </div>
-
-          <Footer />
         </main>
+        <Footer />
       </div>
     </div>
   );

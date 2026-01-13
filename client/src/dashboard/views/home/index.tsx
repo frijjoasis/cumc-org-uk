@@ -1,9 +1,24 @@
-import React from 'react';
-import Card from 'react-bootstrap/Card';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Image from 'react-bootstrap/Image';
+import React, { useState, useEffect } from 'react';
+import { NavLink } from 'react-router-dom';
+import axios from 'axios';
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 import Carousel from '@/components/Carousel/Carousel';
 import AboutCard from '@/components/AboutCard/AboutCard';
@@ -16,196 +31,167 @@ import {
   homeImagesTwo,
   homeImagesThree,
 } from './text';
-import { NavLink } from 'react-router-dom';
-import axios from 'axios';
-import Table from 'react-bootstrap/Table';
+
 import { Meet, Member, User } from '@/types/models';
 
 interface HomeProps {
   user: User;
   member: Member;
 }
-interface HomeState {
-  member: false | Member;
-  link: string;
-  history: Meet[];
-}
 
-class Home extends React.Component<HomeProps, HomeState> {
-  constructor(props: HomeProps) {
-    super(props);
-    this.state = {
-      member: false,
-      link: 'https://www.cumc.org.uk/login',
-      history: [],
-    };
-  }
+const Home = ({ user }: HomeProps) => {
+  const [member, setMember] = useState<false | Member>(false);
+  const [link, setLink] = useState('https://www.cumc.org.uk/login');
+  const [history, setHistory] = useState<Meet[]>([]);
 
-  componentDidMount() {
+  useEffect(() => {
+    // Fetch Member Data
     axios.get('/api/member/').then(res => {
-      if (res.data) {
-        this.setState({ member: res.data });
-      }
+      if (res.data) setMember(res.data);
     });
+
+    // Fetch Meet History
     axios.get('/api/meets/history').then(res => {
-      console.log(res);
       if (res.data.length) {
-        this.setState({
-          history: res.data.map(h => h.meet).sort(this.sortMeets),
-        });
+        const sortedHistory = res.data
+          .map((h: any) => h.meet)
+          .sort(
+            (m, n) =>
+              new Date(n.startDate).getTime() - new Date(m.startDate).getTime()
+          );
+        setHistory(sortedHistory);
       }
     });
+
+    // Fetch WhatsApp Link
     axios.get('/api/about/whatsapp').then(res => {
-      this.setState({
-        link: res.data,
-      });
+      setLink(res.data);
     });
-  }
+  }, []);
 
-  sortMeets(m, n) {
-    const mStart = new Date(m.startDate);
-    const nStart = new Date(n.startDate);
-    if (mStart === nStart) return 0;
-    return mStart < nStart ? 1 : -1; // Put later dates first
-  }
+  return (
+    <div className="space-y-8 pb-10">
+      {/* Top Section: Carousel and Welcome Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-8">
+          <Card className="overflow-hidden border-none shadow-lg p-0 ">
+            <Carousel slides={slides} />
+          </Card>
+        </div>
 
-  render() {
-    return (
-      <div className="content">
-        <Container fluid>
-          <Row>
-            <Col md={8}>
-              <Card>
-                <Carousel slides={slides} />
-              </Card>
-            </Col>
-            <Col md={4} className="d-flex flex-column">
-              <Card className="flex-grow-1">
-                <Card.Body className="d-flex flex-column">
-                  <Card.Title>Welcome!</Card.Title>
-                  <Card.Subtitle>
-                    {this.props.user
-                      ? `You are signed in as ${this.props.user.displayName}`
-                      : 'You are not signed in'}
-                  </Card.Subtitle>
-                  {this.state.member && this.state.member.hasPaid ? (
-                    <Card.Text as="span">
-                      <hr />
-                      You are a current member. Control your mailing preferences
-                      by clicking 'Profile' and then 'Mailing Lists'. Your
-                      recent meet history can be found below.
-                    </Card.Text>
-                  ) : (
-                    <Card.Text as="span">
-                      <hr />
-                      Become a member today!{' '}
-                      {this.props.user ? 'Click' : 'Login and click'} on
-                      'Profile' and then the 'Membership' tab. Control your
-                      mailing preferences by clicking 'Mailing Lists' instead.
-                    </Card.Text>
-                  )}
-                </Card.Body>
-                <Card.Footer>
-                  {this.props.user ? (
-                    <Table
-                      className="align-self-end"
-                      striped
-                      bordered
-                      hover
-                      responsive
-                    >
-                      <thead>
-                        <tr>
-                          <th key="recent">Recent Signups</th>
-                          <th key="date">Date</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {this.state.history.length ? (
-                          this.state.history
-                            .sort(this.sortMeets)
-                            .map((h, index) => {
-                              return (
-                                <tr key={index}>
-                                  <td>{h.title}</td>
-                                  <td>
-                                    {new Date(h.startDate).toDateString()}
-                                  </td>
-                                </tr>
-                              );
-                            })
-                            .splice(0, 2) // Return only the first 3 elements.
-                        ) : (
-                          <tr>
-                            <td className="text-center" colSpan={2}>
-                              None yet!
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </Table>
-                  ) : (
-                    [
-                      <NavLink
-                        key="login-btn"
-                        style={{ marginLeft: '10px' }}
-                        className="float-right btn btn-primary"
-                        to="/login"
-                      >
-                        Login
-                      </NavLink>,
-                      <NavLink
-                        key="register-btn"
-                        className="float-right btn btn-primary"
-                        to="/login"
-                      >
-                        Register
-                      </NavLink>,
-                    ]
-                  )}
-                </Card.Footer>
-              </Card>
-            </Col>
-          </Row>
-          <AboutCard title="About Us" text={aboutText(this.state.link)} />
-          <Row>
-            {homeImagesOne.map((i, key) => {
-              return (
-                <Col key={key}>
-                  <Card>
-                    <Image className="d-block w-100" rounded src={i} />
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-          <AboutCard title="Membership" text={membershipText} />
-          <Row>
-            {homeImagesTwo.map((i, key) => {
-              return (
-                <Col key={key}>
-                  <Card>
-                    <Image className="d-block w-100" rounded src={i} />
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-          <Row>
-            {homeImagesThree.map((i, key) => {
-              return (
-                <Col key={key}>
-                  <Card>
-                    <Image className="d-block w-100" rounded src={i} />
-                  </Card>
-                </Col>
-              );
-            })}
-          </Row>
-        </Container>
+        <div className="lg:col-span-4 flex flex-col">
+          <Card className="flex flex-col h-full shadow-md">
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold">Welcome!</CardTitle>
+              <CardDescription className="font-semibold text-primary">
+                {user
+                  ? `Signed in as ${user.displayName}`
+                  : 'You are not signed in'}
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="flex-grow">
+              <div className="h-[1px] bg-border mb-4" />
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                {member && member.hasPaid
+                  ? "You are a current member. Control your mailing preferences by clicking 'Profile' and then 'Mailing Lists'. Your recent meet history can be found below."
+                  : 'Become a member today! ' +
+                    (user ? 'Click' : 'Login and click') +
+                    " on 'Profile' and then the 'Membership' tab."}
+              </p>
+            </CardContent>
+
+            <CardFooter className="pt-0">
+              {user ? (
+                <div className="w-full">
+                  <h4 className="text-xs font-bold uppercase tracking-wider mb-2 text-muted-foreground">
+                    Recent Signups
+                  </h4>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="font-bold">Meet</TableHead>
+                        <TableHead className="text-right font-bold">
+                          Date
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {history.length ? (
+                        history.slice(0, 2).map((h, index) => (
+                          <TableRow key={index}>
+                            <TableCell className="font-medium">
+                              {h.title}
+                            </TableCell>
+                            <TableCell className="text-right text-xs">
+                              {new Date(h.startDate).toLocaleDateString()}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={2}
+                            className="text-center py-4 text-muted-foreground italic"
+                          >
+                            None yet!
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="flex gap-2 ml-auto">
+                  <Button asChild variant="outline">
+                    <NavLink to="/login">Register</NavLink>
+                  </Button>
+                  <Button asChild>
+                    <NavLink to="/login">Login</NavLink>
+                  </Button>
+                </div>
+              )}
+            </CardFooter>
+          </Card>
+        </div>
       </div>
-    );
-  }
-}
+
+      {/* About Section */}
+      <AboutCard title="About Us" text={aboutText(link)} />
+
+      {/* Image Row 1 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        {homeImagesOne.map((img, key) => (
+          <Card key={key} className="overflow-hidden group p-0">
+            <img
+              src={img}
+              className="w-full h-auto object-cover transition-transform duration-500 "
+              alt="Climbing"
+            />
+          </Card>
+        ))}
+      </div>
+
+      {/* Membership Section */}
+      <AboutCard title="Membership" text={membershipText} />
+
+      {/* Image Row 2 & 3 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {homeImagesTwo.map((img, key) => (
+          <Card key={key} className="overflow-hidden p-0">
+            <img src={img} className="w-full h-auto" alt="Climbing" />
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {homeImagesThree.map((img, key) => (
+          <Card key={key} className="overflow-hidden p-0">
+            <img src={img} className="w-full h-auto" alt="Climbing" />
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export default Home;

@@ -25,7 +25,7 @@ const Header = ({ brandText, committee, routes, user }) => {
     );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+    <header className=" top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Brand */}
         <div className="flex items-center gap-6">

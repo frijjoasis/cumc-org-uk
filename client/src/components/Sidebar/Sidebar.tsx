@@ -14,7 +14,7 @@ function Sidebar({ routes, color, image }) {
   const activeColor = colorOverlays[color] || colorOverlays.black;
 
   return (
-    <div className="relative h-full w-64 overflow-hidden border-r text-white shadow-xl">
+    <div className="relative hidden md:flex h-full w-64 flex-col overflow-hidden border-r text-white shadow-xl shrink-0">
       {/* Background Image Layer */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center"

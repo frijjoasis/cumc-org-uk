@@ -1,65 +1,50 @@
 import React from 'react';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import {
   Card,
-  CardAction,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '../ui/button';
-import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 interface AboutCardProps {
   title: string;
-  text: string | JSX.Element[];
+  text: string | React.ReactNode;
   button?: {
-    type?: 'button' | string; // You can use string for type
+    type?: 'button' | string;
     to: string;
     text: string;
   };
 }
 
-export class AboutCard extends React.Component<AboutCardProps> {
-  render() {
-    return (
-      <Row>
-        <Col>
-          <Card className="py-0">
-            <CardContent>
-              <h2>{this.props.title}</h2>
-              <span>
-                <hr />
-                {this.props.text}
-              </span>
-            </CardContent>
-            {this.props.button ? (
-              <CardFooter className="flex justify-end gap-2 bg-muted p-2 rounded-b-xl border-t border-accent">
-                {this.props.button.type === 'button' ? (
-                  <Link to={this.props.button.to}>
-                    <Button className="float-right" variant="outline">
-                      {this.props.button.text}
-                    </Button>
-                  </Link>
-                ) : (
-                  <NavLink
-                    className="float-right btn btn-primary"
-                    to={this.props.button.to}
-                  >
-                    {this.props.button.text}
-                  </NavLink>
-                )}
-              </CardFooter>
-            ) : null}
-          </Card>
-        </Col>
-      </Row>
-    );
-  }
-}
+const AboutCard = ({ title, text, button }: AboutCardProps) => {
+  return (
+    <div className="w-full">
+      <Card className="shadow-md overflow-hidden">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-2xl font-bold">{title}</CardTitle>
+          <div className="h-[1px] bg-border mt-2" />
+        </CardHeader>
+
+        <CardContent>
+          <div className="text-muted-foreground leading-relaxed">{text}</div>
+        </CardContent>
+
+        {button && (
+          <CardFooter className="flex justify-end bg-muted/50 p-4 border-t">
+            <Button
+              asChild
+              variant={button.type === 'button' ? 'outline' : 'default'}
+            >
+              <Link to={button.to}>{button.text}</Link>
+            </Button>
+          </CardFooter>
+        )}
+      </Card>
+    </div>
+  );
+};
 
 export default AboutCard;
