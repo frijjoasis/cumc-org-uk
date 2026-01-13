@@ -1,108 +1,113 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import routes from './routes';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-
 import NotFound from '../404';
 
-import sidebarImg from '@assets/img/sidebar/sidebar.jpg';
+import sidebarImg from '@/assets/img/sidebar/sidebar.jpg';
 
-class Frame extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      color: 'black',
-      image: sidebarImg,
-    };
-  }
+const Frame = () => {
+  const [user, setUser] = useState(null);
+  const [committee, setCommittee] = useState(null);
+  const [image] = useState(sidebarImg);
+  const [color] = useState('black');
 
-  getBrandText(pathname) {
+  const location = useLocation();
+
+  // Helper to get current page title from routes
+  const getBrandText = (pathname: string) => {
     for (let route of routes) {
       if (pathname.includes(route.layout + route.path)) {
-        return route.name; // First matching path
+        return route.name;
       }
     }
     return '404';
-  }
+  };
 
-  componentDidMount() {
+  const brandText = getBrandText(location.pathname);
+
+  useEffect(() => {
+    // Fetch User Authentication
     axios
       .get('/api/user/')
-      .then(res => {
-        this.setState({
-          user: res.data.user,
-        });
-      })
-      .catch(err => {
-        console.log('User not authenticated:', err.response?.status);
-        // User not logged in, which is fine
-      });
+      .then(res => setUser(res.data.user))
+      .catch(err =>
+        console.log('User not authenticated:', err.response?.status)
+      );
 
+    // Check Committee Status
     axios
       .get('/api/member/committee')
       .then(res => {
         if (res.data) {
-          this.setState({
-            committee: {
-              link: '/committee/home',
-              text: 'Committee',
-            },
+          setCommittee({
+            link: '/committee/home',
+            text: 'Committee',
           });
         }
       })
-      .catch(err => {
-        console.log('Not a committee member:', err.response?.status);
-        // User not in committee, which is fine
-      });
-  }
-
-  render() {
-    return <FrameContent state={this.state} getBrandText={this.getBrandText} />;
-  }
-}
-
-function FrameContent({ state, getBrandText }) {
-  const location = useLocation();
-  const brandText = getBrandText(location.pathname);
+      .catch(err =>
+        console.log('Not a committee member:', err.response?.status)
+      );
+  }, []);
 
   return (
-    <div className="wrapper">
+    <div className="flex h-screen w-full overflow-hidden bg-background">
       <HelmetProvider>
         <Helmet>
           <title>{`CUMC ${brandText}`}</title>
         </Helmet>
       </HelmetProvider>
-      <Sidebar routes={routes} color={state.color} image={state.image} />
-      <div id="main-panel" className="main-panel">
+
+      {/* 1. Sidebar - Fixed width, handled by its own component */}
+      <Sidebar routes={routes} color={color} image={image} />
+
+      {/* 2. Main Panel - flex-1 expands to fill remaining width */}
+      <div
+        id="main-panel"
+        className="relative flex flex-1 flex-col overflow-hidden"
+      >
+        {/* Navbar / Header */}
         <Header
           routes={routes}
-          user={state.user}
-          committee={state.committee}
+          user={user}
+          committee={committee}
           brandText={brandText}
         />
-        <Routes>
-          {routes.map((prop, key) => {
-            if (!prop.category && ((prop.auth && state.user) || !prop.auth)) {
-              return (
-                <Route
-                  path={prop.layout + prop.path}
-                  element={<prop.Component user={state.user} />}
-                  key={key}
-                />
-              );
-            } else return null;
-          })}
-          <Route path="/" element={<Navigate to="/home" replace />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Footer />
+
+        {/* 3. Scrollable Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <div className="mx-auto min-h-[calc(100vh-160px)] max-w-7xl">
+            <Routes>
+              {routes.map((prop, key) => {
+                // Only render route if not a category and matches auth requirements
+                if (!prop.category && ((prop.auth && user) || !prop.auth)) {
+                  return (
+                    <Route
+                      path={prop.layout + prop.path}
+                      element={<prop.Component user={user} />}
+                      key={key}
+                    />
+                  );
+                }
+                return null;
+              })}
+
+              {/* Default Redirects */}
+              <Route path="/" element={<Navigate to="/home" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+
+          <Footer />
+        </main>
       </div>
     </div>
   );
-}
+};
 
 export default Frame;

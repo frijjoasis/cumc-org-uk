@@ -118,3 +118,10 @@
     @apply bg-background text-foreground;
   }
 }
+
+.sidebar i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+}
