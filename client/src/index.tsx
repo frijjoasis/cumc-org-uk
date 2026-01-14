@@ -1,14 +1,8 @@
 import React from 'react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Frame from './dashboard';
 import Admin from './committee';
-import { createRoot } from 'react-dom/client';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from 'react-router-dom';
 
 // import '@/assets/css/animate.min.css';
 import '@/assets/css/legallists.css';
@@ -38,9 +32,15 @@ const LogoutRedirect = () => {
 
 const container = document.getElementById('root');
 const root = createRoot(container!);
+
 root.render(
   <React.StrictMode>
-    <Router>
+    <Router
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Routes>
         <Route path="/login" element={<LoginRedirect />} />
         {import.meta.env.MODE === 'development' && (

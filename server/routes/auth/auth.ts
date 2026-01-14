@@ -96,7 +96,7 @@ if (process.env.NODE_ENV === 'development') {
           user: req.user,
         });
       } else {
-        return res.redirect('/'); 
+        return res.redirect('/');
       }
     });
   });
