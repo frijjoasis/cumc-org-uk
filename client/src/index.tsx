@@ -4,9 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Frame from './dashboard';
 import Admin from './committee';
 
-// import '@/assets/css/animate.min.css';
 import '@/assets/css/legallists.css';
-// import '@/assets/sass/light-bootstrap-dashboard-react.scss';
 import '@/assets/css/pe-icon-7-stroke.css';
 import '@/index.css';
 

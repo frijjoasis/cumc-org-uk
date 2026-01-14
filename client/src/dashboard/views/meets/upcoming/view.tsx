@@ -181,7 +181,7 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
           <Card className="border-2 border-zinc-900 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none">
             <CardHeader className="bg-zinc-900 text-white p-6">
               <CardTitle className="text-xs font-black uppercase tracking-[0.2em] italic">
-                Logistics Dashboard
+                Logistics
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
@@ -193,8 +193,8 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
                       Schedule
                     </p>
                     <p className="text-sm font-bold leading-tight">
-                      {startDate.toLocaleDateString()} —{' '}
-                      {endDate.toLocaleDateString()}
+                      {startDate.toLocaleDateString('en-GB')} —{' '}
+                      {endDate.toLocaleDateString('en-GB')}
                     </p>
                     <p className="text-[10px] text-zinc-500 font-medium">
                       <Clock className="h-3 w-3 inline mr-1" />
@@ -214,7 +214,7 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
                       Trip Cost
                     </p>
                     <p className="text-2xl font-black italic">
-                      £{content.price}
+                      £{Number(content.price).toFixed(2)}
                     </p>
                   </div>
                 </div>

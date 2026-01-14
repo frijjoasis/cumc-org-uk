@@ -147,13 +147,14 @@ const routes: RouteConfig[] = [
     Component: Register,
     layout: '',
   },
-  {
-    path: '/skitour',
-    name: 'SKI Screening',
-    icon: 'pe-7s-film',
-    Component: BritRock,
-    layout: '',
-  },
+  // Commented out as its over for this year
+  // {
+  //   path: '/britrock',
+  //   name: 'Brit Rock',
+  //   icon: 'pe-7s-film',
+  //   Component: BritRock,
+  //   layout: '',
+  // },
 ];
 
 export default routes;

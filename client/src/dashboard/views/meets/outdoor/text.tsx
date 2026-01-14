@@ -1,8 +1,10 @@
 import React from 'react';
 
 const outdoorMeets = [
-  <h3>Kinds of outdoor meet</h3>,
-  <p>
+  <h3 className="text-2xl font-black uppercase italic tracking-tight text-zinc-900 mt-12 mb-4">
+    Kinds of outdoor meet
+  </h3>,
+  <p className="mt-6 mb-2 text-zinc-900">
     Every weekend (weather permitting) we’ll drive up to the Peak District
     (usually) to a crag selected by the outdoor meet secs. This is the
     “standard” outdoor meet, and are always a lot of fun! These trips last a
@@ -11,7 +13,7 @@ const outdoorMeets = [
     sign up, as well as the weather forecast, to choose whether we go on
     Saturday or Sunday.
   </p>,
-  <p>
+  <p className="mt-6 mb-2 text-zinc-900">
     Once a term we also try and go away for a weekend somewhere. In the past,
     we’ve had weekends in North Wales or the Peak District, but if you’ve got a
     favourite place to go then let us know! We usually book a bunkhouse out for
@@ -22,22 +24,24 @@ const outdoorMeets = [
     edition of Cards Against Humanity, endorsed by current and former presidents
     of the Club."
   </p>,
-  <p>
+  <p className="mt-6 mb-2 text-zinc-900">
     The pinnacle of outdoor meets happens after May Week every year: the annual
     meet. This is a week long trip somewhere far from Cambridge: in the past
     we’ve been to places such as Cornwall, North Wales, and Pembrokeshire.
     Signup for this normally opens around the start of Easter term, so keep on
     the lookout around then for more details!
   </p>,
-  <p>
+  <p className="mt-6 mb-2 text-zinc-900">
     We also run a 'Winter Sun' trip. This happens soon after Michaelmas term
     ends and sees the club travel off to somewhere nice and sunny (unlike the UK
     in December!) for a week’s sport climbing. In the past we've been to Antalya
     in Turkey and El Chorro in Spain - who knows where we’ll go this year?
   </p>,
   <br />,
-  <h3>What kind of climbing happens on outdoor meets?</h3>,
-  <p>
+  <h3 className="text-2xl font-black uppercase italic tracking-tight text-zinc-900 mt-12 mb-4">
+    What kind of climbing happens on outdoor meets?
+  </h3>,
+  <p className="mt-6 mb-2 text-zinc-900">
     Since the majority of the trips take place in the Peak District, trad
     climbing is the standard. There’s also lots of bouldering up there, so if
     you fancy that let the outdoor meet sec organising the trip know. Whether
@@ -46,8 +50,10 @@ const outdoorMeets = [
     can try and organise a trip more to your tastes.
   </p>,
   <br />,
-  <h3>What you need to know</h3>,
-  <p>
+  <h3 className="text-2xl font-black uppercase italic tracking-tight text-zinc-900 mt-12 mb-4">
+    What you need to know
+  </h3>,
+  <p className="mt-6 mb-2 text-zinc-900">
     We require that those going on outdoor meets know how to LEAD BELAY. If you
     don’t, then you’ll spend lots of the day sitting around and won’t have a
     good time. Or worse, someone might get hurt. We can teach you the skills you
@@ -57,8 +63,10 @@ const outdoorMeets = [
     indoors first or you may find it a little scarier than expected!
   </p>,
   <br />,
-  <h3>How much do they cost?</h3>,
-  <p>
+  <h3 className="text-2xl font-black uppercase italic tracking-tight text-zinc-900 mt-12 mb-4">
+    How much do they cost?
+  </h3>,
+  <p className="mt-6 mb-2 text-zinc-900">
     This year, outdoor meets cost £15. Everyone pays this to the club, then the
     driver can claim back 25p per mile to cover petrol and a small amount of
     “wear and tear”. If you signup to a meet, have your place confirmed then
@@ -68,8 +76,10 @@ const outdoorMeets = [
     will be refunded.
   </p>,
   <br />,
-  <h3>What to bring</h3>,
-  <p>
+  <h3 className="text-2xl font-black uppercase italic tracking-tight text-zinc-900 mt-12 mb-4">
+    What to bring
+  </h3>,
+  <p className="mt-6 mb-2 text-zinc-900">
     These trips happen throughout the year, so clearly this varies. As a bare
     minimum you’ll need a harness, helmet, belay plate and climbing shoes on top
     of the stuff you’d normally take on a day out to the countryside (warm

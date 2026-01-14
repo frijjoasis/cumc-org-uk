@@ -156,46 +156,57 @@ const RouteItem = ({
   route: ProcessedRoute;
   view: 'desktop' | 'mobile';
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   if (view === 'desktop') {
     return (
-      <Collapsible asChild={false}>
-        {' '}
-        <React.Fragment>
-          {' '}
-          <TableRow
-            className={`align-top transition-colors ${route.description ? 'cursor-pointer hover:bg-zinc-50' : ''}`}
-          >
-            <TableCell className="pt-4 overflow-hidden">
-              <CollapsibleTrigger asChild>
-                <div className="flex flex-col gap-1 cursor-pointer group">
-                  <div className="flex items-center gap-2">
-                    <span className="font-black text-zinc-900 text-base leading-tight">
-                      {route.name}
-                    </span>
-                    {route.description && (
-                      <ChevronDown className="h-4 w-4 shrink-0 text-primary group-data-[state=open]:rotate-180 transition-transform" />
-                    )}
-                  </div>
-                  <div className="text-xs text-zinc-500 italic font-medium">
-                    {route.climbers}
-                  </div>
-                </div>
-              </CollapsibleTrigger>
+      <>
+        {/* Main Row */}
+        <TableRow
+          className={`align-top transition-colors ${route.description ? 'cursor-pointer hover:bg-zinc-50' : ''}`}
+          onClick={() => route.description && setIsOpen(!isOpen)}
+        >
+          <TableCell className="text-xs font-bold text-zinc-500 pt-4 truncate">
+            {route.date}
+          </TableCell>
+          <TableCell className="pt-4 overflow-hidden">
+            <div className="flex flex-col gap-1 group">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-zinc-900 text-base leading-tight">
+                  {route.name}
+                </span>
+                {route.description && (
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-primary transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                  />
+                )}
+              </div>
+              <div className="text-xs text-zinc-500 italic font-medium">
+                {route.climbers}
+              </div>
+            </div>
+          </TableCell>
+          <TableCell className="text-center font-black text-primary text-sm pt-4">
+            {route.grade}
+          </TableCell>
+          <TableCell className="text-zinc-600 text-xs font-medium pt-4 leading-tight">
+            {route.location}
+          </TableCell>
+        </TableRow>
+
+        {route.description && isOpen && (
+          <TableRow className="bg-blue-50/20 border-l-4 border-l-primary/40 animate-in fade-in duration-300">
+            <TableCell colSpan={4} className="p-6">
+              <div className="max-w-2xl">
+                {' '}
+                <p className="text-sm text-zinc-700 leading-relaxed font-medium italic whitespace-normal break-words">
+                  {route.description}
+                </p>
+              </div>
             </TableCell>
           </TableRow>
-          {route.description && (
-            <CollapsibleContent asChild>
-              <TableRow className="bg-blue-50/20 border-l-4 border-l-primary/40">
-                <TableCell colSpan={4} className="p-6">
-                  <p className="text-sm text-zinc-700 leading-relaxed font-medium italic">
-                    {route.description}
-                  </p>
-                </TableCell>
-              </TableRow>
-            </CollapsibleContent>
-          )}
-        </React.Fragment>
-      </Collapsible>
+        )}
+      </>
     );
   }
 

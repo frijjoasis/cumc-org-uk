@@ -83,12 +83,7 @@ const DocumentsAbout = () => {
 
       <div className="flex flex-col lg:flex-row gap-8">
         <div className=" w-full">
-          <Accordion
-            type="single"
-            collapsible
-            defaultValue="safety"
-            className="space-y-3"
-          >
+          <Accordion type="single" collapsible className="space-y-3">
             {docs.map(doc => (
               <AccordionItem
                 key={doc.id}

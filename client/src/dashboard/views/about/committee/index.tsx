@@ -89,7 +89,9 @@ const CommitteeAbout = () => {
               const memberData: CommitteePersonData = {
                 role: member.role,
                 name: member.person_name,
-                social: member.person_email || `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`,
+                social:
+                  member.person_email ||
+                  `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`,
                 profile: '',
                 cover: defaultCover,
               };

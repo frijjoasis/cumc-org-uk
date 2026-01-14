@@ -72,7 +72,7 @@ const NotFound = () => {
             className="w-full sm:w-auto bg-zinc-900 text-white font-black uppercase italic tracking-widest gap-2 shadow-xl hover:shadow-primary/20"
           >
             <Link to="/home">
-              <Home className="h-4 w-4" /> Back to Basecamp
+              <Home className="h-4 w-4" /> Home
             </Link>
           </Button>
         </div>

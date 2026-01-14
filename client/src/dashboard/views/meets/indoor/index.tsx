@@ -27,7 +27,7 @@ const IndoorMeets = () => {
 
       {/* Featured Image */}
       <div className="flex justify-center">
-        <Card className="w-full md:w-10/12 overflow-hidden border-none shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
+        <Card className="w-full md:w-10/12 overflow-hidden border-none shadow-2xl ">
           <img
             src={img}
             alt="Hugo on an auto-belay"

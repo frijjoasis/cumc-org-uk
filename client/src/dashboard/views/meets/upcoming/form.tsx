@@ -4,8 +4,6 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import {
   ClipboardCheck,
   User,
-  Mail,
-  ShieldCheck,
   ArrowRight,
   Loader2,
   AlertTriangle,
@@ -17,7 +15,6 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -197,7 +194,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
             <Checkbox
               id="data-consent"
               required
-              className="mt-1 border-white data-[state=checked]:bg-primary data-[state=checked]:text-zinc-900"
+              className="mt-1 border-white data-[state=checked]:bg-primary data-[state=checked]:border-blue-700 data-[state=checked]:text-blue-700"
             />
             <Label
               htmlFor="data-consent"
@@ -234,7 +231,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
           ) : (
             <Card className="border-2 border-primary bg-zinc-50 shadow-2xl overflow-hidden">
               <CardHeader className="bg-primary text-zinc-900 p-4">
-                <CardTitle className="text-xs font-black uppercase tracking-widest text-center italic">
+                <CardTitle className="text-xs font-black text-white uppercase tracking-widest text-center italic">
                   Final Step: Secure Payment
                 </CardTitle>
               </CardHeader>
@@ -244,7 +241,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
                     Total Due
                   </p>
                   <p className="text-4xl font-black italic tracking-tighter">
-                    £{meet.price}
+                    £{Number(meet.price).toFixed(2)}
                   </p>
                 </div>
                 <div className="flex justify-center">
