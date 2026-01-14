@@ -24,6 +24,22 @@ router.get(
   })
 );
 
+router.post('/logout', function (req, res) {
+  if (req.isAuthenticated()) {
+    req.logout(function (err) {
+      if (err) {
+        console.error('Logout error:', err);
+        return res.status(500).json({ err: 'Logout failed' });
+      }
+      return res.status(200).json({ success: true, message: 'Logged out' });
+    });
+  } else {
+    return res
+      .status(200)
+      .json({ success: true, message: 'Already logged out' });
+  }
+});
+
 router.get('/logout', function (req, res) {
   if (req.isAuthenticated()) {
     req.logout(function (err) {

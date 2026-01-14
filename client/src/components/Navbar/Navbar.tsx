@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { Menu, ChevronDown } from 'lucide-react';
 
 import {
@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import axios from 'axios';
 
 interface HeaderProps {
   routes: any[];
@@ -29,6 +30,22 @@ const Header: React.FC<HeaderProps> = ({
   brandText,
   setIsOpen,
 }) => {
+  const navigate = useNavigate();
+
+  const handleLogout = async (e: React.MouseEvent) => {
+    e.preventDefault();
+
+    try {
+      await axios.post('/api/auth/logout');
+      window.localStorage.clear();
+      navigate('/home');
+      window.location.reload();
+    } catch (err) {
+      console.error('Logout failed:', err);
+      navigate('/home');
+    }
+  };
+
   const navLinkClass = ({ isActive }) =>
     cn(
       'text-sm font-medium transition-colors hover:text-primary',
@@ -67,8 +84,8 @@ const Header: React.FC<HeaderProps> = ({
               <span className="hidden sm:inline text-sm font-medium text-zinc-500">
                 {user.displayName}
               </span>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/logout">Logout</Link>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                Logout
               </Button>
             </div>
           ) : (
