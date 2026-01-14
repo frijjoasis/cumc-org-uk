@@ -5,6 +5,7 @@ import { Menu, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -146,7 +147,7 @@ const LoginDropdown = () => (
 
       {/* Dev Login Section */}
       {process.env.NODE_ENV === 'development' && (
-        <>
+        <DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem
             asChild
@@ -154,7 +155,7 @@ const LoginDropdown = () => (
           >
             <Link to="/login/dev">🔓 Dev Login</Link>
           </DropdownMenuItem>
-        </>
+        </DropdownMenuGroup>
       )}
     </DropdownMenuContent>
   </DropdownMenu>

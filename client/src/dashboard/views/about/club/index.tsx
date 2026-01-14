@@ -158,14 +158,13 @@ const RouteItem = ({
 }) => {
   if (view === 'desktop') {
     return (
-      <Collapsible asChild>
-        <>
+      <Collapsible asChild={false}>
+        {' '}
+        <React.Fragment>
+          {' '}
           <TableRow
             className={`align-top transition-colors ${route.description ? 'cursor-pointer hover:bg-zinc-50' : ''}`}
           >
-            <TableCell className="text-xs font-bold text-zinc-500 pt-4 truncate">
-              {route.date}
-            </TableCell>
             <TableCell className="pt-4 overflow-hidden">
               <CollapsibleTrigger asChild>
                 <div className="flex flex-col gap-1 cursor-pointer group">
@@ -174,14 +173,7 @@ const RouteItem = ({
                       {route.name}
                     </span>
                     {route.description && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <ChevronDown className="h-4 w-4 shrink-0 text-primary group-data-[state=open]:rotate-180 transition-transform" />
-                        </TooltipTrigger>
-                        <TooltipContent side="right">
-                          <p className="text-xs font-bold">Notes</p>
-                        </TooltipContent>
-                      </Tooltip>
+                      <ChevronDown className="h-4 w-4 shrink-0 text-primary group-data-[state=open]:rotate-180 transition-transform" />
                     )}
                   </div>
                   <div className="text-xs text-zinc-500 italic font-medium">
@@ -189,12 +181,6 @@ const RouteItem = ({
                   </div>
                 </div>
               </CollapsibleTrigger>
-            </TableCell>
-            <TableCell className="text-center font-black text-primary text-sm pt-4">
-              {route.grade}
-            </TableCell>
-            <TableCell className="text-zinc-600 text-xs font-medium pt-4 leading-tight">
-              {route.location}
             </TableCell>
           </TableRow>
           {route.description && (
@@ -208,7 +194,7 @@ const RouteItem = ({
               </TableRow>
             </CollapsibleContent>
           )}
-        </>
+        </React.Fragment>
       </Collapsible>
     );
   }
