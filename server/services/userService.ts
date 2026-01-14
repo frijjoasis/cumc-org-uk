@@ -12,11 +12,11 @@ class UserService {
       col => UserModel.getAttributes()[col].allowNull !== false
     );
 
-    return UserModel.update(userData, {
+    return [await UserModel.update(userData, {
       where: { id },
-      fields: fields as (keyof User)[],
+      fields: fields as any,
       returning: false,
-    });
+    }).then((v) => v[0])];
   }
 
   async list(): Promise<UserModel[]> {

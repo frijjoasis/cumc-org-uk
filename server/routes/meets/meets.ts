@@ -34,23 +34,22 @@ router.post('/view', async function (req: Request, res: Response) {
   }
 });
 
-router.post(
-  '/edit',
-  committeeAuth,
-  async function (req: Request, res: Response) {
-    try {
-      const [meet] = await meetService.create(req.body, req.user.id.toString());
-      if (meet) {
-        res.json(meet.id);
-      } else {
-        res.json({ err: 'Could not find that meet!' });
-      }
-    } catch (err: any) {
-      logger.error('Database error: ', err);
-      res.json({ err: 'Database error: Please contact the webmaster' });
+const handleEditOrCreate = async (req: Request, res: Response) => {
+  try {
+    const [meet] = await meetService.create(req.body, req.user.id.toString());
+    if (meet) {
+      res.json(meet.id);
+    } else {
+      res.status(400).json({ err: 'Could not create or find that meet!' });
     }
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.status(500).json({ err: 'Database error: Please contact the webmaster' });
   }
-);
+};
+
+router.post('/edit', committeeAuth, handleEditOrCreate);
+router.post('/new', committeeAuth, handleEditOrCreate);
 
 router.post(
   '/questions',

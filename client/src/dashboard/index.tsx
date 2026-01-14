@@ -15,10 +15,10 @@ const Frame = () => {
   const [committee, setCommittee] = useState(null);
   const [image] = useState(sidebarImg);
   const [color] = useState('black');
+  const [isOpen, setIsOpen] = useState(false);
 
   const location = useLocation();
 
-  // Helper to get current page title from routes
   const getBrandText = (pathname: string) => {
     for (let route of routes) {
       if (pathname.includes(route.layout + route.path)) {
@@ -31,28 +31,17 @@ const Frame = () => {
   const brandText = getBrandText(location.pathname);
 
   useEffect(() => {
-    // Fetch User Authentication
-    axios
-      .get('/api/user/')
+    axios.get('/api/user/')
       .then(res => setUser(res.data.user))
-      .catch(err =>
-        console.log('User not authenticated:', err.response?.status)
-      );
+      .catch(err => console.log('User not authenticated:', err.response?.status));
 
-    // Check Committee Status
-    axios
-      .get('/api/member/committee')
+    axios.get('/api/member/committee')
       .then(res => {
         if (res.data) {
-          setCommittee({
-            link: '/committee/home',
-            text: 'Committee',
-          });
+          setCommittee({ link: '/committee/home', text: 'Committee' });
         }
       })
-      .catch(err =>
-        console.log('Not a committee member:', err.response?.status)
-      );
+      .catch(err => console.log('Not a committee member:', err.response?.status));
   }, []);
 
   return (
@@ -63,24 +52,24 @@ const Frame = () => {
         </Helmet>
       </HelmetProvider>
 
-      {/* 1. Sidebar - Fixed width, handled by its own component */}
-      <Sidebar routes={routes} color={color} image={image} />
+      <Sidebar 
+        routes={routes} 
+        color={color} 
+        image={image} 
+        isOpen={isOpen} 
+        setIsOpen={setIsOpen} 
+      />
 
-      {/* 2. Main Panel - flex-1 expands to fill remaining width */}
-      <div
-        id="main-panel"
-        className="relative flex flex-1 overflow-y-auto flex-col overflow-hidden"
-      >
-        {/* Navbar / Header */}
+      <div id="main-panel" className="relative flex flex-1 overflow-y-auto flex-col overflow-hidden">
         <Header
           routes={routes}
           user={user}
           committee={committee}
           brandText={brandText}
+          setIsOpen={setIsOpen}
         />
 
-        {/* 3. Scrollable Content Area */}
-        <main className="flex-1 p-4 pb-0 md:pb-0 lg:pb-0 md:p-6 lg:p-8">
+        <main className="flex-1 p-4 md:p-6 lg:p-8">
           <div className="mx-auto min-h-[calc(100vh-160px)] max-w-7xl">
             <Routes>
               {routes.map((prop, key) => {
@@ -95,8 +84,6 @@ const Frame = () => {
                 }
                 return null;
               })}
-
-              {/* Default Redirects */}
               <Route path="/" element={<Navigate to="/home" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

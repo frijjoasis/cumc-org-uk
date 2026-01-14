@@ -12,13 +12,23 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
-const Header = ({ brandText, committee, routes, user }) => {
-  const [isOpen, setIsOpen] = useState(false);
+interface HeaderProps {
+  routes: any[];
+  user: any;
+  committee?: { link: string; text: string } | null;
+  brandText: string;
+  setIsOpen: (open: boolean) => void;
+}
 
-  // Helper for NavLink styles
+const Header: React.FC<HeaderProps> = ({
+  routes,
+  user,
+  committee,
+  brandText,
+  setIsOpen,
+}) => {
   const navLinkClass = ({ isActive }) =>
     cn(
       'text-sm font-medium transition-colors hover:text-primary',
@@ -26,14 +36,21 @@ const Header = ({ brandText, committee, routes, user }) => {
     );
 
   return (
-    <header className=" top-0 z-50 w-full border-b bg-background/95 backdrop-blur">
+    <header className="sticky top-0 z-40 w-full border-b bg-white/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-6">
-          <Link to="/" className="text-xl font-bold tracking-tight">
+        <div className="flex items-center gap-4">
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setIsOpen(true)}
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+          <Link to="/" className=" font-black tracking-tighter text-xl">
             {brandText}
           </Link>
-
-          {/* Desktop Navigation (Left Side) */}
           <nav className="hidden lg:flex items-center gap-6">
             {committee && (
               <NavLink to={committee.link} className={navLinkClass}>
@@ -44,76 +61,19 @@ const Header = ({ brandText, committee, routes, user }) => {
           </nav>
         </div>
 
-        {/* Right Side Actions */}
         <div className="flex items-center gap-4">
-          {/* Desktop User Menu / Login */}
-          <nav className="hidden lg:flex items-center gap-4">
-            {user ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-muted-foreground">
-                  Signed in as:{' '}
-                  <Link
-                    to="/register"
-                    className="font-medium text-foreground underline-offset-4 hover:underline"
-                  >
-                    {user.displayName}
-                  </Link>
-                </span>
-                <Button variant="ghost" asChild size="sm">
-                  <NavLink to="/logout">Logout</NavLink>
-                </Button>
-              </div>
-            ) : (
-              <LoginDropdown />
-            )}
-          </nav>
-
-          {/* Mobile Menu (Sheet) */}
-          <div className="lg:hidden">
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-[300px]">
-                <nav className="flex flex-col gap-4 mt-8">
-                  {committee && (
-                    <NavLink
-                      to={committee.link}
-                      onClick={() => setIsOpen(false)}
-                      className="text-lg font-semibold"
-                    >
-                      {committee.text}
-                    </NavLink>
-                  )}
-                  <div className="h-px bg-border my-2" />
-                  {routes.map((prop, index) => {
-                    if (prop.category)
-                      return (
-                        <span
-                          key={index}
-                          className="text-xs uppercase text-muted-foreground mt-2"
-                        >
-                          {prop.name}
-                        </span>
-                      );
-                    if (prop.hide) return null;
-                    return (
-                      <NavLink
-                        key={prop.path || index}
-                        to={prop.layout + prop.path}
-                        onClick={() => setIsOpen(false)}
-                        className="text-lg"
-                      >
-                        {prop.name}
-                      </NavLink>
-                    );
-                  })}
-                </nav>
-              </SheetContent>
-            </Sheet>
-          </div>
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="hidden sm:inline text-sm font-medium text-zinc-500">
+                {user.displayName}
+              </span>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/logout">Logout</Link>
+              </Button>
+            </div>
+          ) : (
+            <LoginDropdown />
+          )}
         </div>
       </div>
     </header>

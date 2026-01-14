@@ -18,6 +18,7 @@ const Admin = () => {
   const [image] = useState(sidebarImg);
   const [color] = useState('black');
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   const location = useLocation();
 
@@ -77,11 +78,12 @@ const Admin = () => {
         </Helmet>
       </HelmetProvider>
 
-      {/* 1. Sidebar - Context aware routes */}
       <Sidebar 
         routes={isCommittee ? routes : links} 
         color={color} 
         image={image} 
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
       />
 
       {/* 2. Main Panel */}
@@ -94,6 +96,7 @@ const Admin = () => {
           user={user}
           committee={{ link: '/home', text: 'Public Site' }}
           brandText={brandText}
+          setIsOpen={setIsOpen}
         />
 
         {/* 3. Scrollable Content Area with Flex constraints */}
