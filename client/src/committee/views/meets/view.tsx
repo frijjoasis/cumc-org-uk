@@ -1,417 +1,140 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
-import Alert from 'react-bootstrap/Alert';
-import Table from 'react-bootstrap/Table';
-import Button from 'react-bootstrap/Button';
-import { CSVLink } from 'react-csv';
-import { NavLink } from 'react-router-dom';
-import { withRouter, RouterProps } from '../../../utils/withRouter';
-import { Answer, MeetContent, Question, SignupData } from '@/types/meet';
+import { useParams } from 'react-router-dom';
+import { 
+  Users, 
+  Download, 
+  CreditCard, 
+  CheckCircle2, 
+  Clock, 
+  Mail, 
+  MessageSquare,
+  ChevronLeft
+} from 'lucide-react';
 
-interface SignupsExport {
-  questions: string[];
-  answers: string[][];
-}
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { MeetContent, Question, SignupData } from '@/types/meet';
 
-interface ViewMeetProps extends RouterProps {}
+const MeetView = () => {
+  const { id } = useParams();
+  const [data, setData] = useState<MeetContent | null>(null);
+  const [loading, setLoading] = useState(true);
 
-interface ViewMeetState {
-  content: MeetContent;
-  signups: SignupsExport;
-  err?: string;
-  success?: string;
-}
+  useEffect(() => {
+    axios.get(`/api/meets/signups/${id}`)
+      .then(res => {
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
 
-class ViewMeet extends React.Component<ViewMeetProps, ViewMeetState> {
-  constructor(props: ViewMeetProps) {
-    super(props);
-    this.state = {
-      content: {
-        user: null,
-        questions: [],
-      },
-      signups: {
-        questions: [],
-        answers: [],
-      },
-    };
-  }
+  if (loading) return <div className="p-12 text-center animate-pulse font-black italic text-zinc-400">Loading Signups...</div>;
+  if (!data) return <Alert variant="destructive"><AlertTitle>Not Found</AlertTitle></Alert>;
 
-  componentDidMount() {
-    // Access route params via router.params instead of match.params
-    const { id } = this.props.router.params;
+  const signups = data.signups || [];
+  const questions = data.questions || [];
 
-    if (id) {
-      axios.post('/api/meets/signups', { id }).then(res => {
-        if (res.data.err) {
-          this.setState({ err: res.data.err });
-          window.scrollTo(0, 0);
-        } else {
-          res.data.questions = res.data.questions ? res.data.questions : [];
-          this.setState({
-            content: res.data,
-            signups: {
-              // This is for CSV download. Rest of the page uses this.state.content
-              questions: res.data.questions
-                .sort(this.sortQuestions)
-                .map((q: Question) => q.title),
-              answers: res.data.signups.map((mem: SignupData) => {
-                return [
-                  mem.displayName,
-                  mem.user.email,
-                  new Date(mem.createdAt).toUTCString(),
-                  mem.authID || '',
-                ].concat(
-                  mem.answers.sort(this.sortQuestions).map(a => a.value)
-                );
-              }),
-            },
-          });
-        }
-      });
-    }
-  }
-
-  axiosPaypal = (url: string, mem: SignupData | false, success: string) => {
-    const { id } = this.props.router.params;
-    const data = mem ? { id, authID: mem.authID } : { id };
-
-    axios.post(`/api/paypal/${url}`, data).then(res => {
-      if (res.data.err) {
-        this.setState({ err: res.data.err });
-      } else {
-        this.setState({
-          success: success,
-        });
-        window.location.reload(); //TODO: Should really code a state update here but I cba
-      }
-    });
+  // Helper to find an answer for a specific question ID
+  const getAnswer = (signup: SignupData, questionId: number) => {
+    const answer = signup.answers?.find(a => a.id === questionId);
+    return answer ? answer.value : '-';
   };
 
-  sortQuestions = (q: Question | Answer, w: Question | Answer): number => {
-    if (q.id === w.id) return 0;
-    return q.id > w.id ? 1 : -1;
-  }; // Quick sort by ID function, so that questions (and answers) will be listed consistently
-
-  sortSignups = (m: SignupData, n: SignupData): number => {
-    const mStart = new Date(m.createdAt);
-    const nStart = new Date(n.createdAt);
-    if (mStart.getTime() === nStart.getTime()) return 0;
-    return mStart < nStart ? -1 : 1;
-  }; // Sort listed signups by signup date
-
-  emailString = (): string => {
-    let str = 'mailto:';
-    if (this.state.content.signups && this.state.content.signups.length) {
-      str =
-        str +
-        this.state.content.signups
-          .map(signup => {
-            return signup.user.email;
-          })
-          .toString()
-          .replaceAll(',', '; ');
-    }
-    return str;
-  };
-
-  deleteSignup = (id: number) => {
-    axios.post(`/api/meets/deleteSignup`, { id: id }).then(res => {
-      if (res.data.err) {
-        this.setState({ err: res.data.err });
-      } else {
-        this.setState({
-          success: 'Successfully deleted signup.',
-        });
-        window.location.reload(); //TODO: Should really code a state update here but I cba
-      }
-    });
-  };
-
-  captureStatusFormat = (authID?: string, captureID?: string): JSX.Element => {
-    if (authID) {
-      if (captureID) {
-        if (captureID === 'Capture Failed' || captureID === 'Void Failed')
-          return <div className="text-danger">{captureID}</div>;
-        else if (captureID === 'Void')
-          return <div className="text-info">{captureID}</div>;
-        else return <div className="text-success">{captureID}</div>;
-      } else return <div className="text-warning">Not Captured</div>;
-    } else return <div className="text-danger">Not Valid</div>;
-  };
-
-  render() {
-    return (
-      <div className="content">
-        {this.state.err ? (
-          <Alert variant="danger">{this.state.err}</Alert>
-        ) : null}
-        {this.state.success ? (
-          <Alert variant="success">{this.state.success}</Alert>
-        ) : null}
-        <Container>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Body>
-                  <Card.Title>Meet Administration</Card.Title>
-                  <Card.Subtitle>{this.state.content.title}</Card.Subtitle>
-                  <Card.Text as="span">
-                    <hr />
-                    <div className="text-muted" style={{ display: 'inline' }}>
-                      Dates:{' '}
-                    </div>
-                    {new Date(this.state.content.startDate).toUTCString() + ' '}
-                    -{' ' + new Date(this.state.content.endDate).toUTCString()}
-                    <br />
-                    <div className="text-muted" style={{ display: 'inline' }}>
-                      Organiser:{' '}
-                    </div>
-                    {this.state.content.user?.firstName}{' '}
-                    {this.state.content.user?.lastName}
-                  </Card.Text>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Body>
-                  <Card.Title>Signups</Card.Title>
-                  <Card.Subtitle>
-                    Members currently signed up to {this.state.content.title}
-                  </Card.Subtitle>
-                  <hr />
-                  <Table striped bordered hover responsive>
-                    <thead>
-                      <tr>
-                        {['Name', 'Admin', 'Created At', 'Payment Status']
-                          .concat(this.state.signups.questions)
-                          .map((e, key) => {
-                            return <th key={key}>{e}</th>;
-                          })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.content.signups &&
-                      this.state.content.signups.length ? (
-                        this.state.content.signups
-                          .sort(this.sortSignups)
-                          .map((mem, key) => {
-                            return (
-                              <tr key={key}>
-                                {[
-                                  <NavLink
-                                    to={`/committee/members/${mem.userID}`}
-                                  >
-                                    {mem.displayName}
-                                  </NavLink>,
-                                  <div>
-                                    <span
-                                      style={{
-                                        color: '#1DC7EA',
-                                        cursor: 'pointer',
-                                      }}
-                                      onClick={() =>
-                                        this.axiosPaypal(
-                                          'void',
-                                          mem,
-                                          `Payment for ${mem.displayName} voided successfully, if it hadn't been captured.`
-                                        )
-                                      }
-                                    >
-                                      Reject
-                                    </span>
-                                    <br />
-                                    <span
-                                      style={{
-                                        color: '#1DC7EA',
-                                        cursor: 'pointer',
-                                      }}
-                                      onClick={() =>
-                                        this.axiosPaypal(
-                                          'capture',
-                                          mem,
-                                          `Payment for ${mem.displayName} captured successfully, if it hadn't been already.`
-                                        )
-                                      }
-                                    >
-                                      Capture
-                                    </span>
-                                    <br />
-                                    <span
-                                      style={{
-                                        color: '#1DC7EA',
-                                        cursor: 'pointer',
-                                      }}
-                                      onClick={() => this.deleteSignup(mem.id)}
-                                    >
-                                      Delete
-                                    </span>
-                                  </div>,
-                                  new Date(mem.createdAt).toUTCString(),
-                                  this.captureStatusFormat(
-                                    mem.authID,
-                                    mem.captureID
-                                  ),
-                                ]
-                                  .concat(
-                                    mem.answers
-                                      .sort(this.sortQuestions)
-                                      .map(a => a.value)
-                                  )
-                                  .map((e, key) => {
-                                    return <td key={key}>{e}</td>;
-                                  })}
-                              </tr>
-                            );
-                          })
-                      ) : (
-                        <tr>
-                          <td className="text-center" colSpan={100}>
-                            None yet!
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <Card>
-                <Card.Body>
-                  <Card.Title>Questions</Card.Title>
-                  <Card.Subtitle>
-                    Form structure for {this.state.content.title}
-                  </Card.Subtitle>
-                  <hr />
-                  <Table striped bordered hover responsive>
-                    <thead>
-                      <tr>
-                        {[
-                          'Question',
-                          'Required?',
-                          'Description',
-                          'Help Text',
-                        ].map((e, key) => {
-                          return <th key={key}>{e}</th>;
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {this.state.content.questions &&
-                      this.state.content.questions.length ? (
-                        this.state.content.questions.map((q, key) => {
-                          return (
-                            <tr key={key}>
-                              {[
-                                q.title,
-                                q.required ? (
-                                  <div className="text-success">Yes</div>
-                                ) : (
-                                  <div className="text-danger">No</div>
-                                ),
-                                q.text,
-                                q.help,
-                              ].map((e, key) => {
-                                return <td key={key}>{e}</td>;
-                              })}
-                            </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td className="text-center" colSpan={4}>
-                            Nothing here :(
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </Table>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-          <Row>
-            <Col>
-              <NavLink
-                className="btn btn-block btn-success"
-                to={`/committee/meets/reimburse/${this.props.router.params.id}`}
-              >
-                Reimburse Drivers
-              </NavLink>
-            </Col>
-            <Col>
-              <Button className="w-100" href={this.emailString()}>
-                Email Signups
-              </Button>
-            </Col>
-            <Col>
-              <CSVLink
-                filename={`meet-${this.props.router.params.id}-export.csv`}
-                data={[
-                  ['Name', 'Email', 'Created At', 'Authorisation ID'].concat(
-                    this.state.signups.questions
-                  ),
-                ].concat(this.state.signups.answers)}
-              >
-                <Button className="w-100">Export Signups</Button>
-              </CSVLink>
-            </Col>
-            <Col>
-              <NavLink
-                className="btn btn-block btn-danger"
-                to={`/committee/meets/edit/${this.props.router.params.id}`}
-              >
-                Edit Meet
-              </NavLink>
-            </Col>
-          </Row>
-          <br />
-          <Row>
-            <Col>
-              <Button
-                className="w-100"
-                variant="success"
-                onClick={() =>
-                  this.axiosPaypal(
-                    'capture',
-                    false,
-                    'Payments captured successfully.'
-                  )
-                }
-              >
-                Capture Payments
-              </Button>
-            </Col>
-            <Col>
-              <Button
-                className="w-100"
-                variant="danger"
-                onClick={() =>
-                  this.axiosPaypal(
-                    'void',
-                    false,
-                    'Payments voided successfully.'
-                  )
-                }
-              >
-                Void Payments
-              </Button>
-            </Col>
-          </Row>
-        </Container>
+  return (
+    <div className="space-y-6">
+      {/* Header section with Stats */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900">{data.title}</h2>
+          <p className="text-zinc-500 font-medium">Attendance & Logistics Dashboard</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="gap-2">
+            <Download className="h-4 w-4" /> Export CSV
+          </Button>
+          <Button className="gap-2 bg-primary">
+            <Mail className="h-4 w-4" /> Email All
+          </Button>
+        </div>
       </div>
-    );
-  }
-}
 
-export default withRouter(ViewMeet);
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-zinc-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-blue-50 rounded-full text-blue-600"><Users className="h-6 w-6" /></div>
+              <div>
+                <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Total Signups</p>
+                <h3 className="text-2xl font-black">{signups.length}</h3>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        {/* Add more cards for "Paid", "Drivers", etc. here */}
+      </div>
+
+      {/* Main Signups Table */}
+      <Card className="border-zinc-200 shadow-sm overflow-hidden">
+        <CardHeader className="bg-zinc-50/50 border-b border-zinc-100">
+          <CardTitle className="text-sm font-bold uppercase tracking-widest">Attendee List</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-zinc-50/30">
+                <tr className="text-[11px] uppercase font-bold text-zinc-500 tracking-wider">
+                  <th className="px-6 py-4 text-left">Member</th>
+                  <th className="px-6 py-4 text-left">Payment</th>
+                  {/* Dynamically render columns for each custom question */}
+                  {questions.map(q => (
+                    <th key={q.id} className="px-6 py-4 text-left">{q.title}</th>
+                  ))}
+                  <th className="px-6 py-4 text-right">Signed Up</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {signups.map((s) => (
+                  <tr key={s.id} className="hover:bg-zinc-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-zinc-900">{s.user?.firstName} {s.user?.lastName}</div>
+                      <div className="text-[10px] text-zinc-400 font-mono">{s.user?.email}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      {s.captureID ? (
+                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 shadow-none gap-1">
+                          <CheckCircle2 className="h-3 w-3" /> Captured
+                        </Badge>
+                      ) : s.authID ? (
+                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 shadow-none gap-1">
+                          <Clock className="h-3 w-3" /> Authorized
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-zinc-400">No Payment</Badge>
+                      )}
+                    </td>
+                    {/* Render the answers to custom questions */}
+                    {questions.map(q => (
+                      <td key={q.id} className="px-6 py-4 text-zinc-600 font-medium">
+                        {getAnswer(s, q.id)}
+                      </td>
+                    ))}
+                    <td className="px-6 py-4 text-right text-zinc-400 text-[11px]">
+                      {new Date(s.createdAt).toLocaleDateString()}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default MeetView;

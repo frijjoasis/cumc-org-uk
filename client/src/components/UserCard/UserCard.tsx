@@ -1,37 +1,60 @@
-import { CommitteePersonData } from '@/types/committee';
-import { User } from '@/types/models';
 import React from 'react';
-import { Card, CardContent } from '../ui/card';
-import { CardFooter } from 'react-bootstrap';
+import { Card, CardContent } from '@/components/ui/card';
+import { CommitteePersonData } from '@/types/committee';
+import { Mail, Instagram } from 'lucide-react';
 
 interface UserCardProps {
   person: CommitteePersonData;
 }
 
-export class UserCard extends React.Component<UserCardProps> {
-  render() {
-    return (
-      <Card className="card-user">
-        <div className="h-30">
-          <img src={this.props.person.cover} alt="Cover" />
-        </div>
-        <CardContent>
-          <div className="author">
+const UserCard: React.FC<UserCardProps> = ({ person }) => {
+  return (
+    <Card className="overflow-hidden border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
+      {/* Cover Image Container */}
+      <div className="h-32 w-full overflow-hidden bg-zinc-100">
+        <img 
+          src={person.cover} 
+          alt="Cover" 
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+        />
+      </div>
+
+      <CardContent className="relative pt-0 text-center">
+        <div className="flex justify-center -mt-12 mb-4">
+          <div className="p-1 bg-white rounded-full shadow-md">
             <img
-              className="avatar border-gray"
-              src={this.props.person.profile}
-              alt="Profile"
+              className="h-24 w-24 rounded-full border-2 border-white object-cover"
+              src={person.profile}
+              alt={person.name}
             />
-            <h6>{this.props.person.role}</h6>
-            <h4 className="title">{this.props.person.name}</h4>
           </div>
-        </CardContent>
-        <CardFooter className="text-muted text-center">
-          <h6>{this.props.person.social}</h6>
-        </CardFooter>
-      </Card>
-    );
-  }
-}
+        </div>
+
+        {/* Text Content */}
+        <div className="space-y-1">
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary italic">
+            {person.role}
+          </p>
+          <h4 className="text-xl font-bold tracking-tight text-zinc-900 leading-tight">
+            {person.name}
+          </h4>
+        </div>
+
+        {/* Social / Email Footer */}
+        <div className="mt-6 pt-4 border-t border-zinc-100 flex justify-center gap-4">
+           {/* If social is an email, we show mail icon, otherwise instagram */}
+           <div className="flex items-center gap-2 text-zinc-400 hover:text-primary transition-colors cursor-pointer">
+              {person.social?.includes('@') ? (
+                <Mail className="h-4 w-4" />
+              ) : (
+                <Instagram className="h-4 w-4" />
+              )}
+              <span className="text-xs font-semibold">{person.social}</span>
+           </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default UserCard;

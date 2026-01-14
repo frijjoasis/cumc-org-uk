@@ -1,302 +1,201 @@
-import React, { useRef } from 'react';
-import ReactDOM from 'react-dom';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import defaults from './defaults';
-import Alert from 'react-bootstrap/Alert';
-import { MeetContent, Question } from '@/types/meet';
+import { 
+  Plus, 
+  Trash2, 
+  GripVertical, 
+  HelpCircle, 
+  Save, 
+  Check, 
+  AlertCircle,
+  Type,
+  AlignLeft,
+  CheckSquare
+} from 'lucide-react';
+
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Question } from '@/types/meet'; // Using your provided interface
 
 interface EditQuestionsProps {
-  content: Partial<MeetContent>;
-  id: string;
-  pathname: string;
-  newID: string;
-}
-interface EditQuestionsState {
-  content: Partial<MeetContent>;
-  questions: Question[];
-  validated: boolean;
-  err?: string;
-  success?: string;
+  content: {
+    questions?: Question[];
+    [key: string]: any;
+  };
+  pathname?: string;
+  id?: string;
+  newID?: string;
 }
 
-class EditQuestions extends React.Component<
-  EditQuestionsProps,
-  EditQuestionsState
-> {
-  questionForm: React.RefObject<HTMLFormElement>;
-  constructor(props: EditQuestionsProps) {
-    super(props);
-    this.state = {
-      content: this.props.content,
-      questions: this.props.content.questions.length
-        ? this.props.content.questions
-        : [],
-      validated: false,
+const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle');
+
+  const activeID = id || newID;
+
+  // Sync with parent content
+  useEffect(() => {
+    if (content.questions) {
+      setQuestions(content.questions);
+    }
+  }, [content.questions]);
+
+  const addQuestion = () => {
+    const newQ: Question = {
+      id: Date.now(), // Temp ID for the frontend list
+      title: '',
+      help: '',
+      required: false
     };
-    this.questionForm = React.createRef();
-  }
+    setQuestions([...questions, newQ]);
+  };
 
-  componentDidUpdate(prevProps) {
-    if (this.props.content !== prevProps.content) {
-      this.setState({
-        content: this.props.content,
-        questions:
-          !this.props.content.questions || !this.props.content.questions.length
-            ? []
-            : this.props.content.questions,
-      });
-      // React only calls the constructor once, and not on re-render.
+  const updateQuestion = (index: number, updates: Partial<Question>) => {
+    const updated = [...questions];
+    updated[index] = { ...updated[index], ...updates };
+    setQuestions(updated);
+  };
+
+  const removeQuestion = (index: number) => {
+    setQuestions(questions.filter((_, i) => i !== index));
+  };
+
+  const handleSave = async () => {
+    if (!activeID) return;
+    setIsSaving(true);
+    setSaveStatus('idle');
+
+    try {
+      // Logic assumes your backend expects the questions array in a POST body
+      await axios.post(`/api/meets/edit/${activeID}/questions`, { questions });
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    } catch (err) {
+      setSaveStatus('error');
+    } finally {
+      setIsSaving(false);
     }
-  }
+  };
 
-  addDefaults(event) {
-    const preset = event.currentTarget.elements.preset.value.toLowerCase();
-    this.setState(state => {
-      return {
-        questions: defaults[preset].concat(state.questions),
-      };
-    });
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  addQuestion(event) {
-    const form = event.currentTarget;
-    if (
-      form.checkValidity() === false ||
-      this.state.questions.filter(q => q.id === form.elements.id.value).length
-    ) {
-      this.setState({ validated: true });
-    } else {
-      const elements = event.currentTarget.elements;
-      const question = [...elements].reduce((acc, cur) => {
-        acc[cur.id] = cur.value;
-        return acc;
-      }, {});
-      delete question['']; // Artifact of how [...elements] is constructed.
-      question.required = elements.required.checked;
-      this.setState(state => {
-        return {
-          questions: [question, ...state.questions],
-        };
-      });
-      this.questionForm.current?.reset();
-      this.setState({ validated: false }); // Reset validation
-    }
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  deleteQuestion(event) {
-    const id = event.currentTarget.id;
-    this.setState(state => {
-      return {
-        questions: state.questions.filter(q => q.id !== id),
-      };
-    });
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  submitQuestions() {
-    const id = this.props.pathname.includes('edit')
-      ? this.props.id
-      : this.props.newID;
-    if (id) {
-      axios
-        .post('/api/meets/questions', {
-          questions: this.state.questions,
-          id: id,
-        })
-        .then(res => {
-          if (res.data.err) {
-            this.setState({ err: res.data.err });
-            window.scrollTo(0, 0);
-          } else {
-            window.scrollTo(0, 0);
-            this.setState({
-              success: 'Set questions successfully.',
-              err: undefined,
-            });
-          }
-        });
-    } else {
-      this.setState({
-        err: 'Could not find meet! If you are creating a new one, you should update the details first.',
-      });
-    }
-  }
-
-  render() {
-    return (
-      <div>
-        {this.state.err ? (
-          <Alert variant="danger">{this.state.err}</Alert>
-        ) : null}
-        {this.state.success ? (
-          <Alert variant="success">{this.state.success}</Alert>
-        ) : null}
-        <Form onSubmit={this.addDefaults.bind(this)}>
-          <Row>
-            <Col md={8}>
-              <Form.Group controlId="preset">
-                <Form.Label>Presets</Form.Label>
-                <Form.Control as="select">
-                  {['Indoor', 'Outdoor', 'Social', 'Car'].map(i => {
-                    return (
-                      <option selected={this.state.content.type === i}>
-                        {i}
-                      </option>
-                    );
-                  })}
-                </Form.Control>
-                <Form.Text muted>
-                  Select an option and click the button to add default questions
-                </Form.Text>
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Button
-                className="w-100"
-                style={{ marginTop: '24px' }}
-                type="submit"
-              >
-                Add defaults
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-        <hr />
-        <Form
-          onSubmit={this.addQuestion.bind(this)}
-          noValidate
-          validated={this.state.validated}
-          ref={this.questionForm}
+  return (
+    <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Informational Header */}
+      <div className="flex items-center justify-between bg-zinc-900 p-4 rounded-xl text-white shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-white/10 rounded-lg text-emerald-400">
+            <HelpCircle className="h-5 w-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-tight italic">Form Designer</h4>
+            <p className="text-[11px] text-zinc-400 font-medium">Add custom questions for meet signups.</p>
+          </div>
+        </div>
+        <Button 
+          onClick={addQuestion} 
+          variant="secondary" 
+          size="sm" 
+          className="font-bold gap-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-900 border-none"
         >
-          <Row>
-            <Col md={8}>
-              <Form.Group controlId="title">
-                <Form.Label>Title</Form.Label>
-                <Form.Control
-                  type="text"
-                  required
-                  placeholder="Question title"
-                />
-                <Form.Control.Feedback type="invalid">
-                  Required
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="id">
-                <Form.Label>ID</Form.Label>
-                <Form.Control
-                  type="text"
-                  required
-                  placeholder="Needs to be unique"
-                />
-                <Form.Control.Feedback type="invalid">
-                  Required, and needs to be unique
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={4}>
-              <Form.Group controlId="help">
-                <Form.Label>Help Text</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Displays if input fails validation"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="text">
-                <Form.Label>Subtitle</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Displays underneath the question"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={2}>
-              <Form.Group controlId="required">
-                <Form.Label>Required?</Form.Label>
-                <Form.Check
-                  type="checkbox"
-                  id="required"
-                  label="Question is required"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={2}>
-              <Button
-                className="w-100"
-                type="submit"
-                style={{ marginTop: '24px' }}
-              >
-                Add question
-              </Button>
-            </Col>
-          </Row>
-        </Form>
-        <hr />
-        <Card.Title>Preview</Card.Title>
-        <Card.Subtitle>
-          Click the <i className="fa fa-times" /> to remove a question
-        </Card.Subtitle>
-        <hr />
-        <Form className="was-validated">
-          {this.state.questions.map(q => {
-            return (
-              <Row>
-                <Col>
-                  <Form.Group>
-                    <Form.Label>{q.title}</Form.Label>
-                    <Form.Control
-                      type="text"
-                      placeholder={`ID: ${String(q.id)}`}
-                      required={q.required}
-                    />
-                    <Form.Text muted>{q.text}</Form.Text>
-                    <a
-                      id={String(q.id)}
-                      href="#!"
-                      onClick={this.deleteQuestion.bind(this)}
-                    >
-                      <i className="fa fa-times float-right" />
-                    </a>
-                    <Form.Control.Feedback type="invalid">
-                      {q.help}
-                    </Form.Control.Feedback>
-                  </Form.Group>
-                </Col>
-              </Row>
-            );
-          })}
-          <br />
-          <br />
-          <Row>
-            <Col>
-              <Button
-                className="w-100"
-                variant="success"
-                onClick={this.submitQuestions.bind(this)}
-              >
-                Save Form
-              </Button>
-            </Col>
-          </Row>
-        </Form>
+          <Plus className="h-4 w-4" /> Add Question
+        </Button>
       </div>
-    );
-  }
-}
+
+      <div className="space-y-4">
+        {questions.map((q, index) => (
+          <Card key={q.id} className="group border-zinc-200 hover:border-zinc-400 transition-all shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex flex-col md:flex-row gap-6">
+                
+                {/* Visual Indicator of Question Number */}
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-zinc-100 text-zinc-400 font-black text-xs shrink-0 group-hover:bg-zinc-900 group-hover:text-white transition-colors">
+                  {index + 1}
+                </div>
+
+                <div className="flex-1 space-y-4">
+                  {/* Title / Main Question */}
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest">Question Label</Label>
+                    <Input 
+                      placeholder="e.g. Do you have a mountain leader qualification?" 
+                      value={q.title}
+                      onChange={(e) => updateQuestion(index, { title: e.target.value })}
+                      className="border-zinc-200 focus-visible:ring-zinc-900 font-bold"
+                    />
+                  </div>
+
+                  {/* Help Text */}
+                  <div className="space-y-2">
+                    <Label className="text-[10px] uppercase font-black text-zinc-400 tracking-widest">Helpful Hint (Optional)</Label>
+                    <Input 
+                      placeholder="e.g. Please specify the awarding body" 
+                      value={q.help || ''}
+                      onChange={(e) => updateQuestion(index, { help: e.target.value })}
+                      className="border-zinc-200 text-zinc-500 text-sm italic"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id={`req-${q.id}`} 
+                        checked={q.required} 
+                        onCheckedChange={(checked) => updateQuestion(index, { required: !!checked })}
+                      />
+                      <Label htmlFor={`req-${q.id}`} className="text-xs font-bold uppercase text-zinc-500 cursor-pointer">
+                        Mark as Required
+                      </Label>
+                    </div>
+
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => removeQuestion(index)}
+                      className="text-zinc-400 hover:text-rose-600 hover:bg-rose-50 gap-2 h-8"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Remove</span>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+
+        {questions.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-zinc-200 rounded-2xl bg-zinc-50/50">
+            <HelpCircle className="h-10 w-10 text-zinc-200 mb-4" />
+            <p className="text-zinc-400 font-bold uppercase tracking-widest text-xs italic">No questions defined</p>
+          </div>
+        )}
+      </div>
+
+      {/* Action Footer */}
+      <div className="pt-8 flex items-center justify-between">
+        <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+          {questions.length} Question{questions.length !== 1 ? 's' : ''} in form
+        </div>
+        
+        <Button 
+          onClick={handleSave}
+          disabled={isSaving || !activeID}
+          className={`min-w-[180px] h-12 gap-2 font-black uppercase tracking-widest italic transition-all duration-500 shadow-lg ${
+            saveStatus === 'success' ? 'bg-emerald-500 hover:bg-emerald-500' : 
+            saveStatus === 'error' ? 'bg-rose-500' : 'bg-zinc-900'
+          }`}
+        >
+          {isSaving ? 'Saving...' : 
+           saveStatus === 'success' ? <><Check className="h-5 w-5" /> Saved</> : 
+           saveStatus === 'error' ? <><AlertCircle className="h-5 w-5" /> Try Again</> : 
+           <><Save className="h-5 w-5" /> Save Changes</>}
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 export default EditQuestions;

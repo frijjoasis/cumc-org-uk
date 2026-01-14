@@ -89,12 +89,8 @@ const CommitteeAbout = () => {
               const memberData: CommitteePersonData = {
                 role: member.role,
                 name: member.person_name,
-                social:
-                  member.person_email ||
-                  (member.role
-                    ? `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`
-                    : undefined),
-                profile: defaultProfile,
+                social: member.person_email || `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`,
+                profile: '',
                 cover: defaultCover,
               };
               return <UserCard key={index} person={memberData} />;

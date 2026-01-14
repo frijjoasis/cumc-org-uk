@@ -9,14 +9,14 @@ const router = Router();
 
 router.get('/current', async (req: Request, res: Response) => {
   try {
-    const committee = (await committeeService.getCurrent()).map(
-      CommitteeModel => {
-        return {
-          name: CommitteeModel.person_name,
-        };
-      }
+    const committeeModels = await committeeService.getCurrent();
+    
+    // Transform the models using your shared service logic
+    const exposedCommittee = await Promise.all(
+      committeeModels.map((cm) => committeeService.getExposedModel(cm))
     );
-    res.json(committee);
+
+    res.json(exposedCommittee);
   } catch (error) {
     console.error('Error fetching current committee:', error);
     res.status(500).json({ error: 'Failed to fetch current committee' });

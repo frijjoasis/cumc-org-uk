@@ -1,232 +1,270 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Card from 'react-bootstrap/Card';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
-import Alert from 'react-bootstrap/Alert';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import {
+  ClipboardCheck,
+  User,
+  Mail,
+  ShieldCheck,
+  ArrowRight,
+  Loader2,
+  AlertTriangle,
+} from 'lucide-react';
 
-import { Navigate, useParams } from 'react-router-dom';
-import PayPalButtons from '../../../../components/PayPalButton/PayPalButtons';
-import { Meet, User } from '@/types/models';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
+import { User as UserModel } from '@/types/models';
 
-interface MeetFormClassProps {
-  id: string | number;
-  user: User;
-}
-interface MeetFormClassState {
-  validated: boolean;
-  showPayment: boolean;
-  err: false | string;
-  meet: any;
-  data?: {
-    answers: any[];
-    meetID: string | number;
-  };
-}
-
-class MeetFormClass extends React.Component<
-  MeetFormClassProps,
-  MeetFormClassState
-> {
-  constructor(props: MeetFormClassProps) {
-    super(props);
-    this.state = {
-      validated: false,
-      showPayment: false,
-      err: false,
-      meet: {},
-    };
-  }
-
-  componentDidMount() {
-    axios.post('/api/meets/view', { id: this.props.id }).then(res => {
-      if (res.data.err) {
-        this.setState({ err: res.data.err });
-        window.scrollTo(0, 0);
-      } else {
-        this.setState({
-          meet: res.data,
-        });
-      }
-    });
-  }
-
-  handleSubmit(event) {
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      this.setState({ validated: true });
-    } else {
-      const answers = [...form.elements].reduce((acc, cur) => {
-        if (cur.id && !['privacy', 'participation', 'data'].includes(cur.id)) {
-          acc.push({ id: cur.id, value: cur.value });
-        }
-        return acc;
-        // Avoid POSTing email, display name and checkboxes
-      }, []);
-      const data = {
-        answers: answers,
-        meetID: this.props.id,
-      };
-      axios.post('/api/paypal/required', data).then(res => {
-        if (res.data.err) {
-          this.setState({ err: res.data.err });
-          window.scrollTo(0, 0);
-        } else if (res.data) {
-          // Payment required
-          this.setState({
-            showPayment: true,
-            data: data,
-          });
-        } else {
-          window.location.href = `/meets/upcoming/view/${this.props.id}`;
-          // Payment wasn't required
-        }
-      });
-    }
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  render() {
-    if (this.state.meet.disabled || !this.props.user) {
-      return <Navigate to="/404" replace />;
-    } else {
-      return (
-        <div className="content">
-          {this.state.err ? (
-            <Alert variant="danger">{this.state.err}</Alert>
-          ) : null}
-          <Container>
-            <Row>
-              <Col>
-                <Card>
-                  <Card.Body>
-                    <Card.Title>
-                      Register for {this.state.meet.title}
-                    </Card.Title>
-                    <Card.Subtitle>
-                      Please fill out the form below
-                    </Card.Subtitle>
-                    <hr />
-                    <Form
-                      noValidate
-                      validated={this.state.validated}
-                      onSubmit={this.handleSubmit.bind(this)}
-                    >
-                      <Row>
-                        <Col md={8}>
-                          <Form.Group>
-                            <Form.Label>Email</Form.Label>
-                            <Form.Control
-                              type="email"
-                              readOnly
-                              value={this.props.user.email}
-                            />
-                          </Form.Group>
-                        </Col>
-                        <Col md={4}>
-                          <Form.Group>
-                            <Form.Label>Display Name</Form.Label>
-                            <Form.Control
-                              type="text"
-                              readOnly
-                              value={this.props.user.displayName}
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      {this.state.meet.questions
-                        ? this.state.meet.questions.map(question => {
-                            return (
-                              <Row>
-                                <Col>
-                                  <Form.Group controlId={question.id}>
-                                    <Form.Label>{question.title}</Form.Label>
-                                    <Form.Control
-                                      type="text"
-                                      required={question.required}
-                                      placeholder={
-                                        question.required
-                                          ? 'Required'
-                                          : 'Not Set'
-                                      }
-                                    />
-                                    <Form.Text muted>{question.text}</Form.Text>
-                                    <Form.Control.Feedback type="invalid">
-                                      {question.help}
-                                    </Form.Control.Feedback>
-                                  </Form.Group>
-                                </Col>
-                              </Row>
-                            );
-                          })
-                        : null}
-                      <Row>
-                        <Col>
-                          <Form.Group>
-                            <Form.Check
-                              type="checkbox"
-                              id="data"
-                              required
-                              label="I have read, understand and agree to the club's data
-                                                            safety policy, the club's protection statement and the BMC
-                                                            participation statement"
-                            />
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <br />
-                      <br />
-                      <Row>
-                        <Col>
-                          {this.state.showPayment ? (
-                            <div>
-                              <Form.Label>Pay for Meet</Form.Label>
-                              <div className="text-center">
-                                <PayPalButtons
-                                  price={this.state.meet.price}
-                                  description={`Register for ${this.state.meet.title}`}
-                                  intent="register"
-                                  form={this.state.data}
-                                  onSuccess={() =>
-                                    (window.location.href = `/meets/upcoming/view/${this.props.id}`)
-                                  }
-                                  payer={{
-                                    email_address: this.props.user.email,
-                                  }}
-                                  onError={err =>
-                                    this.setState({
-                                      err: err,
-                                    })
-                                  }
-                                />
-                              </div>
-                            </div>
-                          ) : (
-                            <Button className="w-100" type="submit">
-                              Submit
-                            </Button>
-                          )}
-                        </Col>
-                      </Row>
-                    </Form>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-          </Container>
-        </div>
-      );
-    }
-  }
+interface MeetFormProps {
+  user: UserModel;
 }
 
-function MeetForm(props) {
+const MeetForm = ({ user }: MeetFormProps) => {
   const { id } = useParams();
-  return <MeetFormClass {...props} id={id} />;
-}
+  const navigate = useNavigate();
+
+  const [meet, setMeet] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [registrationData, setRegistrationData] = useState<any>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [validated, setValidated] = useState(false);
+
+  useEffect(() => {
+    axios
+      .post('/api/meets/view', { id })
+      .then(res => {
+        if (res.data.err) setErr(res.data.err);
+        else setMeet(res.data);
+      })
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+
+    if (!form.checkValidity()) {
+      setValidated(true);
+      return;
+    }
+
+    setSubmitting(true);
+
+    // Collect custom question answers
+    const answers = meet.questions.map((q: any) => {
+      const input = document.getElementById(q.id) as HTMLInputElement;
+      return { id: q.id, value: input?.value || '' };
+    });
+
+    const submissionData = { answers, meetID: id };
+
+    try {
+      const res = await axios.post('/api/paypal/required', submissionData);
+      if (res.data.err) {
+        setErr(res.data.err);
+        window.scrollTo(0, 0);
+      } else if (res.data) {
+        // Meet requires payment
+        setRegistrationData(submissionData);
+        setShowPayment(true);
+      } else {
+        // Free meet or registration successful
+        navigate(`/meets/upcoming/view/${id}`);
+      }
+    } catch (e) {
+      setErr('Submission failed. Please check your connection.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading)
+    return (
+      <div className="p-20 text-center font-black animate-pulse">
+        LOADING FORM...
+      </div>
+    );
+  if (!user || meet?.disabled) return <Navigate to="/404" replace />;
+
+  return (
+    <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-4xl font-black uppercase italic tracking-tighter">
+          Trip Registration
+        </h1>
+        <p className="text-zinc-500 font-medium italic">
+          Finalize your spot for{' '}
+          <span className="text-zinc-900 font-bold underline decoration-primary underline-offset-4">
+            {meet.title}
+          </span>
+        </p>
+      </div>
+
+      {err && (
+        <Alert variant="destructive" className="border-2 shadow-lg">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Registration Error</AlertTitle>
+          <AlertDescription>{err}</AlertDescription>
+        </Alert>
+      )}
+
+      <form onSubmit={handleSubmit} noValidate className="space-y-6">
+        {/* Step 1: Identity (Read Only) */}
+        <Card className="border-zinc-200 shadow-sm bg-zinc-50/50">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-[10px] font-black uppercase tracking-widest text-zinc-400 flex items-center gap-2">
+              <User className="h-3 w-3" /> Identity Confirmation
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label className="text-[10px] uppercase font-bold text-zinc-500">
+                Official Name
+              </Label>
+              <Input
+                value={user.displayName}
+                readOnly
+                className="bg-white border-zinc-200 font-bold"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] uppercase font-bold text-zinc-500">
+                Contact Email
+              </Label>
+              <Input
+                value={user.email}
+                readOnly
+                className="bg-white border-zinc-200 font-bold"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step 2: Custom Questions */}
+        <Card className="border-zinc-200 shadow-sm">
+          <CardHeader>
+            <CardTitle className="text-xl font-black uppercase italic tracking-tighter flex items-center gap-2">
+              <ClipboardCheck className="h-5 w-5 text-primary" /> Required
+              Logistics
+            </CardTitle>
+            <CardDescription className="text-xs">
+              The organizer needs this information to prepare the meet.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {meet.questions?.map((q: any) => (
+              <div key={q.id} className="space-y-2">
+                <Label
+                  htmlFor={q.id}
+                  className="font-black uppercase italic text-xs tracking-tight"
+                >
+                  {q.title}{' '}
+                  {q.required && <span className="text-rose-500">*</span>}
+                </Label>
+                <Input
+                  id={q.id}
+                  required={q.required}
+                  placeholder={q.required ? 'Required information' : 'Optional'}
+                  className={`h-12 border-zinc-200 focus:ring-zinc-900 ${validated && q.required ? 'invalid:border-rose-500' : ''}`}
+                />
+                {q.text && (
+                  <p className="text-[11px] text-zinc-500 font-medium italic">
+                    {q.text}
+                  </p>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* Step 3: Legal & Consent */}
+        <div className="p-6 bg-zinc-900 rounded-2xl text-white space-y-4">
+          <div className="flex items-start space-x-3">
+            <Checkbox
+              id="data-consent"
+              required
+              className="mt-1 border-white data-[state=checked]:bg-primary data-[state=checked]:text-zinc-900"
+            />
+            <Label
+              htmlFor="data-consent"
+              className="text-xs font-bold leading-relaxed text-zinc-300 cursor-pointer"
+            >
+              I agree to the club's{' '}
+              <span className="text-white underline">Data Safety Policy</span>,
+              Protection Statement, and the{' '}
+              <span className="text-white underline">
+                BMC Participation Statement
+              </span>
+              .
+            </Label>
+          </div>
+        </div>
+
+        {/* Action Area: Submit or Pay */}
+        <div className="pt-4">
+          {!showPayment ? (
+            <Button
+              type="submit"
+              disabled={submitting}
+              className="w-full h-16 bg-zinc-900 text-white font-black uppercase italic tracking-widest text-lg group shadow-xl hover:shadow-primary/20"
+            >
+              {submitting ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <>
+                  Complete Registration{' '}
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </>
+              )}
+            </Button>
+          ) : (
+            <Card className="border-2 border-primary bg-zinc-50 shadow-2xl overflow-hidden">
+              <CardHeader className="bg-primary text-zinc-900 p-4">
+                <CardTitle className="text-xs font-black uppercase tracking-widest text-center italic">
+                  Final Step: Secure Payment
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 text-center space-y-6">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase text-zinc-400">
+                    Total Due
+                  </p>
+                  <p className="text-4xl font-black italic tracking-tighter">
+                    £{meet.price}
+                  </p>
+                </div>
+                <div className="flex justify-center">
+                  <PayPalButtons
+                    price={meet.price}
+                    description={`Registration for ${meet.title}`}
+                    intent="register"
+                    form={registrationData}
+                    onSuccess={() => navigate(`/meets/upcoming/view/${id}`)}
+                    payer={{ email_address: user.email }}
+                    onError={err => setErr(err)}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </form>
+    </div>
+  );
+};
 
 export default MeetForm;

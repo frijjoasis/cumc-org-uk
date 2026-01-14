@@ -26,18 +26,20 @@ router.get('/', userAuth, async function (req: Request, res: Response) {
 
 router.get('/committee', async function (req: Request, res: Response) {
   if (req.isAuthenticated()) {
-    // Dev users have full committee access
-    if ((req.user as any).isDevUser) {
-      return res.json('Dev Admin');
+    // Check for the specific Dev Admin ID we set in the dev-login route
+    if (process.env.NODE_ENV === 'development' && req.user.id === 999999999) {
+      return res.json({
+        role: 'Development Admin',
+        permissions: 'all',
+        isDev: true
+      });
     }
 
     const role = await memberService.getCommitteeRole(req.user.id);
-    res.json(role);
-  } else {
-    res.json(false);
+    return res.json(role);
   }
+  res.json(false);
 });
-
 router.get('/reset', rootAuth, async function (req: Request, res: Response) {
   try {
     await memberService.resetAllMemberships();

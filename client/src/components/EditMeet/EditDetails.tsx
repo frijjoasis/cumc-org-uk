@@ -1,348 +1,184 @@
-import React from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Alert from 'react-bootstrap/Alert';
+import { useNavigate } from 'react-router-dom';
+import { Save, MapPin, PoundSterling, Users, AlertTriangle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import { MeetContent } from '@/types/meet';
 
 interface EditDetailsProps {
   content: Partial<MeetContent>;
-  id: string;
+  id?: string;
   pathname: string;
   onSubmit: (id: string) => void;
 }
-interface EditDetailsState {
-  validated: boolean;
-  content: Partial<MeetContent>;
-  err?: string;
-  success?: string;
-}
 
-class EditDetails extends React.Component<EditDetailsProps, EditDetailsState> {
-  constructor(props: EditDetailsProps) {
-    super(props);
-    this.state = {
-      content: this.props.content,
-      validated: false,
-    };
-  }
+const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState<Partial<MeetContent>>(content);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  componentDidUpdate(prevProps) {
-    if (this.props.content !== prevProps.content) {
-      this.setState({
-        content: this.props.content,
-      }); // React only calls the constructor once, and not on re-render.
+  // Sync state when props load (crucial for Edit/Clone mode)
+  useEffect(() => {
+    setFormData(content);
+  }, [content]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // If no ID exists, we are in "New" or "Clone" mode
+      const endpoint = id ? `/api/meets/edit/${id}` : '/api/meets/new';
+      const response = await axios.post(endpoint, formData);
+      
+      if (response.data.success) {
+        onSubmit(response.data.id);
+        // If it's a brand new meet, we might want to move to the ID-specific URL
+        if (!id) navigate(`/committee/meets/edit/${response.data.id}`);
+      }
+    } catch (err) {
+      console.error("Save failed", err);
+    } finally {
+      setIsSubmitting(false);
     }
-  }
+  };
 
-  deleteMeet() {
-    if (this.props.id && this.props.pathname.includes('edit')) {
-      axios.post('/api/meets/delete', { id: this.props.id }).then(res => {
-        if (res.data.err) {
-          this.setState({ err: res.data.err });
-          window.scrollTo(0, 0);
-        } else {
-          window.location.href = `/committee/meets/`;
-        }
-      });
-    }
-  }
+  return (
+    <form onSubmit={handleSave} className="space-y-8 animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Left Column: Basic Info */}
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Meet Title</Label>
+            <Input 
+              id="title" 
+              name="title" 
+              value={formData.title || ''} 
+              onChange={handleInputChange} 
+              placeholder="e.g. Refreshers Meet to North Wales"
+              className="font-bold"
+            />
+          </div>
 
-  handleSubmit(event) {
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      this.setState({ validated: true });
-    } else {
-      const answers = [...form.elements].reduce((acc, cur) => {
-        acc[cur.id] = cur.value;
-        return acc;
-      }, {});
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+              <Input 
+                id="location" 
+                name="location" 
+                value={formData.location || ''} 
+                onChange={handleInputChange} 
+                className="pl-10"
+                placeholder="Hut name or town"
+              />
+            </div>
+          </div>
 
-      answers.startDate = new Date(
-        `${form.elements.startDate.value} ${form.elements.startTime.value}`.replace(
-          '/',
-          '-'
-        )
-        // Browser compatibility
-      );
-      answers.endDate = new Date(
-        `${form.elements.endDate.value} ${form.elements.endTime.value}`.replace(
-          '/',
-          '-'
-        )
-      );
-      // Reconstruct date objects
-      answers.disabled = form.elements.disabled.checked;
-      answers.hidden = form.elements.hidden.checked;
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="startDate">Start Date</Label>
+              <Input 
+                id="startDate" 
+                name="startDate" 
+                type="date" 
+                value={formData.startDate || ''} 
+                onChange={handleInputChange} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="endDate">End Date</Label>
+              <Input 
+                id="endDate" 
+                name="endDate" 
+                type="date" 
+                value={formData.endDate || ''} 
+                onChange={handleInputChange} 
+              />
+            </div>
+          </div>
+        </div>
 
-      answers.id = this.props.pathname.includes('edit') ? this.props.id : null;
-      // Only include a meetID if we want to edit a meet. Otherwise we assume clone/new
-
-      axios.post('/api/meets/edit', answers).then(res => {
-        if (res.data.err) {
-          this.setState({ err: res.data.err });
-          window.scrollTo(0, 0);
-        } else {
-          this.props.onSubmit(res.data); // Pass generated ID to parent component
-          this.setState({
-            success:
-              'Meet details set successfully. If this is a new meet, you should set some questions.',
-          });
-          window.scrollTo(0, 0);
-        }
-      });
-    }
-    event.preventDefault();
-    event.stopPropagation();
-  }
-
-  render() {
-    return (
-      <Form
-        noValidate
-        validated={this.state.validated}
-        onSubmit={this.handleSubmit.bind(this)}
-      >
-        {this.state.err ? (
-          <Alert variant="danger">{this.state.err}</Alert>
-        ) : null}
-        {this.state.success ? (
-          <Alert variant="success">{this.state.success}</Alert>
-        ) : null}
-        <Row>
-          <Col>
-            <Form.Group controlId="title">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Required"
-                defaultValue={this.state.content.title}
-                required
-              />
-              <Form.Text muted>Title of the meet. Max 255 characters</Form.Text>
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="subtitle">
-              <Form.Label>Subtitle</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Required"
-                defaultValue={this.state.content.subtitle}
-                required
-              />
-              <Form.Text muted>
-                Short description, meet tagline. Max 255 characters
-              </Form.Text>
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="desc">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                placeholder="Required"
-                defaultValue={this.state.content.desc}
-                required
-              />
-              <Form.Text muted>Long meet description</Form.Text>
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={4}>
-            <Form.Group controlId="startDate">
-              <Form.Label>Start Date</Form.Label>
-              <Form.Control
-                type="date"
-                defaultValue={this.state.content.startDate}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={2}>
-            <Form.Group controlId="startTime">
-              <Form.Label>Start Time</Form.Label>
-              <Form.Control
-                type="time"
-                defaultValue={this.state.content.startTime}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="endDate">
-              <Form.Label>End Date</Form.Label>
-              <Form.Control
-                type="date"
-                defaultValue={this.state.content.endDate}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={2}>
-            <Form.Group controlId="endTime">
-              <Form.Label>End Time</Form.Label>
-              <Form.Control
-                type="time"
-                defaultValue={this.state.content.endTime}
-                required
-              />
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={8}>
-            <Form.Group controlId="type">
-              <Form.Label>Type</Form.Label>
-              <Form.Control as="select" required>
-                {['Indoor', 'Outdoor', 'Social', 'Other'].map(i => {
-                  return (
-                    <option selected={this.state.content.type === i}>
-                      {i}
-                    </option>
-                  );
-                })}
-              </Form.Control>
-              <Form.Text muted>What type of meet is this?</Form.Text>
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="price">
-              <Form.Label>Price</Form.Label>
-              <InputGroup>
-                <InputGroup.Text>£</InputGroup.Text>
-                <Form.Control
-                  type="text"
-                  placeholder="Required"
-                  defaultValue={this.state.content.price}
-                  required
+        {/* Right Column: Costs & Logistics */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">Price (£)</Label>
+              <div className="relative">
+                <PoundSterling className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                <Input 
+                  id="price" 
+                  name="price" 
+                  type="number" 
+                  value={formData.price || 0} 
+                  onChange={handleInputChange} 
+                  className="pl-10"
                 />
-              </InputGroup>
-              <Form.Text muted>Cost of the meet in GBP</Form.Text>
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col>
-            <Form.Group controlId="signupControl">
-              <Form.Label>Signup Control</Form.Label>
-              <Form.Control as="select" required>
-                {[
-                  'Default - Allow members and meet waivers',
-                  'Members - Allow only paid up members',
-                  "Everyone - Allow anyone with an account (and don't remove waivers)",
-                ].map(i => {
-                  return (
-                    <option
-                      selected={
-                        this.state.content.signupControl === i.split(' ')[0]
-                      }
-                      value={i.split(' ')[0]}
-                    >
-                      {i}
-                    </option>
-                  );
-                })}
-              </Form.Control>
-              <Form.Text muted>
-                Who should be allowed to sign up to this meet?
-              </Form.Text>
-              <Form.Control.Feedback type="invalid">
-                This field is required
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Row>
-        <Row>
-          <Col md={4}>
-            <Form.Group controlId="disabled">
-              <Form.Check
-                type="checkbox"
-                id="disabled"
-                onClick={() =>
-                  this.setState(prevState => ({
-                    content: {
-                      ...prevState.content,
-                      disabled: !prevState.content.disabled,
-                    },
-                  }))
-                }
-                checked={this.state.content.disabled}
-                label="Disable signups?"
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="maxSignups">Capacity</Label>
+              <div className="relative">
+                <Users className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                <Input 
+                  id="maxSignups" 
+                  name="maxSignups" 
+                  type="number" 
+                  value={formData.maxSignups || 0} 
+                  onChange={handleInputChange} 
+                  className="pl-10"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="disabled" 
+                checked={formData.disabled} 
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, disabled: !!checked }))}
               />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            <Form.Group controlId="hidden">
-              <Form.Check
-                type="checkbox"
-                id="hidden"
-                onClick={() =>
-                  this.setState(prevState => ({
-                    content: {
-                      ...prevState.content,
-                      hidden: !prevState.content.hidden,
-                    },
-                  }))
-                }
-                checked={this.state.content.hidden}
-                label="Hide meet from the upcoming menu?"
-              />
-            </Form.Group>
-          </Col>
-        </Row>
-        <br />
-        <br />
-        <Row>
-          <Col md={8}>
-            <Button className='w-100' type="submit">
-              Submit
-            </Button>
-          </Col>
-          <Col md={4}>
-            <Button className='w-100' variant="danger" onClick={this.deleteMeet.bind(this)}>
-              Delete
-            </Button>
-          </Col>
-        </Row>
-      </Form>
-    );
-  }
-}
+              <Label htmlFor="disabled" className="text-rose-600 font-bold">Disable Signups</Label>
+            </div>
+            <p className="text-[11px] text-zinc-400 italic">Check this to temporarily close the form or hide it from the public site.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea 
+          id="description" 
+          name="description" 
+          value={formData.description || ''} 
+          onChange={handleInputChange} 
+          rows={4}
+          placeholder="What's the plan? What gear is needed?"
+        />
+      </div>
+
+      <div className="pt-6 border-t border-zinc-100 flex justify-end">
+        <Button 
+          type="submit" 
+          disabled={isSubmitting}
+          className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[150px] gap-2"
+        >
+          {isSubmitting ? 'Saving...' : <><Save className="h-4 w-4" /> Save Details</>}
+        </Button>
+      </div>
+    </form>
+  );
+};
 
 export default EditDetails;

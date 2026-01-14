@@ -1,72 +1,82 @@
-import React from 'react';
-import Dropdown from 'react-bootstrap/Dropdown';
+import React, { useState } from 'react';
 import axios from 'axios';
+import { Check, X, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface MembershipChangerProps {
-  callback: (error: any, success: any) => void;
+  callback: (error: string | null, success: string | null) => void;
   id: string;
-  default: boolean;
+  default: boolean; // Current paid status
 }
-interface MembershipChangerState {}
 
-class MembershipChanger extends React.Component<
-  MembershipChangerProps,
-  MembershipChangerState
-> {
-  constructor(props: MembershipChangerProps) {
-    super(props);
-    this.state = {
-      default: true,
-      callback: null,
-    };
-  }
+const MembershipChanger = ({ callback, id, default: isPaid }: MembershipChangerProps) => {
+  const [loading, setLoading] = useState(false);
 
-  handleChange() {
-    axios
-      .post('/api/member/update', {
-        id: this.props.id,
-        status: !this.props.default,
-      })
-      .then(res => {
-        if (res.data.err) {
-          this.props.callback(res.data.err, null);
-        } else {
-          this.props.callback(null, 'Successfully updated membership status');
-        }
+  const toggleStatus = async () => {
+    setLoading(true);
+    try {
+      const res = await axios.post('/api/member/update', {
+        id: id,
+        status: !isPaid,
       });
-  }
 
-  render() {
-    return (
-      <Dropdown>
-        <Dropdown.Toggle id="membership-status">
-          {this.props.default ? (
-            <div className="text-success" style={{ display: 'inline-flex' }}>
-              Yes
-            </div>
-          ) : (
-            <div className="text-danger" style={{ display: 'inline-flex' }}>
-              No
-            </div>
-          )}
-        </Dropdown.Toggle>
+      if (res.data.err) {
+        callback(res.data.err, null);
+      } else {
+        callback(null, `Membership for user ${id} updated to ${!isPaid ? 'Paid' : 'Unpaid'}`);
+      }
+    } catch (err) {
+      callback('Network error: Failed to update status', null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        <Dropdown.Menu>
-          <Dropdown.Item onClick={this.handleChange.bind(this)}>
-            {!this.props.default ? (
-              <div className="text-success" style={{ display: 'inline-flex' }}>
-                Yes
-              </div>
+  return (
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleStatus}
+            disabled={loading}
+            className={`
+              w-24 px-2 justify-between font-bold uppercase tracking-tighter transition-all
+              ${isPaid 
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100 hover:text-emerald-800' 
+                : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 hover:text-rose-800'
+              }
+            `}
+          >
+            {loading ? (
+              <Loader2 className="h-3 w-3 animate-spin mx-auto" />
             ) : (
-              <div className="text-danger" style={{ display: 'inline-flex' }}>
-                No
-              </div>
+              <>
+                <span className="text-[10px]">{isPaid ? 'PAID' : 'UNPAID'}</span>
+                {isPaid ? (
+                  <Check className="h-3 w-3 text-emerald-500" />
+                ) : (
+                  <X className="h-3 w-3 text-rose-500" />
+                )}
+              </>
             )}
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-    );
-  }
-}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="left">
+          <p className="text-[10px] font-bold uppercase tracking-widest">
+            Click to mark as {isPaid ? 'Unpaid' : 'Paid'}
+          </p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
 
 export default MembershipChanger;

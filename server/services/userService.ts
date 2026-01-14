@@ -42,14 +42,17 @@ class UserService {
   }
 
   async isProfileIncomplete(id: number): Promise<boolean> {
-    const user = await this.getById(id);
-    if (!user) return true;
+  // If it's the Dev Admin, the profile is never "incomplete"
+  if (id === 999999999 && process.env.NODE_ENV === 'development') return false;
 
-    return !required.every(field => {
-      const value = user[field as keyof User];
-      return value !== null && value !== undefined && value !== '';
-    });
-  }
+  const user = await this.getById(id);
+  if (!user) return true;
+
+  return !required.every(field => {
+    const value = user[field as keyof User];
+    return value !== null && value !== undefined && value !== '';
+  });
+}
 
   async getRequiredFields(): Promise<string[]> {
     return required;

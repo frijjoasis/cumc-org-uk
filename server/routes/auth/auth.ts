@@ -89,11 +89,15 @@ if (process.env.NODE_ENV === 'development') {
       }
 
       console.log('🔓 DEV MODE: Logged in as development admin');
-      res.json({
-        success: true,
-        message: 'Logged in as development admin',
-        user: req.user,
-      });
+      if (req.xhr || req.headers.accept.indexOf('json') > -1) {
+        return res.json({
+          success: true,
+          message: 'Logged in as development admin',
+          user: req.user,
+        });
+      } else {
+        return res.redirect('/'); 
+      }
     });
   });
 

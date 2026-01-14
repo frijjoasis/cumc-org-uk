@@ -1,19 +1,35 @@
-import React, { Component } from 'react';
-import {
-  Container,
-  Row,
-  Col,
-  Card,
-  Table,
-  Button,
-  Modal,
-  Form,
-  Alert,
-  Badge,
-} from 'react-bootstrap';
+import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
+import { 
+  ShieldCheck, 
+  Plus, 
+  Mail, 
+  Settings2, 
+  ChevronDown, 
+  AlertTriangle,
+  Users,
+  EyeOff,
+  Edit3
+} from 'lucide-react';
+
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter 
+} from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CommitteeRole } from '@/types/models';
 
+// Interface definitions from your provided types
 interface RoleStatusInfo {
   id: number;
   current_members: number;
@@ -21,43 +37,56 @@ interface RoleStatusInfo {
   is_full: boolean;
 }
 
-interface AlertInfo {
-  message: string;
-  variant: string;
-}
+const RolesManager = () => {
+  const [roles, setRoles] = useState<CommitteeRole[]>([]);
+  const [rolesStatus, setRolesStatus] = useState<RoleStatusInfo[]>([]);
+  const [showDialog, setShowDialog] = useState(false);
+  const [editingRole, setEditingRole] = useState<CommitteeRole | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{ message: string, variant: 'default' | 'destructive' } | null>(null);
 
-interface RoleFormData {
-  role_name: string;
-  role_slug: string;
-  description: string;
-  email_alias: string;
-  is_required: boolean;
-  max_positions: number;
-  sort_order: number;
-  is_active: boolean;
-}
+  const [formData, setFormData] = useState({
+    role_name: '',
+    role_slug: '',
+    description: '',
+    email_alias: '',
+    is_required: false,
+    max_positions: 1,
+    sort_order: 0,
+    is_active: true,
+  });
 
-interface RolesManagerProps {}
+  const fetchData = useCallback(async () => {
+    try {
+      const [rolesRes, statusRes] = await Promise.all([
+        axios.get('/api/committee/roles'),
+        axios.get('/api/committee/roles/status')
+      ]);
+      setRoles(rolesRes.data);
+      setRolesStatus(statusRes.data);
+    } catch (error) {
+      setAlert({ message: 'Failed to sync role data', variant: 'destructive' });
+    }
+  }, []);
 
-interface RolesManagerState {
-  roles: CommitteeRole[];
-  rolesStatus: RoleStatusInfo[];
-  showModal: boolean;
-  editingRole: CommitteeRole | null;
-  formData: RoleFormData;
-  alert: AlertInfo | null;
-  loading: boolean;
-}
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-class RolesManager extends Component<RolesManagerProps, RolesManagerState> {
-  constructor(props: RolesManagerProps) {
-    super(props);
-    this.state = {
-      roles: [],
-      rolesStatus: [],
-      showModal: false,
-      editingRole: null,
-      formData: {
+  const handleOpenDialog = (role: CommitteeRole | null = null) => {
+    if (role) {
+      setEditingRole(role);
+      setFormData({
+        role_name: role.role_name,
+        role_slug: role.role_slug,
+        description: role.description || '',
+        email_alias: role.email_alias || '',
+        is_required: role.is_required || false,
+        max_positions: role.max_positions || 1,
+        sort_order: role.sort_order || 0,
+        is_active: role.is_active !== false,
+      });
+    } else {
+      setEditingRole(null);
+      setFormData({
         role_name: '',
         role_slug: '',
         description: '',
@@ -66,455 +95,203 @@ class RolesManager extends Component<RolesManagerProps, RolesManagerState> {
         max_positions: 1,
         sort_order: 0,
         is_active: true,
-      },
-      alert: null,
-      loading: false,
-    };
-  }
-
-  componentDidMount() {
-    this.fetchRoles();
-    this.fetchRolesStatus();
-  }
-
-  fetchRoles = async () => {
-    try {
-      const response = await axios.get('/api/committee/roles');
-      this.setState({ roles: response.data });
-    } catch (error) {
-      console.error('Error fetching roles:', error);
-      this.showAlert('Error fetching roles data', 'danger');
-    }
-  };
-
-  fetchRolesStatus = async () => {
-    try {
-      const response = await axios.get('/api/committee/roles/status');
-      this.setState({ rolesStatus: response.data });
-    } catch (error) {
-      console.error('Error fetching roles status:', error);
-      this.showAlert('Error fetching roles status', 'danger');
-    }
-  };
-
-  showAlert = (message: string, variant: string = 'info') => {
-    this.setState({ alert: { message, variant } });
-    setTimeout(() => this.setState({ alert: null }), 5000);
-  };
-
-  handleShowModal = (role: CommitteeRole | null = null) => {
-    if (role) {
-      this.setState({
-        editingRole: role,
-        formData: {
-          role_name: role.role_name,
-          role_slug: role.role_slug,
-          description: role.description || '',
-          email_alias: role.email_alias || '',
-          is_required: role.is_required || false,
-          max_positions: role.max_positions || 1,
-          sort_order: role.sort_order || 0,
-          is_active: role.is_active !== false,
-        },
-        showModal: true,
-      });
-    } else {
-      this.setState({
-        editingRole: null,
-        formData: {
-          role_name: '',
-          role_slug: '',
-          description: '',
-          email_alias: '',
-          is_required: false,
-          max_positions: 1,
-          sort_order: 0,
-          is_active: true,
-        },
-        showModal: true,
       });
     }
+    setShowDialog(true);
   };
 
-  handleCloseModal = () => {
-    this.setState({ showModal: false, editingRole: null });
-  };
-
-  handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const target = e.target as HTMLInputElement;
-    const { name, value, type, checked } = target;
-    let processedValue = value;
-
-    // Auto-generate slug from role name
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    
     if (name === 'role_name') {
-      const slug = value
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
-      this.setState({
-        formData: {
-          ...this.state.formData,
-          role_name: value,
-          role_slug: slug,
-        },
-      });
-      return;
+      const slug = value.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim();
+      setFormData(prev => ({ ...prev, role_name: value, role_slug: slug }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
-
-    // Convert numeric fields
-    let finalValue: string | number | boolean = processedValue;
-    if (name === 'max_positions' || name === 'sort_order') {
-      finalValue = parseInt(value) || 0;
-    } else if (type === 'checkbox') {
-      finalValue = checked;
-    }
-
-    this.setState({
-      formData: {
-        ...this.state.formData,
-        [name]: finalValue,
-      },
-    });
   };
 
-  handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    this.setState({ loading: true });
-
+    setLoading(true);
     try {
-      if (this.state.editingRole) {
-        await axios.put(
-          `/api/committee/roles/${this.state.editingRole.id}`,
-          this.state.formData
-        );
-        this.showAlert('Role updated successfully', 'success');
+      if (editingRole) {
+        await axios.put(`/api/committee/roles/${editingRole.id}`, formData);
       } else {
-        await axios.post('/api/committee/roles', this.state.formData);
-        this.showAlert('Role created successfully', 'success');
+        await axios.post('/api/committee/roles', formData);
       }
-
-      this.handleCloseModal();
-      this.fetchRoles();
-      this.fetchRolesStatus();
-    } catch (error) {
-      console.error('Error saving role:', error);
-      const message = error.response?.data?.error || 'Error saving role';
-      this.showAlert(message, 'danger');
+      setShowDialog(false);
+      fetchData();
+      setAlert({ message: 'Database updated successfully', variant: 'default' });
+      setTimeout(() => setAlert(null), 3000);
+    } catch (err) {
+      setAlert({ message: 'Error saving changes', variant: 'destructive' });
     } finally {
-      this.setState({ loading: false });
+      setLoading(false);
     }
   };
 
-  handleDeactivate = async (id: number) => {
-    if (
-      !window.confirm(
-        'Are you sure you want to deactivate this role? This will hide it from future use but preserve historical data.'
-      )
-    ) {
-      return;
-    }
-
-    try {
-      await axios.delete(`/api/committee/roles/${id}`);
-      this.showAlert('Role deactivated successfully', 'success');
-      this.fetchRoles();
-      this.fetchRolesStatus();
-    } catch (error) {
-      console.error('Error deactivating role:', error);
-      const message = error.response?.data?.error || 'Error deactivating role';
-      this.showAlert(message, 'danger');
-    }
-  };
-
-  getRoleStatusBadge = (role: CommitteeRole): JSX.Element[] | null => {
-    const statusRole = this.state.rolesStatus.find(sr => sr.id === role.id);
-    if (!statusRole) return null;
-
-    const badges: JSX.Element[] = [];
-
-    if (role.is_required && statusRole.needs_filling) {
-      badges.push(
-        <Badge key="needs-filling" bg="danger" className="me-1">
-          Needs Filling
-        </Badge>
-      );
-    }
-
-    if (statusRole.is_full) {
-      badges.push(
-        <Badge key="full" bg="success" className="me-1">
-          Full
-        </Badge>
-      );
-    }
-
-    if (role.is_required) {
-      badges.push(
-        <Badge key="required" bg="primary" className="me-1">
-          Required
-        </Badge>
-      );
-    }
-
-    if (!role.is_active) {
-      badges.push(
-        <Badge key="inactive" bg="secondary" className="me-1">
-          Inactive
-        </Badge>
-      );
-    }
-
-    return badges;
-  };
-
-  render() {
-    const { roles, showModal, formData, alert, loading } = this.state;
-
-    return (
-      <div className="content">
-        <Container>
-          {alert && (
-            <Alert
-              variant={alert.variant}
-              dismissible
-              onClose={() => this.setState({ alert: null })}
-            >
-              {alert.message}
-            </Alert>
-          )}
-
-          <Row>
-            <Col md={12}>
-              <Card>
-                <Card.Header>
-                  <div className="d-flex justify-content-between align-items-center">
-                    <h4>Committee Roles Management</h4>
-                    <Button
-                      variant="primary"
-                      onClick={() => this.handleShowModal()}
-                    >
-                      Add New Role
-                    </Button>
-                  </div>
-                </Card.Header>
-                <Card.Body>
-                  <Table striped bordered hover responsive>
-                    <thead>
-                      <tr>
-                        <th>Role Name</th>
-                        <th>Email Alias</th>
-                        <th>Status</th>
-                        <th>Members</th>
-                        <th>Max Positions</th>
-                        <th>Sort Order</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {roles.map(role => {
-                        const statusRole = this.state.rolesStatus.find(
-                          sr => sr.id === role.id
-                        );
-                        return (
-                          <tr
-                            key={role.id}
-                            className={!role.is_active ? 'table-secondary' : ''}
-                          >
-                            <td>
-                              <strong>{role.role_name}</strong>
-                              {role.description && (
-                                <div className="text-muted small">
-                                  {role.description}
-                                </div>
-                              )}
-                            </td>
-                            <td>{role.email_alias || 'N/A'}</td>
-                            <td>{this.getRoleStatusBadge(role)}</td>
-                            <td>
-                              {statusRole ? statusRole.current_members : 0}
-                            </td>
-                            <td>{role.max_positions}</td>
-                            <td>{role.sort_order}</td>
-                            <td>
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                onClick={() => this.handleShowModal(role)}
-                                className="me-2"
-                              >
-                                Edit
-                              </Button>
-                              {role.is_active && (
-                                <Button
-                                  variant="outline-danger"
-                                  size="sm"
-                                  onClick={() => this.handleDeactivate(role.id)}
-                                >
-                                  Deactivate
-                                </Button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </Table>
-
-                  {roles.length === 0 && (
-                    <div className="text-center py-4">
-                      <p>
-                        No committee roles found. Add some roles to get started!
-                      </p>
-                    </div>
-                  )}
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
-          <Modal show={showModal} onHide={this.handleCloseModal} size="lg">
-            <Modal.Header closeButton>
-              <Modal.Title>
-                {this.state.editingRole
-                  ? 'Edit Committee Role'
-                  : 'Add Committee Role'}
-              </Modal.Title>
-            </Modal.Header>
-            <Form onSubmit={this.handleSubmit}>
-              <Modal.Body>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Role Name *</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="role_name"
-                        value={formData.role_name}
-                        onChange={this.handleInputChange}
-                        placeholder="e.g., President, Secretary"
-                        required
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Role Slug</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="role_slug"
-                        value={formData.role_slug}
-                        onChange={this.handleInputChange}
-                        placeholder="e.g., president, secretary"
-                      />
-                      <Form.Text className="text-muted">
-                        Auto-generated from role name. Used for URLs and
-                        internal references.
-                      </Form.Text>
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Form.Group className="mb-3">
-                  <Form.Label>Description</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={3}
-                    name="description"
-                    value={formData.description}
-                    onChange={this.handleInputChange}
-                    placeholder="Brief description of the role responsibilities"
-                  />
-                </Form.Group>
-
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Email Alias</Form.Label>
-                      <Form.Control
-                        type="email"
-                        name="email_alias"
-                        value={formData.email_alias}
-                        onChange={this.handleInputChange}
-                        placeholder="e.g., president@cumc.org.uk"
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Max Positions</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="max_positions"
-                        value={formData.max_positions}
-                        onChange={this.handleInputChange}
-                        min="1"
-                        max="10"
-                      />
-                      <Form.Text className="text-muted">
-                        How many people can hold this role
-                      </Form.Text>
-                    </Form.Group>
-                  </Col>
-                  <Col md={3}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Sort Order</Form.Label>
-                      <Form.Control
-                        type="number"
-                        name="sort_order"
-                        value={formData.sort_order}
-                        onChange={this.handleInputChange}
-                        min="0"
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-
-                <Row>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="checkbox"
-                        name="is_required"
-                        checked={formData.is_required}
-                        onChange={this.handleInputChange}
-                        label="Required role (must be filled each year)"
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Check
-                        type="checkbox"
-                        name="is_active"
-                        checked={formData.is_active}
-                        onChange={this.handleInputChange}
-                        label="Active role"
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={this.handleCloseModal}>
-                  Cancel
-                </Button>
-                <Button variant="primary" type="submit" disabled={loading}>
-                  {loading
-                    ? 'Saving...'
-                    : this.state.editingRole
-                      ? 'Update Role'
-                      : 'Create Role'}
-                </Button>
-              </Modal.Footer>
-            </Form>
-          </Modal>
-        </Container>
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-black uppercase italic tracking-tighter text-zinc-900 flex items-center gap-2">
+            <ShieldCheck className="h-8 w-8 text-primary" />
+            Roles & Governance
+          </h2>
+          <p className="text-zinc-500 font-medium">Define committee positions and institutional structure.</p>
+        </div>
+        <Button onClick={() => handleOpenDialog()} className="gap-2 bg-zinc-900">
+          <Plus className="h-4 w-4" /> Add Role
+        </Button>
       </div>
-    );
-  }
-}
+
+      {alert && (
+        <Alert variant={alert.variant === 'destructive' ? 'destructive' : 'default'} className="animate-in fade-in slide-in-from-top-2">
+          <AlertDescription className="font-bold uppercase tracking-tight italic">
+            {alert.message}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Card className="border-zinc-200 shadow-sm overflow-hidden">
+        <CardHeader className="bg-zinc-50/50 border-b border-zinc-100">
+          <CardTitle className="text-sm font-black uppercase tracking-widest text-zinc-400">Current Structure</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-zinc-50/30 border-b border-zinc-100">
+                <tr className="text-[10px] uppercase font-black text-zinc-500 tracking-widest">
+                  <th className="px-6 py-4 text-left">Role Definition</th>
+                  <th className="px-6 py-4 text-left">Email Alias</th>
+                  <th className="px-6 py-4 text-center">Staffing</th>
+                  <th className="px-6 py-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-100">
+                {roles.sort((a,b) => a.sort_order - b.sort_order).map(role => {
+                  const status = rolesStatus.find(s => s.id === role.id);
+                  return (
+                    <tr key={role.id} className={`group hover:bg-zinc-50/50 transition-colors ${!role.is_active ? 'opacity-50 grayscale' : ''}`}>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col">
+                          <span className="font-black uppercase italic text-zinc-900 flex items-center gap-2">
+                            {role.role_name}
+                            {role.is_required && <Badge variant="secondary" className="text-[9px] bg-primary/10 text-primary border-none uppercase">Required</Badge>}
+                          </span>
+                          <span className="text-xs text-zinc-500 max-w-xs truncate">{role.description}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {role.email_alias ? (
+                          <div className="flex items-center gap-2 text-zinc-600 font-medium">
+                            <Mail className="h-3 w-3 text-zinc-400" />
+                            {role.email_alias}
+                          </div>
+                        ) : <span className="text-zinc-300 italic">No alias</span>}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-col items-center gap-1">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-3 w-3 text-zinc-400" />
+                            <span className="font-bold">{status?.current_members || 0} / {role.max_positions}</span>
+                          </div>
+                          {status?.needs_filling && role.is_active && (
+                            <Badge className="bg-rose-50 text-rose-600 border-rose-100 shadow-none text-[9px] uppercase">Vacant</Badge>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(role)} className="h-8 w-8 hover:bg-white hover:shadow-sm border border-transparent hover:border-zinc-200">
+                            <Edit3 className="h-3.5 w-3.5" />
+                          </Button>
+                          {role.is_active && (
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-400 hover:text-rose-600">
+                              <EyeOff className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Dialog open={showDialog} onOpenChange={setShowDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase italic italic tracking-tight">
+              {editingRole ? 'Update Role' : 'Create New Position'}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <form onSubmit={handleSubmit} className="space-y-6 pt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Role Name</Label>
+                <Input name="role_name" value={formData.role_name} onChange={handleInputChange} required placeholder="e.g. Secretary" />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-zinc-400">Slug (Auto)</Label>
+                <Input value={formData.role_slug} readOnly className="bg-zinc-50 text-zinc-400" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="What does this person do?" />
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Email Alias</Label>
+                <Input name="email_alias" value={formData.email_alias} onChange={handleInputChange} type="email" />
+              </div>
+              <div className="space-y-2">
+                <Label>Max Positions</Label>
+                <Input name="max_positions" type="number" value={formData.max_positions} onChange={handleInputChange} min={1} />
+              </div>
+              <div className="space-y-2">
+                <Label>Sort Order</Label>
+                <Input name="sort_order" type="number" value={formData.sort_order} onChange={handleInputChange} />
+              </div>
+            </div>
+
+            <div className="flex gap-6 p-4 bg-zinc-50 rounded-lg border border-zinc-100">
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="is_required" 
+                  checked={formData.is_required} 
+                  onCheckedChange={(checked) => setFormData(p => ({ ...p, is_required: !!checked }))} 
+                />
+                <Label htmlFor="is_required" className="text-xs font-bold uppercase cursor-pointer">Required Position</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Checkbox 
+                  id="is_active" 
+                  checked={formData.is_active} 
+                  onCheckedChange={(checked) => setFormData(p => ({ ...p, is_active: !!checked }))} 
+                />
+                <Label htmlFor="is_active" className="text-xs font-bold uppercase cursor-pointer">Active</Label>
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="submit" disabled={loading} className="w-full bg-zinc-900 uppercase font-black italic tracking-widest">
+                {loading ? 'Processing...' : editingRole ? 'Save Changes' : 'Launch Role'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+};
 
 export default RolesManager;

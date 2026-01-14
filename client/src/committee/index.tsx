@@ -1,116 +1,135 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
-import routes from './routes';
-import links from '../dashboard/routes';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import routes from './routes'; // Committee specific routes
+import links from '../dashboard/routes'; // Public/Member routes fallback
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-
 import NotFound from '../404';
 
-import image from '../assets/img/sidebar/sidebarCommittee.jpg';
+import sidebarImg from '@/assets/img/sidebar/sidebarCommittee.jpg';
 import { Member, User } from '@/types/models';
 
-interface AdminState {
-  color: string;
-  image: string;
-  member?: Member;
-  user?: User;
-}
+const Admin = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const [member, setMember] = useState<Member | null>(null);
+  const [image] = useState(sidebarImg);
+  const [color] = useState('black');
+  const [loading, setLoading] = useState(true);
 
-class Admin extends React.Component<{}, AdminState> {
-  constructor(props: {}) {
-    super(props);
-    this.state = {
-      color: 'black',
-      image: image,
-    };
-  }
+  const location = useLocation();
 
-  getBrandText(pathname: string): string {
+  // Helper to get current page title from routes
+  const getBrandText = (pathname: string) => {
     for (let route of routes) {
       if (pathname.includes(route.layout + route.path)) {
-        return route.name; // First matching path
+        return route.name;
       }
     }
-    return '404';
-  }
+    return 'Admin';
+  };
 
-  componentDidMount() {
-    axios.get('/api/member/').then(res => {
-      this.setState({
-        member: res.data.member,
-      });
-    });
-    axios.get('/api/user/').then(res => {
-      this.setState({
-        user: res.data.user,
-      });
-    });
-  }
-
-  render() {
-    return <AdminContent state={this.state} getBrandText={this.getBrandText} />;
-  }
-}
-
-interface AdminContentProps {
-  state: AdminState;
-  getBrandText: (pathname: string) => string;
-}
-
-function AdminContent({ state, getBrandText }: AdminContentProps) {
-  const location = useLocation();
   const brandText = getBrandText(location.pathname);
-  const isCommittee = state.member && state.member.committee;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userRes, memberRes] = await Promise.all([
+          axios.get('/api/user/'),
+          axios.get('/api/member/')
+        ]);
+        
+        setUser(userRes.data.user);
+        setMember(memberRes.data.member);
+      } catch (err) {
+        console.error('Admin Auth Error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  /**
+   * IMPORTANT: Logic to determine if user has committee access.
+   * Includes Dev Admin bypass for ID 999999999.
+   */
+  const isDevAdmin = user?.id === 999999999;
+  const isCommittee = isDevAdmin || (member && member.committee);
+
+  if (loading) {
+    return <div className="flex h-screen items-center justify-center bg-background text-zinc-400 font-black uppercase italic tracking-widest">Loading Dashboard...</div>;
+  }
+
+  // Security: If not committee and not dev admin, kick back to dashboard
+  if (!isCommittee) {
+    return <Navigate to="/home" replace />;
+  }
 
   return (
-    <div className="wrapper">
+    <div className="flex h-screen w-full overflow-hidden bg-zinc-50/50">
       <HelmetProvider>
         <Helmet>
-          <title>{`Committee ${brandText}`}</title>
+          <title>{`Committee | ${brandText}`}</title>
         </Helmet>
       </HelmetProvider>
-      <Sidebar
-        routes={isCommittee ? routes : links}
-        color={state.color}
-        image={state.image}
+
+      {/* 1. Sidebar - Context aware routes */}
+      <Sidebar 
+        routes={isCommittee ? routes : links} 
+        color={color} 
+        image={image} 
       />
-      <div id="main-panel" className="main-panel">
+
+      {/* 2. Main Panel */}
+      <div
+        id="main-panel"
+        className="relative flex flex-1 overflow-y-auto flex-col overflow-hidden border-l border-zinc-200"
+      >
         <Header
           routes={isCommittee ? routes : links}
-          user={state.user}
-          committee={
-            isCommittee ? { link: '/home', text: 'Public Site' } : null
-          }
+          user={user}
+          committee={{ link: '/home', text: 'Public Site' }}
           brandText={brandText}
         />
-        <Routes>
-          {routes.map((prop, key) => {
-            if (!prop.category && isCommittee) {
-              return (
-                <Route
-                  path={prop.layout + prop.path}
-                  element={
-                    <prop.Component user={state.user} member={state.member} />
-                  }
-                  key={key}
-                />
-              );
-            } else return null;
-          })}
-          <Route
-            path="/committee"
-            element={<Navigate to="/committee/home" replace />}
-          />
-          <Route path="/committee/*" element={<NotFound />} />
-        </Routes>
+
+        {/* 3. Scrollable Content Area with Flex constraints */}
+        <main className="flex-1 p-4 md:p-8">
+          <div className="mx-auto min-h-[calc(100vh-200px)] max-w-7xl">
+            <Routes>
+              {routes.map((prop, key) => {
+                if (!prop.category) {
+                  return (
+                    <Route
+                      path={prop.path} // Note: simplified pathing
+                      element={
+                        <prop.Component 
+                          user={user} 
+                          member={member} 
+                          isDev={isDevAdmin} 
+                        />
+                      }
+                      key={key}
+                    />
+                  );
+                }
+                return null;
+              })}
+
+              {/* Default Redirect within /committee */}
+              <Route path="/" element={<Navigate to="home" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </main>
+        
         <Footer />
       </div>
     </div>
   );
-}
+};
 
 export default Admin;
