@@ -45,19 +45,10 @@ router.get('/status', async (req: Request, res: Response) => {
 
 router.get('/past', async (req: Request, res: Response) => {
   try {
-    const past = await committeeService.getPast();
-
-    const exposedData = {};
-
-    past.forEach((data, year) => {
-      console.log(data[0].person_name);
-      exposedData[year] = data.map(committeeService.getExposedModel);
-    });
-
+    const exposedData = await committeeService.getPastExposed();
     res.json(exposedData);
   } catch (error) {
     console.error('Error fetching past committees:', error);
-    // Fallback handled in service
     res.status(500).json({ error: 'Failed to fetch past committees' });
   }
 });

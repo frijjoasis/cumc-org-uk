@@ -31,14 +31,15 @@ interface RoleCreateData {
 
 interface PublicCommitteeModel {
   person_name: string;
-  test: string;
+  role: string;
+  image_url?: string;
 }
 
 class CommitteeService {
   async getExposedModel(cm: CommitteeModel): Promise<PublicCommitteeModel> {
     return {
-      person_name: cm.person_name,
-      test: 'asd',
+      person_name: cm.person_name || 'Unknown Member',
+      role: cm.committeeRole?.role_name || cm.role || 'Member',
     };
   }
 
@@ -117,6 +118,18 @@ class CommitteeService {
     });
 
     return this.groupCommitteesByYear(committees);
+  }
+
+  async getPastExposed(): Promise<Record<string, PublicCommitteeModel[]>> {
+    const pastMap: Map<string, CommitteeModel[]> = await this.getPast();
+    const result: Record<string, PublicCommitteeModel[]> = {};
+
+    for (const [year, members] of pastMap.entries()) {
+      result[year] = await Promise.all(
+        members.map(m => this.getExposedModel(m))
+      );
+    }
+    return result;
   }
 
   private groupCommitteesByYear(

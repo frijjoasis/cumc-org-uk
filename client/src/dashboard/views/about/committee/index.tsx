@@ -17,18 +17,23 @@ import {
 } from '@/components/ui/table';
 import UserCard from '@/components/UserCard/UserCard';
 
-// Assets
 import img from '@/assets/img/committee-1.jpg';
 import defaultProfile from '@/assets/img/committee/gear.jpg';
 import defaultCover from '@/assets/img/committee/gearCover.jpg';
 
-// Types
 import { CommitteePersonData } from '@/types/committee';
 import { Committee } from '@/types/models';
 
+interface PastCommitteeData {
+  [year: string]: {
+    person_name: string;
+    role: string;
+  }[];
+}
+
 const CommitteeAbout = () => {
   const [currentCommittee, setCurrentCommittee] = useState<Committee[]>([]);
-  const [pastCommittees, setPastCommittees] = useState({ head: [], body: [] });
+  const [pastCommittees, setPastCommittees] = useState<PastCommitteeData>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,6 +64,8 @@ const CommitteeAbout = () => {
     );
   }
 
+  const years = Object.keys(pastCommittees).sort((a, b) => b.localeCompare(a));
+
   return (
     <div className="space-y-10 pb-12 px-2 md:px-0 max-w-7xl mx-auto">
       {/* Current Committee Section */}
@@ -84,7 +91,9 @@ const CommitteeAbout = () => {
                 name: member.person_name,
                 social:
                   member.person_email ||
-                  `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`,
+                  (member.role
+                    ? `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`
+                    : undefined),
                 profile: defaultProfile,
                 cover: defaultCover,
               };
@@ -106,61 +115,48 @@ const CommitteeAbout = () => {
         </CardHeader>
 
         <CardContent className="p-0">
-          {/* Desktop Table: Hidden on mobile */}
-          <div className="hidden md:block overflow-x-auto">
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-zinc-50">
                 <TableRow>
-                  {pastCommittees.head.map((prop, key) => (
-                    <TableHead
-                      key={key}
-                      className="font-bold text-zinc-900 uppercase text-[10px] tracking-widest py-4"
-                    >
-                      {prop}
-                    </TableHead>
-                  ))}
+                  <TableHead className="font-bold text-zinc-900 uppercase text-[10px] tracking-widest py-4 w-32 pl-6">
+                    Year
+                  </TableHead>
+                  <TableHead className="font-bold text-zinc-900 uppercase text-[10px] tracking-widest py-4">
+                    Committee Members
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pastCommittees.body.map((row, rowIndex) => (
-                  <TableRow key={rowIndex} className="hover:bg-zinc-50/50">
-                    {row.map((cell, cellIndex) => (
-                      <TableCell
-                        key={cellIndex}
-                        className="text-[11px] font-medium text-zinc-700 py-3 whitespace-nowrap"
-                      >
-                        {cell}
-                      </TableCell>
-                    ))}
+                {years.map(year => (
+                  <TableRow
+                    key={year}
+                    className="hover:bg-zinc-50/50 align-top"
+                  >
+                    <TableCell className="text-xs font-black text-primary py-4 pl-6">
+                      {year}
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-2">
+                        {pastCommittees[year].map((member, idx) => (
+                          <div
+                            key={idx}
+                            className="flex flex-col border-l-2 border-zinc-100 pl-3"
+                          >
+                            <span className="text-[10px] uppercase font-bold text-zinc-400 leading-tight">
+                              {member.role}
+                            </span>
+                            <span className="text-sm font-medium text-zinc-800">
+                              {member.person_name}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          </div>
-
-          {/* Mobile "Cards" View: Hidden on desktop */}
-          <div className="md:hidden divide-y divide-zinc-100">
-            {pastCommittees.body.map((row, rowIndex) => (
-              <div key={rowIndex} className="p-4 bg-white space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-black text-primary bg-primary/5 px-2 py-1 rounded">
-                    {row[0]} {/* Year */}
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-1 text-[13px]">
-                  {pastCommittees.head.slice(1).map((title, titleIndex) => (
-                    <div key={titleIndex} className="flex gap-2">
-                      <span className="font-bold text-zinc-900 w-24 shrink-0 uppercase text-[10px] self-center">
-                        {title}:
-                      </span>
-                      <span className="text-zinc-600">
-                        {row[titleIndex + 1] || '—'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
           </div>
         </CardContent>
       </Card>

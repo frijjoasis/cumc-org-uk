@@ -1,34 +1,59 @@
 import React from 'react';
-import Container from "react-bootstrap/Container";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Card from "react-bootstrap/Card";
-import Image from "react-bootstrap/Image";
+import { Card, CardFooter, CardContent } from '@/components/ui/card';
+import { indoorMeets } from './text';
+import AboutCard from '@/components/AboutCard/AboutCard';
 
-import img from "../../../../assets/img/indoor-1.jpg";
+// Assets
+import img from '@/assets/img/indoor-1.jpg';
 
-import {indoorMeets} from "./text";
-import AboutCard from "../../../../components/AboutCard/AboutCard";
+const IndoorMeets = () => {
+  return (
+    <div className="space-y-10 pb-16 max-w-5xl mx-auto px-4 md:px-0">
+      {/* Main Content Card */}
+      <AboutCard
+        title="Indoor Meets"
+        text={
+          <div className="space-y-4 legacy-text-render">
+            {indoorMeets.map((element, index) => (
+              <React.Fragment key={index}>{element}</React.Fragment>
+            ))}
+          </div>
+        }
+        button={{
+          to: '/meets/upcoming',
+          text: 'View Meets',
+        }}
+      />
 
-class IndoorMeets extends React.Component {
-    render() {
-        return (
-            <div className="content">
-                <Container>
-                    <AboutCard title="Indoor Meets" text={indoorMeets}
-                              button={{to: "/meets/upcoming", text: "View Meets"}} />
-                    <Row className="justify-content-center">
-                        <Col md={8}>
-                            <Card>
-                                <Image src={img} fluid />
-                                <Card.Footer className="text-center text-muted">Hugo stares down an auto-belay</Card.Footer>
-                            </Card>
-                        </Col>
-                    </Row>
-                </Container>
-            </div>
-        )
-    }
-}
+      {/* Featured Image */}
+      <div className="flex justify-center">
+        <Card className="w-full md:w-10/12 overflow-hidden border-none shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
+          <img
+            src={img}
+            alt="Hugo on an auto-belay"
+            className="w-full h-64 md:h-[500px] object-cover"
+          />
+          <CardFooter className="bg-zinc-900 text-white py-4 text-center justify-center text-xs font-black uppercase tracking-widest italic">
+            Hugo stares down an auto-belay
+          </CardFooter>
+        </Card>
+      </div>
+
+      {/* CSS Reset for the text array */}
+      <style>{`
+        .legacy-text-render p {
+          color: #52525b; /* zinc-600 */
+          line-height: 1.75;
+          font-weight: 500;
+        }
+        .legacy-text-render br {
+          display: block;
+          margin-top: 1rem;
+          content: "";
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export default IndoorMeets;
