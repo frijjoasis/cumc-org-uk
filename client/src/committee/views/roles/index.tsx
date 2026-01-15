@@ -1,35 +1,23 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { 
-  ShieldCheck, 
-  Plus, 
-  Mail, 
-  Settings2, 
-  ChevronDown, 
-  AlertTriangle,
-  Users,
-  EyeOff,
-  Edit3
-} from 'lucide-react';
-
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { ShieldCheck, Plus, Mail, Users, EyeOff, Edit3 } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CommitteeRole } from '@/types/models';
 
-// Interface definitions from your provided types
 interface RoleStatusInfo {
   id: number;
   current_members: number;
@@ -43,7 +31,10 @@ const RolesManager = () => {
   const [showDialog, setShowDialog] = useState(false);
   const [editingRole, setEditingRole] = useState<CommitteeRole | null>(null);
   const [loading, setLoading] = useState(false);
-  const [alert, setAlert] = useState<{ message: string, variant: 'default' | 'destructive' } | null>(null);
+  const [alert, setAlert] = useState<{
+    message: string;
+    variant: 'default' | 'destructive';
+  } | null>(null);
 
   const [formData, setFormData] = useState({
     role_name: '',
@@ -60,7 +51,7 @@ const RolesManager = () => {
     try {
       const [rolesRes, statusRes] = await Promise.all([
         axios.get('/api/committee/roles'),
-        axios.get('/api/committee/roles/status')
+        axios.get('/api/committee/roles/status'),
       ]);
       setRoles(rolesRes.data);
       setRolesStatus(statusRes.data);
@@ -69,7 +60,9 @@ const RolesManager = () => {
     }
   }, []);
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleOpenDialog = (role: CommitteeRole | null = null) => {
     if (role) {
@@ -100,14 +93,47 @@ const RolesManager = () => {
     setShowDialog(true);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleToggleActive = async (role: CommitteeRole) => {
+    const action = role.is_active ? 'deactivate' : 'reactivate';
+    if (
+      !window.confirm(
+        `Are you sure you want to ${action} the ${role.role_name} role?`
+      )
+    )
+      return;
+
+    try {
+      // We send the inverse of the current status
+      await axios.put(`/api/committee/roles/${role.id}`, {
+        ...role,
+        is_active: !role.is_active,
+      });
+      fetchData();
+      setAlert({ message: `Role ${action}d`, variant: 'default' });
+    } catch (err) {
+      setAlert({ message: 'Update failed', variant: 'destructive' });
+    }
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    
+
+    const target = e.target as HTMLInputElement;
+    const isNumber = target.type === 'number';
+
+    const finalValue = isNumber ? parseInt(value) || 0 : value;
+
     if (name === 'role_name') {
-      const slug = value.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, '-').trim();
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '-')
+        .trim();
       setFormData(prev => ({ ...prev, role_name: value, role_slug: slug }));
     } else {
-      setFormData(prev => ({ ...prev, [name]: value }));
+      setFormData(prev => ({ ...prev, [name]: finalValue }));
     }
   };
 
@@ -122,7 +148,10 @@ const RolesManager = () => {
       }
       setShowDialog(false);
       fetchData();
-      setAlert({ message: 'Database updated successfully', variant: 'default' });
+      setAlert({
+        message: 'Database updated successfully',
+        variant: 'default',
+      });
       setTimeout(() => setAlert(null), 3000);
     } catch (err) {
       setAlert({ message: 'Error saving changes', variant: 'destructive' });
@@ -139,15 +168,23 @@ const RolesManager = () => {
             <ShieldCheck className="h-8 w-8 text-primary" />
             Roles & Governance
           </h2>
-          <p className="text-zinc-500 font-medium">Define committee positions and institutional structure.</p>
+          <p className="text-zinc-500 font-medium">
+            Define committee positions and institutional structure.
+          </p>
         </div>
-        <Button onClick={() => handleOpenDialog()} className="gap-2 bg-zinc-900">
+        <Button
+          onClick={() => handleOpenDialog()}
+          className="gap-2 bg-zinc-900"
+        >
           <Plus className="h-4 w-4" /> Add Role
         </Button>
       </div>
 
       {alert && (
-        <Alert variant={alert.variant === 'destructive' ? 'destructive' : 'default'} className="animate-in fade-in slide-in-from-top-2">
+        <Alert
+          variant={alert.variant === 'destructive' ? 'destructive' : 'default'}
+          className="animate-in fade-in slide-in-from-top-2"
+        >
           <AlertDescription className="font-bold uppercase tracking-tight italic">
             {alert.message}
           </AlertDescription>
@@ -156,7 +193,9 @@ const RolesManager = () => {
 
       <Card className="border-zinc-200 shadow-sm overflow-hidden">
         <CardHeader className="bg-zinc-50/50 border-b border-zinc-100">
-          <CardTitle className="text-sm font-black uppercase tracking-widest text-zinc-400">Current Structure</CardTitle>
+          <CardTitle className="text-sm font-black uppercase tracking-widest text-zinc-400">
+            Current Structure
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -170,53 +209,90 @@ const RolesManager = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100">
-                {roles.sort((a,b) => a.sort_order - b.sort_order).map(role => {
-                  const status = rolesStatus.find(s => s.id === role.id);
-                  return (
-                    <tr key={role.id} className={`group hover:bg-zinc-50/50 transition-colors ${!role.is_active ? 'opacity-50 grayscale' : ''}`}>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col">
-                          <span className="font-black uppercase italic text-zinc-900 flex items-center gap-2">
-                            {role.role_name}
-                            {role.is_required && <Badge variant="secondary" className="text-[9px] bg-primary/10 text-primary border-none uppercase">Required</Badge>}
-                          </span>
-                          <span className="text-xs text-zinc-500 max-w-xs truncate">{role.description}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        {role.email_alias ? (
-                          <div className="flex items-center gap-2 text-zinc-600 font-medium">
-                            <Mail className="h-3 w-3 text-zinc-400" />
-                            {role.email_alias}
+                {roles
+                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .map(role => {
+                    const status = rolesStatus.find(s => s.id === role.id);
+                    return (
+                      <tr
+                        key={role.id}
+                        className={`group hover:bg-zinc-50/50 transition-colors ${!role.is_active ? 'opacity-50 grayscale' : ''}`}
+                      >
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-black uppercase italic text-zinc-900 flex items-center gap-2">
+                              {role.role_name}
+                              {role.is_required && (
+                                <Badge
+                                  variant="secondary"
+                                  className="text-[9px] bg-primary/10 text-primary border-none uppercase"
+                                >
+                                  Required
+                                </Badge>
+                              )}
+                            </span>
+                            <span className="text-xs text-zinc-500 max-w-xs truncate">
+                              {role.description}
+                            </span>
                           </div>
-                        ) : <span className="text-zinc-300 italic">No alias</span>}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-col items-center gap-1">
-                          <div className="flex items-center gap-2">
-                            <Users className="h-3 w-3 text-zinc-400" />
-                            <span className="font-bold">{status?.current_members || 0} / {role.max_positions}</span>
-                          </div>
-                          {status?.needs_filling && role.is_active && (
-                            <Badge className="bg-rose-50 text-rose-600 border-rose-100 shadow-none text-[9px] uppercase">Vacant</Badge>
+                        </td>
+                        <td className="px-6 py-4">
+                          {role.email_alias ? (
+                            <div className="flex items-center gap-2 text-zinc-600 font-medium">
+                              <Mail className="h-3 w-3 text-zinc-400" />
+                              {role.email_alias}
+                            </div>
+                          ) : (
+                            <span className="text-zinc-300 italic">
+                              No alias
+                            </span>
                           )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="icon" onClick={() => handleOpenDialog(role)} className="h-8 w-8 hover:bg-white hover:shadow-sm border border-transparent hover:border-zinc-200">
-                            <Edit3 className="h-3.5 w-3.5" />
-                          </Button>
-                          {role.is_active && (
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-400 hover:text-rose-600">
-                              <EyeOff className="h-3.5 w-3.5" />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col items-center gap-1">
+                            <div className="flex items-center gap-2">
+                              <Users className="h-3 w-3 text-zinc-400" />
+                              <span className="font-bold">
+                                {status?.current_members || 0} /{' '}
+                                {role.max_positions}
+                              </span>
+                            </div>
+                            {status?.needs_filling && role.is_active && (
+                              <Badge className="bg-rose-50 text-rose-600 border-rose-100 shadow-none text-[9px] uppercase">
+                                Vacant
+                              </Badge>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleOpenDialog(role)}
+                              className="h-8 w-8 hover:bg-white hover:shadow-sm border border-transparent hover:border-zinc-200"
+                            >
+                              <Edit3 className="h-3.5 w-3.5" />
                             </Button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                            {role.is_active && (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleToggleActive(role)}
+                                className={`h-8 w-8 ${role.is_active ? 'text-rose-400 hover:text-rose-600' : 'text-emerald-400 hover:text-emerald-600'}`}
+                              >
+                                {role.is_active ? (
+                                  <EyeOff className="h-3.5 w-3.5" />
+                                ) : (
+                                  <ShieldCheck className="h-3.5 w-3.5" />
+                                )}
+                              </Button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
               </tbody>
             </table>
           </div>
@@ -226,65 +302,118 @@ const RolesManager = () => {
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-black uppercase italic italic tracking-tight">
+            <DialogTitle className="text-xl font-black uppercase italic tracking-tight">
               {editingRole ? 'Update Role' : 'Create New Position'}
             </DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Role Name</Label>
-                <Input name="role_name" value={formData.role_name} onChange={handleInputChange} required placeholder="e.g. Secretary" />
+                <Input
+                  name="role_name"
+                  value={formData.role_name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="e.g. Secretary"
+                />
               </div>
               <div className="space-y-2">
                 <Label className="text-zinc-400">Slug (Auto)</Label>
-                <Input value={formData.role_slug} readOnly className="bg-zinc-50 text-zinc-400" />
+                <Input
+                  value={formData.role_slug}
+                  readOnly
+                  className="bg-zinc-50 text-zinc-400"
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea name="description" value={formData.description} onChange={handleInputChange} placeholder="What does this person do?" />
+              <Textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="What does this person do?"
+              />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Email Alias</Label>
-                <Input name="email_alias" value={formData.email_alias} onChange={handleInputChange} type="email" />
+                <Input
+                  name="email_alias"
+                  value={formData.email_alias}
+                  onChange={handleInputChange}
+                  type="email"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Max Positions</Label>
-                <Input name="max_positions" type="number" value={formData.max_positions} onChange={handleInputChange} min={1} />
+                <Input
+                  name="max_positions"
+                  type="number"
+                  value={formData.max_positions}
+                  onChange={handleInputChange}
+                  min={1}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Sort Order</Label>
-                <Input name="sort_order" type="number" value={formData.sort_order} onChange={handleInputChange} />
+                <Input
+                  name="sort_order"
+                  type="number"
+                  value={formData.sort_order}
+                  onChange={handleInputChange}
+                />
               </div>
             </div>
 
             <div className="flex gap-6 p-4 bg-zinc-50 rounded-lg border border-zinc-100">
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="is_required" 
-                  checked={formData.is_required} 
-                  onCheckedChange={(checked) => setFormData(p => ({ ...p, is_required: !!checked }))} 
+                <Checkbox
+                  id="is_required"
+                  checked={formData.is_required}
+                  onCheckedChange={checked =>
+                    setFormData(p => ({ ...p, is_required: !!checked }))
+                  }
                 />
-                <Label htmlFor="is_required" className="text-xs font-bold uppercase cursor-pointer">Required Position</Label>
+                <Label
+                  htmlFor="is_required"
+                  className="text-xs font-bold uppercase cursor-pointer"
+                >
+                  Required Position
+                </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="is_active" 
-                  checked={formData.is_active} 
-                  onCheckedChange={(checked) => setFormData(p => ({ ...p, is_active: !!checked }))} 
+                <Checkbox
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={checked =>
+                    setFormData(p => ({ ...p, is_active: !!checked }))
+                  }
                 />
-                <Label htmlFor="is_active" className="text-xs font-bold uppercase cursor-pointer">Active</Label>
+                <Label
+                  htmlFor="is_active"
+                  className="text-xs font-bold uppercase cursor-pointer"
+                >
+                  Active
+                </Label>
               </div>
             </div>
 
             <DialogFooter>
-              <Button type="submit" disabled={loading} className="w-full bg-zinc-900 uppercase font-black italic tracking-widest">
-                {loading ? 'Processing...' : editingRole ? 'Save Changes' : 'Launch Role'}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-zinc-900 uppercase font-black italic tracking-widest"
+              >
+                {loading
+                  ? 'Processing...'
+                  : editingRole
+                    ? 'Save Changes'
+                    : 'Launch Role'}
               </Button>
             </DialogFooter>
           </form>
