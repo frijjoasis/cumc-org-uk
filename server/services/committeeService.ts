@@ -52,6 +52,7 @@ class CommitteeService {
           ...exposed,
           id: m.id,
           role_id: m.role_id,
+          member_id: m.member_id,
           person_email: m.person_email,
           sort_order: m.sort_order,
           is_current: m.is_current,

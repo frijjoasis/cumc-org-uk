@@ -9,6 +9,7 @@ import {
   Info,
   Plus,
   Camera,
+  CheckCircle,
 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -52,21 +53,44 @@ const CommitteeManager = () => {
   const [editingMember, setEditingMember] =
     useState<AdminPublicCommitteeModel | null>(null);
   const [loading, setLoading] = useState(false);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState({
     year: '',
     role_id: 0,
+    member_id: '',
     person_name: '',
     person_email: '',
     sort_order: 0,
     is_current: true,
   });
 
-  useEffect(() => {
-    if (showDialog) {
-      axios.get('/api/user/list-all').then(res => setAllUsers(res.data));
+  const [crsidQuery, setCrsidQuery] = useState('');
+  const [lookupLoading, setLookupLoading] = useState(false);
+
+  const performLookup = async () => {
+    if (!crsidQuery) return;
+    setLookupLoading(true);
+    try {
+      const res = await axios.get(`/api/user/lookup/${crsidQuery}`);
+      const foundUser = res.data;
+
+      setFormData(prev => ({
+        ...prev,
+        member_id: foundUser.id.toString(),
+        person_name: foundUser.displayName,
+        person_email: foundUser.email,
+      }));
+    } catch (err: any) {
+      if (err.response?.status === 404) {
+        alert(
+          'CRSid not found. Please check the spelling or enter details manually.'
+        );
+      } else {
+        alert('An error occurred during lookup.');
+      }
+    } finally {
+      setLookupLoading(false);
     }
-  }, [showDialog]);
+  };
 
   const getAcademicYear = (offset = 0) => {
     const year = new Date().getFullYear() + offset;
@@ -101,7 +125,7 @@ const CommitteeManager = () => {
     file: File
   ) => {
     const data = new FormData();
-
+    // Fields must be appended before the file for Multer to parse req.body correctly
     data.append('id', memberId.toString());
     data.append('year', year);
     data.append('type', type);
@@ -109,7 +133,7 @@ const CommitteeManager = () => {
     try {
       setLoading(true);
       await axios.post('/api/committee/upload-photo', data);
-      await fetchData(); // Refresh to get new hashes/cache busters
+      await fetchData();
     } catch (err) {
       alert('Upload failed.');
     } finally {
@@ -135,9 +159,10 @@ const CommitteeManager = () => {
       setFormData({
         year: member.year,
         role_id: member.role_id || 0,
+        member_id: member.member_id?.toString() || '',
         person_name: member.person_name,
         person_email: member.person_email || '',
-        sort_order: member.sort_order,
+        sort_order: member.sort_order || 0,
         is_current: member.is_current,
       });
     } else {
@@ -145,6 +170,7 @@ const CommitteeManager = () => {
       setFormData({
         year: activeTab === 'staged' ? getAcademicYear(1) : getAcademicYear(0),
         role_id: 0,
+        member_id: '',
         person_name: '',
         person_email: '',
         sort_order: 0,
@@ -260,17 +286,17 @@ const CommitteeManager = () => {
                         {member.year}
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-bold text-zinc-700">
-                      {member.person_name}
+                    <td className="px-6 py-4">
+                      <div className="font-bold text-zinc-700">
+                        {member.person_name}
+                      </div>
                       <div className="text-[10px] font-normal text-zinc-400 lowercase">
                         {member.person_email}
                       </div>
                     </td>
 
-                    {/* MEDIA COLUMN */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
-                        {/* Profile Upload */}
                         <div className="relative h-10 w-10 rounded-full bg-zinc-100 border overflow-hidden group/img">
                           <img
                             src={
@@ -280,6 +306,11 @@ const CommitteeManager = () => {
                             }
                             className="h-full w-full object-cover"
                             alt=""
+                            onError={e => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src =
+                                '/assets/img/default-avatar.jpg';
+                            }}
                           />
                           <label className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
                             <Camera className="h-3 w-3 text-white" />
@@ -299,7 +330,6 @@ const CommitteeManager = () => {
                             />
                           </label>
                         </div>
-                        {/* Cover Upload */}
                         <label className="flex items-center gap-1 text-[9px] font-black uppercase text-zinc-400 hover:text-zinc-900 cursor-pointer border border-dashed p-1 rounded">
                           <Plus className="h-2 w-2" /> Cover
                           <input
@@ -359,7 +389,6 @@ const CommitteeManager = () => {
         </Card>
       </Tabs>
 
-      {/* STAGING ALERT */}
       {activeTab === 'staged' && stagedCommittee.length > 0 && (
         <Alert className="bg-amber-50 border-amber-200">
           <Info className="h-4 w-4 text-amber-600" />
@@ -373,7 +402,6 @@ const CommitteeManager = () => {
         </Alert>
       )}
 
-      {/* FORM DIALOG */}
       <Dialog open={showDialog} onOpenChange={setShowDialog}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
@@ -418,60 +446,58 @@ const CommitteeManager = () => {
               </div>
             </div>
 
-            {/* CRSid Selection */}
-            <div className="space-y-2">
-              <Label className="text-[10px] font-bold uppercase text-zinc-400">
-                Link CRSid (Member)
-              </Label>
-              <Select
-                value={formData.member_id?.toString()}
-                onValueChange={val => {
-                  const found = allMembers.find(m => m.id.toString() === val);
-                  setFormData({
-                    ...formData,
-                    member_id: val,
-                    // Pre-fill the name if the override is currently empty
-                    person_name:
-                      formData.person_name || found?.user?.displayName || '',
-                  });
-                }}
-              >
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Select a member..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {allMembers.map(m => (
-                    <SelectItem key={m.id} value={m.id.toString()}>
-                      {m.id} ({m.user?.displayName})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="space-y-4 py-4">
+              <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200 space-y-3">
+                <Label className="text-[10px] font-black uppercase text-zinc-500">
+                  CRSid Lookup
+                </Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter CRSid (e.g. jd123)"
+                    value={crsidQuery}
+                    onChange={e => setCrsidQuery(e.target.value)}
+                    onKeyDown={e =>
+                      e.key === 'Enter' && (e.preventDefault(), performLookup())
+                    }
+                    className="bg-white"
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={performLookup}
+                    disabled={lookupLoading}
+                    className="font-bold"
+                  >
+                    {lookupLoading ? '...' : 'Search'}
+                  </Button>
+                </div>
+                {formData.member_id && (
+                  <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3" /> Linked to Account:{' '}
+                    {formData.member_id}
+                  </p>
+                )}
+              </div>
+
+              {/* Public Display Name (The Override Field) */}
+              <div className="space-y-1">
+                <Label className="text-[10px] font-black uppercase text-zinc-400">
+                  Public Display Name
+                </Label>
+                <Input
+                  value={formData.person_name}
+                  onChange={e =>
+                    setFormData({ ...formData, person_name: e.target.value })
+                  }
+                  placeholder="Preferred Name (Overrides system name)"
+                />
+                <p className="text-[9px] text-zinc-400 italic">
+                  Use this field to correct deadnames or use preferred
+                  nicknames.
+                </p>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-[10px] uppercase font-bold text-zinc-400">
-                Public Display Name
-              </Label>
-              <Input
-                value={formData.person_name}
-                onChange={e =>
-                  setFormData({ ...formData, person_name: e.target.value })
-                }
-                placeholder="Enter name (overrides system name)"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] uppercase font-bold text-zinc-400">
-                Officer Name
-              </Label>
-              <Input
-                value={formData.person_name}
-                onChange={e =>
-                  setFormData({ ...formData, person_name: e.target.value })
-                }
-              />
-            </div>
             <div className="space-y-1">
               <Label className="text-[10px] uppercase font-bold text-zinc-400">
                 Email / Social
@@ -483,6 +509,7 @@ const CommitteeManager = () => {
                 }
               />
             </div>
+
             <div className="flex items-center space-x-2 p-3 bg-zinc-50 rounded border">
               <Checkbox
                 id="is_current"
@@ -501,10 +528,11 @@ const CommitteeManager = () => {
           </div>
           <DialogFooter>
             <Button
-              className="w-full bg-zinc-900 font-black uppercase tracking-widest"
+              className="w-full bg-zinc-900 font-black uppercase tracking-widest disabled:opacity-50"
               onClick={handleSave}
+              disabled={loading}
             >
-              Save Member
+              {loading ? 'Saving...' : 'Save Member'}
             </Button>
           </DialogFooter>
         </DialogContent>
