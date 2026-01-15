@@ -68,7 +68,7 @@ const Header: React.FC<HeaderProps> = ({
           <Link to="/" className=" font-black tracking-tighter text-xl">
             {brandText}
           </Link>
-          <nav className="hidden lg:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-6">
             {committee && (
               <NavLink to={committee.link} className={navLinkClass}>
                 {committee.text}

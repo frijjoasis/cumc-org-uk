@@ -31,6 +31,7 @@ interface RoleCreateData {
 
 interface PublicCommitteeModel {
   person_name: string;
+  year: string;
   role: string;
   image_url?: string;
 }
@@ -38,9 +39,20 @@ interface PublicCommitteeModel {
 class CommitteeService {
   async getExposedModel(cm: CommitteeModel): Promise<PublicCommitteeModel> {
     return {
+      year: cm.year,
       person_name: cm.person_name || 'Unknown Member',
       role: cm.committeeRole?.role_name || cm.role || 'Member',
     };
+  }
+
+  async getAdminDetails(
+    status: 'current' | 'staged'
+  ): Promise<CommitteeModel[]> {
+    return CommitteeModel.findAll({
+      where: { status },
+      include: [{ model: CommitteeRoleModel, as: 'committeeRole' }],
+      // Include everything for admin management
+    });
   }
 
   async getCurrent(): Promise<CommitteeModel[]> {
@@ -157,35 +169,35 @@ class CommitteeService {
     });
   }
 
-  // Create committee member
-  async create(data: CommitteeCreateData): Promise<CommitteeModel> {
-    const status =
-      data.status || (data.is_current !== false ? 'current' : 'past');
-
-    const [member] = await CommitteeModel.upsert({
-      ...data,
-      status,
-      is_current: data.is_current !== false,
-      sort_order: data.sort_order || 0,
-    });
-
-    return member;
-  }
-
-  // Update committee member
-  async update(
-    id: number,
-    data: CommitteeCreateData
-  ): Promise<Committee | null> {
-    const [affectedCount] = await CommitteeModel.update(data, {
-      where: { id },
-    });
-
-    if (affectedCount === 0) {
-      return null;
+  async create(data: any): Promise<CommitteeModel> {
+    const roleRecord = await CommitteeRoleModel.findByPk(data.role_id);
+    if (!roleRecord) {
+      throw new Error('Valid Constitutional Role is required');
     }
 
-    return CommitteeModel.findByPk(id);
+    const status = data.status || (data.is_current ? 'current' : 'staged');
+
+    return CommitteeModel.create({
+      year: data.year,
+      role_id: data.role_id,
+      role: roleRecord.role_name,
+      person_name: data.person_name,
+      person_email: data.person_email,
+      sort_order: data.sort_order || 0,
+      is_current: data.is_current ?? true,
+      status: status,
+    });
+  }
+
+  async update(id: number, data: any): Promise<CommitteeModel | null> {
+    const member = await CommitteeModel.findByPk(id);
+    if (!member) return null;
+
+    if (data.is_current !== undefined) {
+      data.status = data.is_current ? 'current' : 'staged';
+    }
+
+    return member.update(data);
   }
 
   // Delete committee member

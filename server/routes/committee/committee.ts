@@ -1,7 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { committeeAuth } from '../middleware';
 import { committeeService, committeeRoleService } from '../../services';
-import { CommitteeModel } from '../../database/models';
 
 const router = Router();
 
@@ -10,10 +9,10 @@ const router = Router();
 router.get('/current', async (req: Request, res: Response) => {
   try {
     const committeeModels = await committeeService.getCurrent();
-    
+
     // Transform the models using your shared service logic
     const exposedCommittee = await Promise.all(
-      committeeModels.map((cm) => committeeService.getExposedModel(cm))
+      committeeModels.map(cm => committeeService.getExposedModel(cm))
     );
 
     res.json(exposedCommittee);
@@ -23,10 +22,36 @@ router.get('/current', async (req: Request, res: Response) => {
   }
 });
 
+// Admin route due to sensitive info (I dont want to have to change the database so ids can be shared)
+router.get(
+  '/admin/list',
+  committeeAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const [current, staged] = await Promise.all([
+        committeeService.getAdminDetails('current'),
+        committeeService.getAdminDetails('staged'),
+      ]);
+
+      res.json({
+        current,
+        staged,
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch admin committee list' });
+    }
+  }
+);
+
 router.get('/staged', async (req: Request, res: Response) => {
   try {
     const committee = await committeeService.getStaged();
-    res.json(committee);
+
+    const stagedCommittee = await Promise.all(
+      committee.map(cm => committeeService.getExposedModel(cm))
+    );
+
+    res.json(stagedCommittee);
   } catch (error) {
     console.error('Error fetching staged committee:', error);
     res.status(500).json({ error: 'Failed to fetch staged committee' });
