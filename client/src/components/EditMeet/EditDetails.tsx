@@ -30,7 +30,6 @@ interface EditDetailsProps {
 }
 
 const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState<Partial<MeetContent>>(content);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,8 +41,12 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'number' ? (value === '' ? null : Number(value)) : value,
+    }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -165,16 +168,40 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="maxSignups">Capacity</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="maxSignups">Capacity</Label>
+                <div className="flex items-center space-x-2">
+                  <span className="text-[10px] font-bold uppercase text-zinc-400">
+                    Limit?
+                  </span>
+                  <Checkbox
+                    id="capacity-toggle"
+                    checked={formData.maxSignups !== null}
+                    onCheckedChange={checked => {
+                      setFormData(prev => ({
+                        ...prev,
+                        maxSignups: checked ? 12 : null,
+                      }));
+                    }}
+                  />
+                </div>
+              </div>
+
               <div className="relative">
-                <Users className="absolute left-3 top-3 h-4 w-4 text-zinc-400" />
+                <Users
+                  className={`absolute left-3 top-3 h-4 w-4 ${formData.maxSignups === null ? 'text-zinc-200' : 'text-zinc-400'}`}
+                />
                 <Input
                   id="maxSignups"
                   name="maxSignups"
                   type="number"
-                  value={formData.maxSignups || 0}
+                  disabled={formData.maxSignups === null}
+                  value={
+                    formData.maxSignups === null ? '' : formData.maxSignups
+                  }
+                  placeholder="Unlimited"
                   onChange={handleInputChange}
-                  className="pl-10"
+                  className={`pl-10 ${formData.maxSignups === null ? 'bg-zinc-50 text-zinc-300 italic' : 'bg-white font-bold'}`}
                 />
               </div>
             </div>
@@ -222,11 +249,11 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="desc">Description</Label>
         <Textarea
-          id="description"
-          name="description"
-          value={formData.description || ''}
+          id="desc"
+          name="desc"
+          value={formData.desc || ''}
           onChange={handleInputChange}
           rows={4}
           placeholder="What's the plan? What gear is needed?"

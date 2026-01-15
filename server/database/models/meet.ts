@@ -23,9 +23,11 @@ class MeetModel extends Model<
   declare endDate: Date;
   declare type: 'Indoor' | 'Outdoor' | 'Social' | 'Other';
   declare signupControl: CreationOptional<'Default' | 'Members' | 'Everyone'>;
+  declare location: string | null;
   declare disabled: boolean;
   declare questions: object | null;
   declare price: number | null;
+  declare maxSignups: number | null;
   declare hidden: CreationOptional<boolean>;
 
   // Foreign keys
@@ -54,6 +56,7 @@ function define(sequelize: Sequelize) {
       },
       subtitle: DataTypes.STRING,
       desc: DataTypes.TEXT,
+      location: DataTypes.STRING,
       startDate: {
         allowNull: false,
         type: DataTypes.DATE,
@@ -77,6 +80,7 @@ function define(sequelize: Sequelize) {
       },
       questions: DataTypes.JSON,
       price: DataTypes.FLOAT,
+      maxSignups: DataTypes.INTEGER,
       hidden: {
         allowNull: false,
         defaultValue: false,

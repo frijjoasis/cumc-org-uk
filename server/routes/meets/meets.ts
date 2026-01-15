@@ -109,20 +109,23 @@ router.post(
   }
 );
 
-router.post(
-  '/signups',
+router.get(
+  '/signups/:id',
   committeeAuth,
   async function (req: Request, res: Response) {
     try {
-      const meet = await meetService.getById(req.body.id);
+      // Use req.params.id instead of req.body.id
+      const meetId = req.params.id;
+      const meet = await meetService.getByIdWithSignups(meetId);
+
       if (meet) {
         res.json(meet);
       } else {
-        res.json({ err: 'Database error: Could not find meet' });
+        res.status(404).json({ err: 'Could not find that meet' });
       }
     } catch (err: any) {
-      logger.error('Database error: ', err);
-      res.json({ err: 'Database error: Please contact the webmaster' });
+      logger.error('Database error fetching signups: ', err);
+      res.status(500).json({ err: 'Internal Server Error' });
     }
   }
 );

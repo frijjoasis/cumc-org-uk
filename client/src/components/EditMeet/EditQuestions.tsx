@@ -24,6 +24,7 @@ interface EditQuestionsProps {
   content: MeetContent;
   id?: string;
   newID?: string;
+  pathname?: string;
 }
 
 const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {

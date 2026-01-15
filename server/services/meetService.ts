@@ -1,6 +1,6 @@
 import { MeetModel, SignupModel, UserModel } from '../database/database';
 import type { MeetType } from '../database/types';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 interface MeetCreateData {
   title: string;
@@ -24,11 +24,38 @@ class MeetService {
           [Op.gte]: new Date(),
         },
       },
+      attributes: {
+        include: [
+          [
+            Sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM "Signups" AS signup
+            WHERE signup."meetID" = "meet"."id"
+          )`),
+            'signupCount',
+          ],
+        ],
+      },
+      order: [['startDate', 'ASC']],
     });
   }
 
   async getAll(): Promise<MeetModel[]> {
-    return MeetModel.findAll();
+    return MeetModel.findAll({
+      attributes: {
+        include: [
+          [
+            Sequelize.literal(`(
+            SELECT COUNT(*)
+            FROM "Signups" AS signup
+            WHERE signup."meetID" = "meet"."id"
+          )`),
+            'signupCount',
+          ],
+        ],
+      },
+      order: [['startDate', 'ASC']],
+    });
   }
 
   async getById(id: number): Promise<MeetModel | null> {
@@ -82,6 +109,25 @@ class MeetService {
     return MeetModel.upsert({
       ...data,
       organiser: organiserId,
+    });
+  }
+
+  async getByIdWithSignups(id: string | number) {
+    return await MeetModel.findByPk(id, {
+      include: [
+        {
+          model: SignupModel,
+          as: 'signups',
+          include: [
+            {
+              model: UserModel,
+              as: 'user',
+              attributes: ['firstName', 'lastName', 'email'],
+            },
+          ],
+        },
+      ],
+      order: [[{ model: SignupModel, as: 'signups' }, 'createdAt', 'ASC']],
     });
   }
 

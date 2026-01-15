@@ -41,6 +41,8 @@ export interface MeetContent {
   price: number | string;
   hidden: boolean;
   location?: string;
-  maxSignups?: string | number;
+  maxSignups?: number;
+  signupCount?: number;
+  signups?: any[];
   [key: string]: any;
 }
