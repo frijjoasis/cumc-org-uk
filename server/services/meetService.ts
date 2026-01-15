@@ -80,7 +80,6 @@ class MeetService {
   }
 
   async getByIdRestricted(id: number): Promise<MeetModel | null> {
-    // Same as above but don't reveal user answers
     return MeetModel.findByPk(id, {
       include: [
         {
@@ -102,7 +101,7 @@ class MeetService {
     });
   }
 
-  async create(
+  async upsert(
     data: MeetCreateData,
     organiserId: string
   ): Promise<[MeetModel, boolean | null]> {

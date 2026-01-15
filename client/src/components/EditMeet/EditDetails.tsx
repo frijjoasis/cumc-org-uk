@@ -26,7 +26,7 @@ interface EditDetailsProps {
   content: Partial<MeetContent>;
   id?: string;
   pathname: string;
-  onSubmit: (id: string) => void;
+  onSubmit: (id: MeetContent) => void;
 }
 
 const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
@@ -57,10 +57,8 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
       const endpoint = id ? `/api/meets/edit/${id}` : '/api/meets/new';
       const response = await axios.post(endpoint, formData);
 
-      const returnedId = response.data.id || response.data;
-
-      if (returnedId) {
-        onSubmit(returnedId);
+      if (response.data) {
+        onSubmit(response.data);
       }
     } catch (err) {
       console.error('Save failed', err);

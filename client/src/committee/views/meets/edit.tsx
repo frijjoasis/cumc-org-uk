@@ -48,7 +48,7 @@ const EditMeet = () => {
   useEffect(() => {
     if (id && !isNew) {
       axios
-        .post('/api/meets/signups', { id })
+        .get(`/api/meets/signups/${id}`)
         .then(res => {
           if (res.data.err) {
             setError(res.data.err);
@@ -179,11 +179,20 @@ const EditMeet = () => {
                 content={content}
                 id={hasBeenSaved ? newID : undefined}
                 pathname={location.pathname}
-                onSubmit={id => {
-                  const stringId = id.toString();
-                  setNewID(stringId);
-                  setError(null);
+                onSubmit={updatedMeet => {
+                  const startDate = new Date(updatedMeet.startDate);
+                  const endDate = new Date(updatedMeet.endDate);
 
+                  const formattedMeet = {
+                    ...updatedMeet,
+                    startDate: startDate.toISOString().split('T')[0],
+                    endDate: endDate.toISOString().split('T')[0],
+                  };
+
+                  const stringId = updatedMeet.id.toString();
+                  setNewID(stringId);
+                  setContent(formattedMeet);
+                  setError(null);
                   setActiveTab('questions');
 
                   if (isNewPath || isClone) {

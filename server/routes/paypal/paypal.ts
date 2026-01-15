@@ -279,18 +279,16 @@ async function checkMeetEligibility(
   }
 
   const meet = await meetService.getById(meetId);
-  if (!meet) {
-    return { err: 'Database error: Could not find meet' };
-  }
+  if (!meet) return { err: 'Database error: Could not find meet' };
+  if (meet.disabled) return { err: 'Signups are not open!' };
 
-  if (meet.disabled) {
-    return { err: 'Signups are not open for this meet!' };
+  const currentSignups = await signupService.getCountByMeetId(meetId);
+  if (meet.maxSignups && currentSignups >= meet.maxSignups) {
+    return { err: 'Sorry, this trip is now full!' };
   }
 
   const paymentRequired = await isPaymentNeeded(userId, meet);
-  if (isError(paymentRequired)) {
-    return paymentRequired;
-  }
+  if (isError(paymentRequired)) return paymentRequired;
 
   return { meet, paymentRequired };
 }
@@ -380,10 +378,7 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
       req.user.id,
       req.body.form.meetID
     );
-
-    if (isError(eligibility)) {
-      return res.json(eligibility);
-    }
+    if (isError(eligibility)) return res.json(eligibility);
 
     if (!eligibility.paymentRequired) {
       return res.json({
@@ -397,6 +392,15 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
       orderID: req.body.data.orderID,
       price: meet.price?.toString() || '0',
       onSuccess: async authID => {
+        // capacity double check
+        const finalCount = await signupService.getCountByMeetId(meet.id);
+        if (meet.maxSignups && finalCount >= meet.maxSignups) {
+          // void the payment if they were too slow
+          // Maybe not the best outcome, but since we have a smallish club
+          // This likely wont occur (often)
+          await paypalClient.voidAuthorization(authID);
+          throw new Error('CAPACITY_REACHED');
+        }
         await handleMeetSignup(
           req.user.id,
           (req.user as any).displayName || '',
@@ -413,6 +417,11 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
 
     res.json(true);
   } catch (err: any) {
+    if (err.message === 'CAPACITY_REACHED') {
+      return res.json({
+        err: 'Trip filled up while you were paying! Your transaction has been voided.',
+      });
+    }
     logger.error('Meet registration error: ', err);
     res.json({ err: 'Database error: Please contact the webmaster' });
   }

@@ -69,6 +69,10 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
       </Alert>
     );
 
+  const signupCount = content.signups?.length || 0;
+  const isFull =
+    content.maxSignups !== null && signupCount >= content.maxSignups;
+
   const startDate = new Date(content.startDate);
   const endDate = new Date(content.endDate);
 
@@ -96,6 +100,26 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
             <p className="text-xl text-zinc-500 font-bold uppercase italic tracking-tight">
               {content.subtitle}
             </p>
+            {content.maxSignups && (
+              <div className="pt-4 space-y-2">
+                <div className="flex justify-between items-end">
+                  <p className="text-[10px] font-black uppercase text-zinc-400">
+                    Capacity
+                  </p>
+                  <p className="text-xs font-bold">
+                    {signupCount} / {content.maxSignups}
+                  </p>
+                </div>
+                <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
+                  <div
+                    className={`h-full transition-all duration-500 ${isFull ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                    style={{
+                      width: `${Math.min((signupCount / content.maxSignups) * 100, 100)}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -110,15 +134,22 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
             </Button>
           ) : (
             <Button
-              asChild
+              asChild={!isFull}
+              disabled={isFull || content.disabled}
               size="lg"
               className="h-14 px-8 bg-zinc-900 font-black uppercase italic tracking-widest shadow-xl hover:shadow-primary/20"
             >
-              <NavLink
-                to={user ? `/meets/upcoming/register/${content.id}` : '/login'}
-              >
-                {user ? 'Sign Up for This Trip' : 'Sign In to Register'}
-              </NavLink>
+              {isFull ? (
+                <span>Trip Full</span>
+              ) : (
+                <NavLink
+                  to={
+                    user ? `/meets/upcoming/register/${content.id}` : '/login'
+                  }
+                >
+                  {user ? 'Sign Up for This Trip' : 'Sign In to Register'}
+                </NavLink>
+              )}
             </Button>
           )}
         </div>

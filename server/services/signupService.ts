@@ -1,9 +1,4 @@
-import {
-  SignupModel,
-  MeetModel,
-  userFields,
-  Signup,
-} from '../database/database';
+import { SignupModel, MeetModel, sequelize } from '../database/database';
 
 interface SignupData {
   answers: object;
@@ -18,21 +13,43 @@ interface UserData {
 }
 
 class SignupService {
-  async register(
-    data: SignupData,
-    user: UserData
-  ): Promise<[SignupModel, boolean]> {
-    const signup = {
-      answers: data.answers,
-      meetID: data.meetID,
-      userID: user.id,
-      authID: data.authID,
-      captureID: data.captureID,
-      displayName: user.displayName,
-    };
+  async register(data: SignupData, user: UserData): Promise<SignupModel> {
+    return await sequelize.transaction(async t => {
+      const meet = await MeetModel.findByPk(data.meetID, {
+        transaction: t,
+        lock: t.LOCK.UPDATE,
+      });
 
-    return SignupModel.upsert(signup, {
-      fields: userFields as (keyof Signup)[],
+      if (!meet) throw new Error('MEET_NOT_FOUND');
+
+      const count = await SignupModel.count({
+        where: { meetID: data.meetID },
+        transaction: t,
+      });
+
+      const existingSignup = await SignupModel.findOne({
+        where: { meetID: data.meetID, userID: user.id },
+        transaction: t,
+      });
+
+      if (!existingSignup && meet.maxSignups && count >= meet.maxSignups) {
+        throw new Error('MEET_FULL');
+      }
+
+      const signupData = {
+        answers: data.answers,
+        meetID: data.meetID,
+        userID: user.id,
+        authID: data.authID,
+        captureID: data.captureID,
+        displayName: user.displayName,
+      };
+
+      if (existingSignup) {
+        return await existingSignup.update(signupData, { transaction: t });
+      } else {
+        return await SignupModel.create(signupData, { transaction: t });
+      }
     });
   }
 
@@ -62,6 +79,9 @@ class SignupService {
         attributes: ['title', 'startDate', 'type', 'price'],
       },
     });
+  }
+  async getCountByMeetId(meetID: number): Promise<number> {
+    return await SignupModel.count({ where: { meetID } });
   }
 }
 

@@ -36,11 +36,16 @@ router.post('/view', async function (req: Request, res: Response) {
 
 const handleEditOrCreate = async (req: Request, res: Response) => {
   try {
-    const [meet] = await meetService.create(req.body, req.user.id.toString());
+    const meetId = req.params.id ? parseInt(req.params.id) : req.body.id;
+
+    const meetData = { ...req.body, id: meetId };
+
+    const [meet] = await meetService.upsert(meetData, req.user.id.toString());
+
     if (meet) {
-      res.json(meet.id);
+      res.json(meet);
     } else {
-      res.status(400).json({ err: 'Could not create or find that meet!' });
+      res.status(400).json({ err: 'Operation failed' });
     }
   } catch (err: any) {
     logger.error('Database error: ', err);
