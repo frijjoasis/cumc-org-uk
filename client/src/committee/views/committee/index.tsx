@@ -34,11 +34,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import {
-  AdminPublicCommitteeModel,
-  CommitteeRole,
-  User,
-} from '@cumc/shared-types';
+import { AdminPublicCommitteeModel, CommitteeRole } from '@cumc/shared-types';
 
 const CommitteeManager = () => {
   const [currentCommittee, setCurrentCommittee] = useState<

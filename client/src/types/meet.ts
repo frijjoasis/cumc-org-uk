@@ -24,14 +24,23 @@ export interface SignupData {
   user: User;
 }
 
+export type MeetType = 'Indoor' | 'Outdoor' | 'Social' | 'Other';
+export type SignupControl = 'Default' | 'Members' | 'Everyone';
+
 export interface MeetContent {
-  title?: string;
-  startDate?: string;
-  endDate?: string;
-  startTime?: string;
-  endTime?: string;
-  questions?: Question[];
-  signups?: SignupData[];
-  user?: User | null;
+  id?: number;
+  title: string;
+  subtitle?: string | null;
+  desc?: string | null;
+  startDate: string;
+  endDate: string;
+  type: MeetType;
+  signupControl: SignupControl;
+  disabled: boolean;
+  questions: any[];
+  price: number | string;
+  hidden: boolean;
+  location?: string;
+  maxSignups?: string | number;
   [key: string]: any;
 }
