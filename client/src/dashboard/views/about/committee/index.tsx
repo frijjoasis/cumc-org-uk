@@ -22,7 +22,7 @@ import defaultProfile from '@/assets/img/committee/gear.jpg';
 import defaultCover from '@/assets/img/committee/gearCover.jpg';
 
 import { CommitteePersonData } from '@/types/committee';
-import { Committee } from '@/types/models';
+import { PublicCommitteeModel } from '@/types/models';
 
 interface PastCommitteeData {
   [year: string]: {
@@ -32,7 +32,9 @@ interface PastCommitteeData {
 }
 
 const CommitteeAbout = () => {
-  const [currentCommittee, setCurrentCommittee] = useState<Committee[]>([]);
+  const [currentCommittee, setCurrentCommittee] = useState<
+    PublicCommitteeModel[]
+  >([]);
   const [pastCommittees, setPastCommittees] = useState<PastCommitteeData>({});
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +55,30 @@ const CommitteeAbout = () => {
     };
     fetchData();
   }, []);
+
+  const [uploading, setUploading] = useState<number | null>(null);
+
+  const handlePhotoUpload = async (memberId: number, file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('memberId', memberId.toString());
+
+    setUploading(memberId);
+    try {
+      await axios.post('/api/committee/upload-photo', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      // Refresh the committee data to show the new image
+      const currentRes = await axios.get('/api/committee/current');
+      setCurrentCommittee(currentRes.data);
+    } catch (error) {
+      console.error('Upload failed', error);
+      alert('Failed to upload image.');
+    } finally {
+      setUploading(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -84,18 +110,25 @@ const CommitteeAbout = () => {
             No current committee found.
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {currentCommittee.map((member, index) => {
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {currentCommittee.map(member => {
+              const profileUrl = member.profile_hash
+                ? `/img/committee/${member.year}/${member.profile_hash}.jpg`
+                : defaultProfile;
+
+              const coverUrl = member.cover_hash
+                ? `/img/committee/${member.year}/${member.cover_hash}.jpg?v=${Date.now()}`
+                : defaultCover;
+
               const memberData: CommitteePersonData = {
                 role: member.role,
                 name: member.person_name,
-                social:
-                  member.person_email ||
-                  `${member.role.toLowerCase().replace(/\s+/g, '-')}@cumc.org.uk`,
-                profile: '',
-                cover: defaultCover,
+                social: member.email_alias,
+                profile: profileUrl,
+                cover: coverUrl,
               };
-              return <UserCard key={index} person={memberData} />;
+
+              return <UserCard key={member.person_name} person={memberData} />;
             })}
           </div>
         )}

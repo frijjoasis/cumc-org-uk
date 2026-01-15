@@ -3,24 +3,29 @@ import { Card, CardContent } from '@/components/ui/card';
 import { CommitteePersonData } from '@/types/committee';
 import { Mail, Instagram } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import defaultCover from '@/assets/img/committee/tradAlpine2Cover.jpg';
 
 interface UserCardProps {
   person: CommitteePersonData;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ person }) => {
+  const [coverError, setCoverError] = React.useState(false);
+
   return (
-    <Card className="overflow-hidden border-zinc-200 shadow-sm hover:shadow-xl transition-all duration-300 group">
-      {/* Cover Image Container */}
-      <div className="h-32 w-full overflow-hidden bg-zinc-100">
-        <img
-          src={person.cover || null}
-          alt="Cover"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-        />
+    <Card className="overflow-hidden border-zinc-200 pt-0 gap-0 shadow-sm hover:shadow-xl transition-all duration-300 group">
+      <div className="h-36 w-full overflow-hidden bg-zinc-400">
+        {!coverError && (
+          <img
+            src={person.cover}
+            alt={`${person.name} cover`}
+            className="w-full h-full object-cover transition-transform duration-500 opacity-90"
+            onError={() => setCoverError(true)}
+          />
+        )}
       </div>
 
-      <CardContent className="relative pt-0 text-center">
+      <CardContent className="relative  text-center">
         <div className="flex justify-center -mt-12 mb-4">
           <div className="p-1 bg-white rounded-full shadow-md">
             <Avatar className="h-24 w-24 rounded-full border-2 border-white object-cover">

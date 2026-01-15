@@ -11,6 +11,7 @@ import type {
 
 type UserBase = InferAttributes<UserModel>;
 type MemberBase = InferAttributes<MemberModel>;
+type CommitteeBase = InferAttributes<CommitteeModel>;
 
 export interface User extends UserBase {
   member?: MemberBase;
@@ -19,9 +20,10 @@ export interface User extends UserBase {
 export interface Member extends MemberBase {
   user?: UserBase;
 }
+
+export interface Committee extends CommitteeBase {}
 export type Meet = InferAttributes<MeetModel>;
 export type Signup = InferAttributes<SignupModel>;
-export type Committee = InferAttributes<CommitteeModel>;
 export type CommitteeRole = InferAttributes<CommitteeRoleModel>;
 export type BritRock = InferAttributes<BritRockModel>;
 

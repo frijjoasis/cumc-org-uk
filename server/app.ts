@@ -40,8 +40,7 @@ app.use(express.urlencoded({ extended: false }));
 
 app.enable('trust proxy');
 
-app.use(express.static('public/journals')); // Statically serving journals
-app.use('/public', express.static(path.join(__dirname, 'public'))); // Serve public files
+app.use(express.static(path.join(__dirname, 'public'))); // Serve everything in public at /
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 interface GoogleProfile {

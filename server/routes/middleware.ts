@@ -1,9 +1,31 @@
 import { Request, Response, NextFunction } from 'express';
 import { memberService } from '../services';
+import multer from 'multer';
+import fs from 'fs';
+import { getHashedFilename } from '../utils/hash';
 
-const isDevAdmin = (req: Request) => 
-  process.env.NODE_ENV === 'development' && 
-  req.user?.id === 999999999 && 
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const { year } = req.body;
+    const path = `./public/img/committee/${year}`;
+    fs.mkdirSync(path, { recursive: true });
+    cb(null, path);
+  },
+  filename: (req, file, cb) => {
+    const { id, type } = req.body;
+    const filename = `${getHashedFilename(Number(id), type)}.jpg`;
+    cb(null, filename);
+  },
+});
+
+export const uploadCommitteePhoto = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+const isDevAdmin = (req: Request) =>
+  process.env.NODE_ENV === 'development' &&
+  req.user?.id === 999999999 &&
   process.env.DEV_ADMIN_BYPASS === 'true';
 
 async function committeeAuth(
@@ -16,8 +38,10 @@ async function committeeAuth(
 
     const role = await memberService.getCommitteeRole(req.user.id);
     if (role) return next();
-    
-    return res.status(403).json({ err: 'You need a committee role to do that!' });
+
+    return res
+      .status(403)
+      .json({ err: 'You need a committee role to do that!' });
   }
   return res.status(401).json({ err: 'You need to be signed in to do that!' });
 }

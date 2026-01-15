@@ -1,40 +1,14 @@
 import {
-  Committee,
   CommitteeModel,
   CommitteeRoleModel,
   sequelize,
 } from '../database/database';
 import { Op, QueryTypes } from 'sequelize';
-
-interface CommitteeCreateData {
-  year: string;
-  role: string;
-  role_id?: number;
-  person_name: string;
-  person_email?: string;
-  sort_order?: number;
-  is_current?: boolean;
-  status?: string;
-  staging_year?: string;
-}
-
-interface RoleCreateData {
-  role_name: string;
-  role_slug: string;
-  description?: string;
-  email_alias?: string;
-  is_required?: boolean;
-  max_positions?: number;
-  sort_order?: number;
-  is_active?: boolean;
-}
-
-interface PublicCommitteeModel {
-  person_name: string;
-  year: string;
-  role: string;
-  image_url?: string;
-}
+import { getHashedFilename } from '../utils/hash';
+import type {
+  AdminPublicCommitteeModel,
+  PublicCommitteeModel,
+} from '@cumc/shared-types';
 
 class CommitteeService {
   async getExposedModel(cm: CommitteeModel): Promise<PublicCommitteeModel> {
@@ -42,6 +16,9 @@ class CommitteeService {
       year: cm.year,
       person_name: cm.person_name || 'Unknown Member',
       role: cm.committeeRole?.role_name || cm.role || 'Member',
+      profile_hash: getHashedFilename(cm.id, 'profile'),
+      cover_hash: getHashedFilename(cm.id, 'cover'),
+      email_alias: cm.committeeRole?.email_alias,
     };
   }
 
@@ -51,8 +28,36 @@ class CommitteeService {
     return CommitteeModel.findAll({
       where: { status },
       include: [{ model: CommitteeRoleModel, as: 'committeeRole' }],
-      // Include everything for admin management
+      order: [
+        [
+          sequelize.literal(
+            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
+          ),
+          'ASC',
+        ],
+        ['sort_order', 'ASC'],
+      ],
     });
+  }
+
+  async getAdminExposed(
+    status: 'current' | 'staged'
+  ): Promise<AdminPublicCommitteeModel[]> {
+    const members = await this.getAdminDetails(status);
+
+    return Promise.all(
+      members.map(async m => {
+        const exposed = await this.getExposedModel(m);
+        return {
+          ...exposed,
+          id: m.id,
+          role_id: m.role_id,
+          person_email: m.person_email,
+          sort_order: m.sort_order,
+          is_current: m.is_current,
+        };
+      })
+    );
   }
 
   async getCurrent(): Promise<CommitteeModel[]> {
@@ -133,10 +138,10 @@ class CommitteeService {
   }
 
   async getPastExposed(): Promise<Record<string, PublicCommitteeModel[]>> {
-    const pastMap: Map<string, CommitteeModel[]> = await this.getPast();
+    const pastMap = await this.getPast();
     const result: Record<string, PublicCommitteeModel[]> = {};
 
-    for (const [year, members] of pastMap.entries()) {
+    for (const [year, members] of pastMap) {
       result[year] = await Promise.all(
         members.map(m => this.getExposedModel(m))
       );
@@ -192,6 +197,13 @@ class CommitteeService {
   async update(id: number, data: any): Promise<CommitteeModel | null> {
     const member = await CommitteeModel.findByPk(id);
     if (!member) return null;
+
+    if (data.role_id && data.role_id !== member.role_id) {
+      const roleRecord = await CommitteeRoleModel.findByPk(data.role_id);
+      if (roleRecord) {
+        data.role = roleRecord.role_name;
+      }
+    }
 
     if (data.is_current !== undefined) {
       data.status = data.is_current ? 'current' : 'staged';

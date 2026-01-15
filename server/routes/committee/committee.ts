@@ -1,6 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { committeeAuth } from '../middleware';
+import { committeeAuth, uploadCommitteePhoto } from '../middleware';
 import { committeeService, committeeRoleService } from '../../services';
+import fs from 'fs';
+import multer from 'multer';
+import { getHashedFilename } from '../../utils/hash';
 
 const router = Router();
 
@@ -29,8 +32,8 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const [current, staged] = await Promise.all([
-        committeeService.getAdminDetails('current'),
-        committeeService.getAdminDetails('staged'),
+        committeeService.getAdminExposed('current'),
+        committeeService.getAdminExposed('staged'),
       ]);
 
       res.json({
@@ -282,6 +285,27 @@ router.delete(
       res
         .status(400)
         .json({ error: error.message || 'Failed to delete committee role' });
+    }
+  }
+);
+router.post(
+  '/upload-photo',
+  committeeAuth,
+  uploadCommitteePhoto.single('image'),
+  async (req: any, res: Response) => {
+    try {
+      const { type, id, year } = req.body;
+
+      if (!req.file) {
+        return res.status(400).json({ error: 'No image provided' });
+      }
+
+      res.json({
+        success: true,
+        message: `${type} image uploaded successfully.`,
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to process image upload' });
     }
   }
 );
