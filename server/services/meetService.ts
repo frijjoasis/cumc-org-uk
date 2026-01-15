@@ -85,7 +85,10 @@ class MeetService {
     });
   }
 
-  async updateQuestions(id: number, questions: object): Promise<number> {
+  async updateQuestions(
+    id: string | number,
+    questions: object
+  ): Promise<number> {
     const [affectedCount] = await MeetModel.update(
       { questions },
       {

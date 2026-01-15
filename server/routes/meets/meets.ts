@@ -44,23 +44,30 @@ const handleEditOrCreate = async (req: Request, res: Response) => {
     }
   } catch (err: any) {
     logger.error('Database error: ', err);
-    res.status(500).json({ err: 'Database error: Please contact the webmaster' });
+    res
+      .status(500)
+      .json({ err: 'Database error: Please contact the webmaster' });
   }
 };
 
-router.post('/edit', committeeAuth, handleEditOrCreate);
+router.post('/edit/:id', committeeAuth, handleEditOrCreate);
 router.post('/new', committeeAuth, handleEditOrCreate);
 
 router.post(
-  '/questions',
+  '/edit/:id/questions',
   committeeAuth,
   async function (req: Request, res: Response) {
     try {
-      await meetService.updateQuestions(req.body.id, req.body.questions);
-      res.json(true);
+      const meetId = req.params.id;
+      const { questions } = req.body;
+
+      await meetService.updateQuestions(meetId, questions);
+      res.json({ success: true });
     } catch (err: any) {
-      logger.error('Database error: ', err);
-      res.json({ err: 'Database error: Please contact the webmaster' });
+      logger.error('Database error updating questions: ', err);
+      res
+        .status(500)
+        .json({ err: 'Database error: Please contact the webmaster' });
     }
   }
 );

@@ -51,14 +51,13 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
     setIsSubmitting(true);
 
     try {
-      // If no ID exists, we are in "New" or "Clone" mode
       const endpoint = id ? `/api/meets/edit/${id}` : '/api/meets/new';
       const response = await axios.post(endpoint, formData);
 
-      if (response.data.success) {
-        onSubmit(response.data.id);
-        // If it's a brand new meet, we might want to move to the ID-specific URL
-        if (!id) navigate(`/committee/meets/edit/${response.data.id}`);
+      const returnedId = response.data.id || response.data;
+
+      if (returnedId) {
+        onSubmit(returnedId);
       }
     } catch (err) {
       console.error('Save failed', err);

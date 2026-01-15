@@ -40,10 +40,10 @@ const EditMeet = () => {
   const [loading, setLoading] = useState(!!id);
 
   const isClone = location.pathname.includes('/clone');
-  const isNew = location.pathname.includes('/new') || isClone;
+  const isNewPath = location.pathname.includes('/new');
+  const isNew = isNewPath || isClone;
 
-  // A meet is saved if we have an ID from params or from a recent creation
-  const hasBeenSaved = !!newID && !isClone;
+  const hasBeenSaved = !!newID && (id !== undefined || !isClone);
 
   useEffect(() => {
     if (id && !isNew) {
@@ -180,11 +180,17 @@ const EditMeet = () => {
                 id={hasBeenSaved ? newID : undefined}
                 pathname={location.pathname}
                 onSubmit={id => {
-                  setNewID(id.toString());
+                  const stringId = id.toString();
+                  setNewID(stringId);
                   setError(null);
-                  // setActiveTab('questions');
-                  if (isNew)
-                    navigate(`/admin/meets/edit/${id}`, { replace: true });
+
+                  setActiveTab('questions');
+
+                  if (isNewPath || isClone) {
+                    navigate(`/committee/meets/edit/${stringId}`, {
+                      replace: true,
+                    });
+                  }
                 }}
               />
             </TabsContent>
