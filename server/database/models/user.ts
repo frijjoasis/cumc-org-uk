@@ -15,7 +15,7 @@ class UserModel extends Model<
   InferAttributes<UserModel>,
   InferCreationAttributes<UserModel>
 > {
-  declare id: number;
+  declare id: string;
   declare email: string;
   declare displayName: string;
   declare firstName: string | null;

@@ -41,27 +41,37 @@ router.post('/logout', function (req, res) {
 });
 
 router.get('/logout', function (req, res) {
+  const baseUrl = process.env.FRONTEND_URL || '';
+
   if (req.isAuthenticated()) {
     req.logout(function (err) {
       if (err) {
         console.error('Logout error:', err);
-        return res.status(500).json({ err: 'Logout failed' });
+        return res.redirect(`${baseUrl}/?error=logout_failed`);
       }
-      res.redirect('/');
+      res.redirect(`${baseUrl}/`);
     });
   } else {
-    res.redirect('/');
+    res.redirect(`${baseUrl}/`);
   }
 });
 
 router.get(
   '/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  function (req, res) {
+  async function (req, res) {
     // Replaced is missing
-    userService.isProfileIncomplete(req.user.id).then(missing => {
-      res.redirect(`/${missing ? 'register' : ''}`);
-    });
+    const baseUrl = process.env.FRONTEND_URL || '';
+    try {
+      const userId = String(req.user.id);
+      const isMissing = await userService.isProfileIncomplete(userId);
+
+      const redirectPath = isMissing ? '/register' : '/';
+      res.redirect(`${baseUrl}${redirectPath}`);
+    } catch (error) {
+      console.error('Callback redirect error:', error);
+      res.redirect(`${baseUrl}/?error=auth_failed`);
+    }
   }
 );
 
@@ -76,7 +86,7 @@ if (process.env.NODE_ENV === 'development') {
     }
 
     const devUser = new UserModel({
-      id: 999999999,
+      id: '999999999',
       email: 'dev-admin@cumc.org.uk',
       displayName: 'Development Admin',
       firstName: 'Development',

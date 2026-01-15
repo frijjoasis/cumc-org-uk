@@ -27,11 +27,11 @@ router.get('/', userAuth, async function (req: Request, res: Response) {
 router.get('/committee', async function (req: Request, res: Response) {
   if (req.isAuthenticated()) {
     // Check for the specific Dev Admin ID we set in the dev-login route
-    if (process.env.NODE_ENV === 'development' && req.user.id === 999999999) {
+    if (process.env.NODE_ENV === 'development' && req.user.id === '999999999') {
       return res.json({
         role: 'Development Admin',
         permissions: 'all',
-        isDev: true
+        isDev: true,
       });
     }
 

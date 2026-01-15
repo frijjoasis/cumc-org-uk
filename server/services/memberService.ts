@@ -2,11 +2,11 @@ import { Member, MemberModel, UserModel } from '../database/database';
 import { Op } from 'sequelize';
 
 class MemberService {
-  async getById(id: number): Promise<MemberModel | null> {
+  async getById(id: string): Promise<MemberModel | null> {
     return MemberModel.findByPk(id);
   }
 
-  async getCommitteeRole(id: number): Promise<string | null> {
+  async getCommitteeRole(id: string): Promise<string | null> {
     const member = await MemberModel.findByPk(id);
     return member?.committee ?? null;
   }
@@ -35,7 +35,7 @@ class MemberService {
   }
 
   async updateMembership(
-    id: number,
+    id: string,
     status: boolean
   ): Promise<[MemberModel, boolean | null]> {
     return MemberModel.upsert({
@@ -57,7 +57,7 @@ class MemberService {
   }
 
   async upsert(data: {
-    id: number;
+    id: string;
     hasPaid?: boolean;
     hasFree?: boolean;
     paymentID?: string;

@@ -18,7 +18,8 @@ const router = Router();
 
 const PAYPAL_OAUTH_API = 'https://api.paypal.com/v1/oauth2/token/';
 const PAYPAL_ORDER_API = 'https://api.paypal.com/v2/checkout/orders/';
-const PAYPAL_AUTHORIZATION_API = 'https://api.paypal.com/v2/payments/authorizations/';
+const PAYPAL_AUTHORIZATION_API =
+  'https://api.paypal.com/v2/payments/authorizations/';
 
 // ============================================================================
 // Types
@@ -88,7 +89,10 @@ class PayPalClient {
     }
   }
 
-  async verifyOrder(orderID: string, expectedPrice: string): Promise<PaymentResult<true>> {
+  async verifyOrder(
+    orderID: string,
+    expectedPrice: string
+  ): Promise<PaymentResult<true>> {
     try {
       await this.ensureValidToken();
       const response = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, {
@@ -97,7 +101,9 @@ class PayPalClient {
         },
       });
 
-      const actualPrice = parseFloat(response.data.purchase_units[0].amount.value);
+      const actualPrice = parseFloat(
+        response.data.purchase_units[0].amount.value
+      );
       const expected = parseFloat(expectedPrice);
 
       if (actualPrice === expected) {
@@ -109,7 +115,9 @@ class PayPalClient {
       }
     } catch (err) {
       this.logPayPalError('Verify order', err);
-      return { err: 'An error occurred verifying the payment. You have not been charged' };
+      return {
+        err: 'An error occurred verifying the payment. You have not been charged',
+      };
     }
   }
 
@@ -178,7 +186,9 @@ class PayPalClient {
       return true;
     } catch (err) {
       this.logPayPalError('Void authorization', err);
-      return { err: 'An error occurred voiding payment. Please contact the webmaster' };
+      return {
+        err: 'An error occurred voiding payment. Please contact the webmaster',
+      };
     }
   }
 
@@ -202,8 +212,13 @@ function isError<T>(result: PaymentResult<T>): result is PaymentError {
   return (result as PaymentError).err !== undefined;
 }
 
-async function executePaymentWorkflow(workflow: PaymentWorkflow): Promise<PaymentError | null> {
-  const verifyResult = await paypalClient.verifyOrder(workflow.orderID, workflow.price);
+async function executePaymentWorkflow(
+  workflow: PaymentWorkflow
+): Promise<PaymentError | null> {
+  const verifyResult = await paypalClient.verifyOrder(
+    workflow.orderID,
+    workflow.price
+  );
   if (isError(verifyResult)) {
     return verifyResult;
   }
@@ -213,7 +228,10 @@ async function executePaymentWorkflow(workflow: PaymentWorkflow): Promise<Paymen
     return authResult;
   }
 
-  const captureResult = await paypalClient.captureAuthorization(authResult, workflow.price);
+  const captureResult = await paypalClient.captureAuthorization(
+    authResult,
+    workflow.price
+  );
   if (isError(captureResult)) {
     return captureResult;
   }
@@ -223,7 +241,7 @@ async function executePaymentWorkflow(workflow: PaymentWorkflow): Promise<Paymen
 }
 
 async function handleMeetSignup(
-  userId: number,
+  userId: string,
   displayName: string,
   meetId: number,
   signupData: SignupData,
@@ -252,7 +270,7 @@ async function handleMeetSignup(
 }
 
 async function checkMeetEligibility(
-  userId: number,
+  userId: string,
   meetId: number
 ): Promise<PaymentError | { meet: any; paymentRequired: boolean }> {
   const missing = await userService.isProfileIncomplete(userId);
@@ -277,7 +295,10 @@ async function checkMeetEligibility(
   return { meet, paymentRequired };
 }
 
-async function isPaymentNeeded(userId: number, meet: any): Promise<PaymentResult<boolean>> {
+async function isPaymentNeeded(
+  userId: string,
+  meet: any
+): Promise<PaymentResult<boolean>> {
   const member = await memberService.getById(userId);
   const isFree = !meet.price || parseFloat(meet.price.toString()) < 0.01;
 
@@ -311,7 +332,7 @@ router.post('/membership', userAuth, async (req: Request, res: Response) => {
     const error = await executePaymentWorkflow({
       orderID: req.body.data.orderID,
       price: process.env.MEMBERSHIP_PRICE || '0',
-      onSuccess: async (captureID) => {
+      onSuccess: async captureID => {
         await memberService.upsert({
           id: req.user.id,
           hasPaid: true,
@@ -355,7 +376,10 @@ router.post('/britrock', async (req: Request, res: Response) => {
 
 router.post('/register', userAuth, async (req: Request, res: Response) => {
   try {
-    const eligibility = await checkMeetEligibility(req.user.id, req.body.form.meetID);
+    const eligibility = await checkMeetEligibility(
+      req.user.id,
+      req.body.form.meetID
+    );
 
     if (isError(eligibility)) {
       return res.json(eligibility);
@@ -372,7 +396,7 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
     const error = await executePaymentWorkflow({
       orderID: req.body.data.orderID,
       price: meet.price?.toString() || '0',
-      onSuccess: async (authID) => {
+      onSuccess: async authID => {
         await handleMeetSignup(
           req.user.id,
           (req.user as any).displayName || '',
@@ -396,7 +420,10 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
 
 router.post('/required', userAuth, async (req: Request, res: Response) => {
   try {
-    const eligibility = await checkMeetEligibility(req.user.id, req.body.meetID);
+    const eligibility = await checkMeetEligibility(
+      req.user.id,
+      req.body.meetID
+    );
 
     if (isError(eligibility)) {
       return res.json(eligibility);

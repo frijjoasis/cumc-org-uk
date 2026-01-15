@@ -13,7 +13,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const { id, type } = req.body;
-    const filename = `${getHashedFilename(Number(id), type)}.jpg`;
+    const filename = `${getHashedFilename(id, type)}.jpg`;
     cb(null, filename);
   },
 });
@@ -25,7 +25,7 @@ export const uploadCommitteePhoto = multer({
 
 const isDevAdmin = (req: Request) =>
   process.env.NODE_ENV === 'development' &&
-  req.user?.id === 999999999 &&
+  String(req.user?.id) === '999999999' && // Use string comparison
   process.env.DEV_ADMIN_BYPASS === 'true';
 
 async function committeeAuth(

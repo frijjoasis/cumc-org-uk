@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import routes from './routes'; // Committee specific routes
-import links from '../dashboard/routes'; // Public/Member routes fallback
+import links from '../dashboard/routes';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
@@ -39,9 +39,9 @@ const Admin = () => {
       try {
         const [userRes, memberRes] = await Promise.all([
           axios.get('/api/user/'),
-          axios.get('/api/member/')
+          axios.get('/api/member/'),
         ]);
-        
+
         setUser(userRes.data.user);
         setMember(memberRes.data.member);
       } catch (err) {
@@ -58,14 +58,17 @@ const Admin = () => {
    * IMPORTANT: Logic to determine if user has committee access.
    * Includes Dev Admin bypass for ID 999999999.
    */
-  const isDevAdmin = user?.id === 999999999;
+  const isDevAdmin = user?.id === '999999999';
   const isCommittee = isDevAdmin || (member && member.committee);
 
   if (loading) {
-    return <div className="flex h-screen items-center justify-center bg-background text-zinc-400 font-black uppercase italic tracking-widest">Loading Dashboard...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center bg-background text-zinc-400 font-black uppercase italic tracking-widest">
+        Loading Dashboard...
+      </div>
+    );
   }
 
-  // Security: If not committee and not dev admin, kick back to dashboard
   if (!isCommittee) {
     return <Navigate to="/home" replace />;
   }
@@ -78,10 +81,10 @@ const Admin = () => {
         </Helmet>
       </HelmetProvider>
 
-      <Sidebar 
-        routes={isCommittee ? routes : links} 
-        color={color} 
-        image={image} 
+      <Sidebar
+        routes={isCommittee ? routes : links}
+        color={color}
+        image={image}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
       />
@@ -109,10 +112,10 @@ const Admin = () => {
                     <Route
                       path={prop.path} // Note: simplified pathing
                       element={
-                        <prop.Component 
-                          user={user} 
-                          member={member} 
-                          isDev={isDevAdmin} 
+                        <prop.Component
+                          user={user}
+                          member={member}
+                          isDev={isDevAdmin}
                         />
                       }
                       key={key}
@@ -128,7 +131,7 @@ const Admin = () => {
             </Routes>
           </div>
         </main>
-        
+
         <Footer />
       </div>
     </div>

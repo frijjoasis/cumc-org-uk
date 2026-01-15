@@ -25,7 +25,7 @@ class SignupService {
     const signup = {
       answers: data.answers,
       meetID: data.meetID,
-      userID: Number(user.id),
+      userID: user.id,
       authID: data.authID,
       captureID: data.captureID,
       displayName: user.displayName,

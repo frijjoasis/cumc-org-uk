@@ -7,7 +7,7 @@ class UserService {
     return UserModel.upsert(userData);
   }
 
-  async updateInfo(userData: Partial<User>, id: number): Promise<[number]> {
+  async updateInfo(userData: Partial<User>, id: string): Promise<[number]> {
     // Get all nullable fields from User model
     const fields = Object.keys(UserModel.getAttributes()).filter(
       col => UserModel.getAttributes()[col].allowNull !== false
@@ -31,11 +31,11 @@ class UserService {
     });
   }
 
-  async getById(id: number): Promise<UserModel | null> {
+  async getById(id: string): Promise<UserModel | null> {
     return UserModel.findByPk(id);
   }
 
-  async getWithMember(id: number): Promise<UserModel | null> {
+  async getWithMember(id: string): Promise<UserModel | null> {
     return UserModel.findByPk(id, {
       include: {
         model: MemberModel,
@@ -44,9 +44,9 @@ class UserService {
     });
   }
 
-  async isProfileIncomplete(id: number): Promise<boolean> {
+  async isProfileIncomplete(id: string): Promise<boolean> {
     // If it's the Dev Admin, the profile is never "incomplete"
-    if (id === 999999999 && process.env.NODE_ENV === 'development')
+    if (id === '999999999' && process.env.NODE_ENV === 'development')
       return false;
 
     const user = await this.getById(id);
@@ -78,12 +78,10 @@ class UserService {
 
     if (!cleanQuery) return null;
 
-    const numericId = parseInt(cleanQuery);
-
     return UserModel.findOne({
       where: {
         [Op.or]: [
-          { id: isNaN(numericId) ? -1 : numericId },
+          { id: cleanQuery },
           { email: { [Op.like]: `${cleanQuery}@cam.ac.uk` } },
         ],
       },

@@ -12,7 +12,7 @@ export interface PublicCommitteeModel {
 export interface AdminPublicCommitteeModel extends PublicCommitteeModel {
   id: number;
   role_id: number;
-  member_id: number;
+  member_id: string;
   person_email: string;
   sort_order: number;
   is_current: boolean;

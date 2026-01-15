@@ -68,7 +68,7 @@ passport.use(
         displayName: profile.displayName,
         email: profile.emails?.[0]?.value || '',
       };
-      userService.getById(parseInt(profile.id, 10)).then(() => {
+      userService.getById(profile.id).then(() => {
         done(null, user as any);
       });
     }

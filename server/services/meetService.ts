@@ -81,7 +81,7 @@ class MeetService {
   ): Promise<[MeetModel, boolean | null]> {
     return MeetModel.upsert({
       ...data,
-      organiser: Number(organiserId),
+      organiser: organiserId,
     });
   }
 
