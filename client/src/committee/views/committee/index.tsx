@@ -33,7 +33,11 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AdminPublicCommitteeModel, CommitteeRole } from '@cumc/shared-types';
+import {
+  AdminPublicCommitteeModel,
+  CommitteeRole,
+  User,
+} from '@cumc/shared-types';
 
 const CommitteeManager = () => {
   const [currentCommittee, setCurrentCommittee] = useState<
@@ -48,7 +52,7 @@ const CommitteeManager = () => {
   const [editingMember, setEditingMember] =
     useState<AdminPublicCommitteeModel | null>(null);
   const [loading, setLoading] = useState(false);
-
+  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [formData, setFormData] = useState({
     year: '',
     role_id: 0,
@@ -57,6 +61,12 @@ const CommitteeManager = () => {
     sort_order: 0,
     is_current: true,
   });
+
+  useEffect(() => {
+    if (showDialog) {
+      axios.get('/api/user/list-all').then(res => setAllUsers(res.data));
+    }
+  }, [showDialog]);
 
   const getAcademicYear = (offset = 0) => {
     const year = new Date().getFullYear() + offset;
@@ -406,6 +416,50 @@ const CommitteeManager = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* CRSid Selection */}
+            <div className="space-y-2">
+              <Label className="text-[10px] font-bold uppercase text-zinc-400">
+                Link CRSid (Member)
+              </Label>
+              <Select
+                value={formData.member_id?.toString()}
+                onValueChange={val => {
+                  const found = allMembers.find(m => m.id.toString() === val);
+                  setFormData({
+                    ...formData,
+                    member_id: val,
+                    // Pre-fill the name if the override is currently empty
+                    person_name:
+                      formData.person_name || found?.user?.displayName || '',
+                  });
+                }}
+              >
+                <SelectTrigger className="bg-white">
+                  <SelectValue placeholder="Select a member..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {allMembers.map(m => (
+                    <SelectItem key={m.id} value={m.id.toString()}>
+                      {m.id} ({m.user?.displayName})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase font-bold text-zinc-400">
+                Public Display Name
+              </Label>
+              <Input
+                value={formData.person_name}
+                onChange={e =>
+                  setFormData({ ...formData, person_name: e.target.value })
+                }
+                placeholder="Enter name (overrides system name)"
+              />
             </div>
             <div className="space-y-1">
               <Label className="text-[10px] uppercase font-bold text-zinc-400">
