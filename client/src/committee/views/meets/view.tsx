@@ -1,28 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import {
-  Users,
-  Download,
-  CreditCard,
-  CheckCircle2,
-  Clock,
-  Mail,
-  MessageSquare,
-  ChevronLeft,
-} from 'lucide-react';
+import { Users, Download, CheckCircle2, Clock, Mail } from 'lucide-react';
 
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { MeetContent, Question, SignupData } from '@/types/meet';
+import { Alert, AlertTitle } from '@/components/ui/alert';
+import { MeetContent, SignupData } from '@/types/meet';
 
 const MeetView = () => {
   const { id } = useParams();

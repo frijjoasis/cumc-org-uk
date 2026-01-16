@@ -5,6 +5,7 @@ export interface Question {
   title: string;
   required?: boolean;
   text?: string;
+  type?: 'text' | 'checkbox';
   help?: string;
 }
 
