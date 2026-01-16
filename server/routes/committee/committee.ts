@@ -1,9 +1,6 @@
 import { Router, Request, Response } from 'express';
-import { committeeAuth, uploadCommitteePhoto } from '../middleware';
+import { committeeAuth, rootAuth, uploadCommitteePhoto } from '../middleware';
 import { committeeService, committeeRoleService } from '../../services';
-import fs from 'fs';
-import multer from 'multer';
-import { getHashedFilename } from '../../utils/hash';
 
 const router = Router();
 
@@ -148,55 +145,47 @@ router.post(
   }
 );
 
-router.post(
-  '/start-staging',
-  committeeAuth,
-  async (req: Request, res: Response) => {
-    try {
-      const { year } = req.body;
+router.post('/start-staging', rootAuth, async (req: Request, res: Response) => {
+  try {
+    const { year } = req.body;
 
-      if (!year) {
-        return res.status(400).json({ error: 'Year is required for staging' });
-      }
-
-      const inProgress = await committeeService.isStagingInProgress();
-
-      if (inProgress) {
-        return res.status(400).json({
-          error:
-            'Committee staging already in progress. Clear staged committee first.',
-        });
-      }
-
-      res.json({
-        success: true,
-        message: `Ready to stage committee for ${year}. Add members with status 'staged'.`,
-        staging_year: year,
-      });
-    } catch (error) {
-      console.error('Error starting committee staging:', error);
-      res.status(500).json({ error: 'Failed to start committee staging' });
+    if (!year) {
+      return res.status(400).json({ error: 'Year is required for staging' });
     }
-  }
-);
 
-router.post(
-  '/clear-staged',
-  committeeAuth,
-  async (req: Request, res: Response) => {
-    try {
-      const count = await committeeService.clearStaged();
-      res.json({
-        success: true,
-        message: `Cleared ${count} staged committee members.`,
-        cleared_count: count,
+    const inProgress = await committeeService.isStagingInProgress();
+
+    if (inProgress) {
+      return res.status(400).json({
+        error:
+          'Committee staging already in progress. Clear staged committee first.',
       });
-    } catch (error) {
-      console.error('Error clearing staged committee:', error);
-      res.status(500).json({ error: 'Failed to clear staged committee' });
     }
+
+    res.json({
+      success: true,
+      message: `Ready to stage committee for ${year}. Add members with status 'staged'.`,
+      staging_year: year,
+    });
+  } catch (error) {
+    console.error('Error starting committee staging:', error);
+    res.status(500).json({ error: 'Failed to start committee staging' });
   }
-);
+});
+
+router.post('/clear-staged', rootAuth, async (req: Request, res: Response) => {
+  try {
+    const count = await committeeService.clearStaged();
+    res.json({
+      success: true,
+      message: `Cleared ${count} staged committee members.`,
+      cleared_count: count,
+    });
+  } catch (error) {
+    console.error('Error clearing staged committee:', error);
+    res.status(500).json({ error: 'Failed to clear staged committee' });
+  }
+});
 
 // === COMMITTEE ROLES ROUTES ===
 
@@ -230,7 +219,7 @@ router.get('/roles/status', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/roles', committeeAuth, async (req: Request, res: Response) => {
+router.post('/roles', rootAuth, async (req: Request, res: Response) => {
   try {
     const role = await committeeRoleService.create(req.body);
     res.json(role);
@@ -244,7 +233,7 @@ router.post('/roles', committeeAuth, async (req: Request, res: Response) => {
   }
 });
 
-router.put('/roles/:id', committeeAuth, async (req: Request, res: Response) => {
+router.put('/roles/:id', rootAuth, async (req: Request, res: Response) => {
   try {
     const role = await committeeRoleService.update(
       Number(req.params.id),
@@ -266,28 +255,22 @@ router.put('/roles/:id', committeeAuth, async (req: Request, res: Response) => {
   }
 });
 
-router.delete(
-  '/roles/:id',
-  committeeAuth,
-  async (req: Request, res: Response) => {
-    try {
-      const result = await committeeRoleService.deactivate(
-        Number(req.params.id)
-      );
+router.delete('/roles/:id', rootAuth, async (req: Request, res: Response) => {
+  try {
+    const result = await committeeRoleService.deactivate(Number(req.params.id));
 
-      if (!result.success) {
-        return res.status(404).json({ error: result.message });
-      }
-
-      res.json({ message: result.message });
-    } catch (error: any) {
-      console.error('Error deleting committee role:', error);
-      res
-        .status(400)
-        .json({ error: error.message || 'Failed to delete committee role' });
+    if (!result.success) {
+      return res.status(404).json({ error: result.message });
     }
+
+    res.json({ message: result.message });
+  } catch (error: any) {
+    console.error('Error deleting committee role:', error);
+    res
+      .status(400)
+      .json({ error: error.message || 'Failed to delete committee role' });
   }
-);
+});
 router.post(
   '/upload-photo',
   committeeAuth,

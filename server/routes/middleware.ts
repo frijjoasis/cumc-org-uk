@@ -3,6 +3,8 @@ import { memberService } from '../services';
 import multer from 'multer';
 import fs from 'fs';
 import { getHashedFilename } from '../utils/hash';
+import { CommitteeModel, CommitteeRoleModel } from 'database/models';
+import { Op } from 'sequelize';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -51,19 +53,44 @@ async function rootAuth(
   res: Response,
   next: NextFunction
 ): Promise<void | Response> {
-  if (req.isAuthenticated()) {
-    // 1. Dev Admin acts as Root
-    if (isDevAdmin(req)) return next();
+  if (!req.isAuthenticated()) {
+    return res
+      .status(401)
+      .json({ err: 'You need to be signed in to do that!' });
+  }
 
-    // 2. Standard Root check
-    const role = await memberService.getCommitteeRole(req.user.id);
-    if (role === 'root') return next();
+  if (isDevAdmin(req)) return next();
+
+  try {
+    // Check if the user has EVER held a root-level role
+    const hasRootAccess = await CommitteeModel.findOne({
+      where: {
+        member_id: req.user.id,
+      },
+      include: [
+        {
+          model: CommitteeRoleModel,
+          as: 'committeeRole',
+          where: {
+            role_slug: {
+              [Op.in]: ['webmaster', 'president'],
+            },
+          },
+        },
+      ],
+    });
+
+    if (hasRootAccess) {
+      return next();
+    }
 
     return res.status(403).json({
       err: 'You are not in the sudoers file. This incident will be reported.',
     });
+  } catch (error) {
+    console.error('Auth Error:', error);
+    return res.status(500).json({ err: 'Internal authorization error.' });
   }
-  return res.status(401).json({ err: 'You need to be signed in to do that!' });
 }
 
 function userAuth(

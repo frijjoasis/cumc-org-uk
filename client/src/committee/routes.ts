@@ -64,13 +64,13 @@ const routes: RouteConfig[] = [
     Component: ViewMeet,
     layout: '/committee',
   },
-  {
-    path: '/treasure',
-    name: 'Treasure',
-    icon: 'pe-7s-cash',
-    Component: Treasure,
-    layout: '/committee',
-  },
+  // {
+  //   path: '/treasure',
+  //   name: 'Treasure',
+  //   icon: 'pe-7s-cash',
+  //   Component: Treasure,
+  //   layout: '/committee',
+  // },
   {
     path: '/members',
     name: 'Members',
