@@ -74,16 +74,18 @@ passport.use(
     }
   )
 );
-passport.serializeUser(function (user: Express.User, done) {
-  done(null, user);
+passport.serializeUser(function (user: any, done) {
+  done(null, user.id); 
 });
 
-passport.deserializeUser(function (user: Express.User, done) {
-  // Dev users don't exist in the database, so just return them as-is
-  if ((user as any).isDevUser) {
-    return done(null, user);
-  }
-  done(null, user);
+passport.deserializeUser(function (id: string, done) {
+  userService.getById(id)
+    .then(user => {
+      done(null, user); // Attaches full user object to req.user
+    })
+    .catch(err => {
+      done(err, null);
+    });
 });
 
 app.use(

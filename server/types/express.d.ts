@@ -20,7 +20,6 @@ declare global {
       medicalInfo?: string | null;
       createdAt?: Date;
       updatedAt?: Date;
-      isDevUser?: boolean;
     }
   }
 }

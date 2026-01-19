@@ -37,11 +37,6 @@ export const uploadCommitteePhoto = multer({
   limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-const isDevAdmin = (req: Request) =>
-  process.env.NODE_ENV === 'development' &&
-  String(req.user?.id) === '999999999' &&
-  process.env.DEV_ADMIN_BYPASS === 'true';
-
 async function committeeAuth(
   req: Request,
   res: Response,
@@ -50,8 +45,6 @@ async function committeeAuth(
   if (!req.isAuthenticated()) {
     return res.status(401).json({ err: 'You need to be signed in to do that!' });
   }
-
-  if (isDevAdmin(req)) return next();
 
   try {
     const isRoot = await memberService.getUserIsRoot(req.user.id);
@@ -87,8 +80,6 @@ async function rootAuth(
   if (!req.isAuthenticated()) {
     return res.status(401).json({ err: 'You need to be signed in to do that!' });
   }
-
-  if (isDevAdmin(req)) return next();
 
   try {
     const isRoot = await memberService.getUserIsRoot(req.user.id); 

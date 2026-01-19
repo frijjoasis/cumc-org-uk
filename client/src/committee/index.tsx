@@ -54,12 +54,7 @@ const Admin = () => {
     fetchData();
   }, []);
 
-  /**
-   * IMPORTANT: Logic to determine if user has committee access.
-   * Includes Dev Admin bypass for ID 999999999.
-   */
-  const isDevAdmin = user?.id === '999999999';
-  const isCommittee = isDevAdmin || (member && member.committee);
+  const isCommittee = (member && member.committee);
 
   if (loading) {
     return (
@@ -115,7 +110,6 @@ const Admin = () => {
                         <prop.Component
                           user={user}
                           member={member}
-                          isDev={isDevAdmin}
                         />
                       }
                       key={key}

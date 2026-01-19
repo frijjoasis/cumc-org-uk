@@ -13,10 +13,6 @@ const LoginRedirect = () => {
   return null;
 };
 
-const DevLoginRedirect = () => {
-  window.location.href = '/api/auth/dev-login';
-  return null;
-};
 
 const AltLoginRedirect = () => {
   window.location.href = '/api/auth/login/other';
@@ -41,9 +37,6 @@ root.render(
     >
       <Routes>
         <Route path="/login" element={<LoginRedirect />} />
-        {import.meta.env.MODE === 'development' && (
-          <Route path="/login/dev" element={<DevLoginRedirect />} />
-        )}
         <Route path="/login/other" element={<AltLoginRedirect />} />
         <Route path="/logout" element={<LogoutRedirect />} />
         <Route path="/committee/*" element={<Admin />} />

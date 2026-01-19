@@ -19,10 +19,9 @@ import { User, Member } from '@/types/models';
 interface CommitteeHomeProps {
   user: User;
   member: Member;
-  isDev?: boolean;
 }
 
-const CommitteeHome = ({ user, member, isDev }: CommitteeHomeProps) => {
+const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
   const [committeeList, setCommitteeList] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -39,16 +38,6 @@ const CommitteeHome = ({ user, member, isDev }: CommitteeHomeProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Dev Mode Notification */}
-      {isDev && (
-        <Alert className="bg-amber-50 border-amber-200 text-amber-900 shadow-sm">
-          <Terminal className="h-4 w-4 text-amber-600" />
-          <AlertTitle className="font-black uppercase tracking-widest text-[10px]">Developer Session</AlertTitle>
-          <AlertDescription className="text-sm">
-            You are logged in via <strong>ID: 999999999</strong>. Database-linked committee roles may not appear.
-          </AlertDescription>
-        </Alert>
-      )}
 
       {error && (
         <Alert variant="destructive">
@@ -70,7 +59,7 @@ const CommitteeHome = ({ user, member, isDev }: CommitteeHomeProps) => {
                 <CardTitle className="text-xl font-black uppercase italic tracking-tight">Committee Area</CardTitle>
                 <CardDescription>
                   Welcome back, <span className="text-zinc-900 font-bold">{user?.displayName || 'Admin'}</span>. 
-                  Role: <Badge variant="outline" className="ml-1 uppercase text-[10px]">{member?.committee || 'Dev-Admin'}</Badge>
+                  Role: <Badge variant="outline" className="ml-1 uppercase text-[10px]">{member?.committee}</Badge>
                 </CardDescription>
               </div>
             </div>

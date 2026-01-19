@@ -45,10 +45,6 @@ class UserService {
   }
 
   async isProfileIncomplete(id: string): Promise<boolean> {
-    // If it's the Dev Admin, the profile is never "incomplete"
-    if (id === '999999999' && process.env.NODE_ENV === 'development')
-      return false;
-
     const user = await this.getById(id);
     if (!user) return true;
 

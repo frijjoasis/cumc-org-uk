@@ -27,7 +27,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 
 import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
-import DevLogin from '@/components/DevLogin/DevLogin';
 import { User } from '@/types/models';
 
 const Register = ({ user }: { user: User }) => {
@@ -83,7 +82,6 @@ const Register = ({ user }: { user: User }) => {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4 space-y-8">
-      <DevLogin />
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div className="space-y-1">

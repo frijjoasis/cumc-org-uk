@@ -121,19 +121,6 @@ const LoginDropdown = () => (
       <DropdownMenuItem asChild>
         <Link to="/login/other">No Raven account?</Link>
       </DropdownMenuItem>
-
-      {/* Dev Login Section */}
-      {process.env.NODE_ENV === 'development' && (
-        <DropdownMenuGroup>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            asChild
-            className="text-yellow-600 focus:text-yellow-600"
-          >
-            <Link to="/login/dev">🔓 Dev Login</Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-      )}
     </DropdownMenuContent>
   </DropdownMenu>
 );

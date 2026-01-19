@@ -6,17 +6,6 @@ import { userAuth, rootAuth } from '../middleware';
 const router = Router();
 
 router.get('/', userAuth, async function (req: Request, res: Response) {
-  // Handle dev users - they don't exist in the database
-  if ((req.user as any).isDevUser) {
-    return res.json({
-      member: {
-        id: req.user.id,
-        hasPaid: true,
-        hasFree: false,
-        committee: 'Dev Admin',
-      },
-    });
-  }
 
   try {
     const member = await memberService.getById(req.user.id);
@@ -34,14 +23,6 @@ router.get('/committee', async function (req: Request, res: Response) {
 
   if (!req.isAuthenticated()) {
     return res.json(defaultStatus);
-  }
-
-  if (process.env.NODE_ENV === 'development' && req.user.id === '999999999') {
-    return res.json({
-      isCommittee: true,
-      isRoot: true,
-      roles: ['Development Admin'],
-    });
   }
 
   try {
