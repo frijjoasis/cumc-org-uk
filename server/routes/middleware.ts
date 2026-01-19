@@ -3,7 +3,7 @@ import { memberService } from '../services';
 import multer from 'multer';
 import fs from 'fs';
 import { getHashedFilename } from '../utils/hash';
-import { CommitteeModel, CommitteeRoleModel } from 'database/models';
+import { CommitteeModel, CommitteeRoleModel } from '../database/models';
 import { Op } from 'sequelize';
 
 const storage = multer.diskStorage({

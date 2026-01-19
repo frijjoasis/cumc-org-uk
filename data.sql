@@ -10,6 +10,28 @@ AND year IN (
 /* 2. Insert the verified data from oldCommittee */
 INSERT INTO "Committee" (year, role, person_name, status, is_current)
 VALUES
+-- 2024-2025
+('2024-2025', 'President', 'Tessa Mullen', 'past', false),
+('2024-2025', 'President', 'Jade Westfoot', 'past', false),
+('2024-2025', 'Secretary', 'Danylo Mankovsky', 'past', false),
+('2024-2025', 'Treasurer', 'Fin Chetham', 'past', false),
+('2024-2025', 'Gear', 'Inigo Holman', 'past', false),
+('2024-2025', 'Outdoor Meet', 'Ria Bacharach', 'past', false),
+('2024-2025', 'Outdoor Meet', 'Ben Taylor', 'past', false),
+('2024-2025', 'Outdoor Meet', 'Inigo Holman', 'past', false),
+('2024-2025', 'Outdoor Meet', 'Oliver Marx', 'past', false),
+('2024-2025', 'Indoor Meet', 'Rosa Mueller', 'past', false),
+('2024-2025', 'Indoor Meet', 'Belle Sow', 'past', false),
+('2024-2025', 'Competition', 'Hermione Boyle', 'past', false),
+('2024-2025', 'Competition', 'Isaac Miller', 'past', false),
+('2024-2025', 'Social', 'Seb Gentile', 'past', false),
+('2024-2025', 'Social', 'Rebecca Jesson', 'past', false),
+('2024-2025', 'Social', 'Noah Grodzinski', 'past', false),
+('2024-2025', 'Journal', 'Alex Maltby', 'past', false),
+('2024-2025', 'Librarian', 'Nat Tompkins', 'past', false),
+('2024-2025', 'Webmaster', 'Oliver Gaskell', 'past', false),
+('2024-2025', 'Welfare', 'Izzie Iveson', 'past', false),
+('2024-2025', 'Welfare', 'Anastasia Marine', 'past', false),
 -- 2023-2024
 ('2023-2024', 'President', 'Noah Grodzinski', 'past', false),
 ('2023-2024', 'President', 'Eren Ozturk', 'past', false),
