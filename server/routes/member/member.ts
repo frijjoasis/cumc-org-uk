@@ -18,35 +18,48 @@ router.get('/', userAuth, async function (req: Request, res: Response) {
     });
   }
 
-  const member = await memberService.getById(req.user.id);
-  res.json({
-    member: member,
-  });
+  try {
+    const member = await memberService.getById(req.user.id);
+    res.json({
+      member: member,
+    });
+  } catch (err) {
+    logger.error('Error fetching member:', err);
+    res.status(500).json({ err: 'Internal Server Error' });
+  }
 });
 
 router.get('/committee', async function (req: Request, res: Response) {
-  if (req.isAuthenticated()) {
-    // Check for the specific Dev Admin ID we set in the dev-login route
-    if (process.env.NODE_ENV === 'development' && req.user.id === '999999999') {
-      return res.json({
-        role: 'Development Admin',
-        permissions: 'all',
-        isDev: true,
-      });
-    }
+  const defaultStatus = { isCommittee: false, isRoot: false, roles: [] };
 
+  if (!req.isAuthenticated()) {
+    return res.json(defaultStatus);
+  }
+
+  if (process.env.NODE_ENV === 'development' && req.user.id === '999999999') {
+    return res.json({
+      isCommittee: true,
+      isRoot: true,
+      roles: ['Development Admin'],
+    });
+  }
+
+  try {
     const role = await memberService.getCommitteeRole(req.user.id);
     return res.json(role);
+  } catch (error) {
+    logger.error('Error fetching committee role:', error);
+    return res.json(defaultStatus);
   }
-  res.json(false);
 });
+
 router.get('/reset', rootAuth, async function (req: Request, res: Response) {
   try {
     await memberService.resetAllMemberships();
     res.json(true);
   } catch (err: any) {
     logger.error('Database error: ', err);
-    res.json({ err: 'Database error: Please contact the webmaster' });
+    res.status(500).json({ err: 'Database error: Please contact the webmaster' });
   }
 });
 
@@ -56,7 +69,7 @@ router.post('/update', rootAuth, async function (req: Request, res: Response) {
     res.json(true);
   } catch (err: any) {
     logger.error('Database error: ', err);
-    res.json({ err: 'Database error: Please contact the webmaster' });
+    res.status(500).json({ err: 'Database error: Please contact the webmaster' });
   }
 });
 

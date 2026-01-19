@@ -1,23 +1,38 @@
 /* 1. Remove the incorrect/corrupted 'past' data */
-DELETE FROM "Committee" 
-WHERE (status != 'current' OR is_current = false)
-AND year IN (
-    '2024-2025','2023-2024', '2022-2023', '2021-2022', '2020-2021', '2019-2020', 
-    '2018-2019', '2017-2018', '2016-2017', '2015-2016', '2014-2015', 
-    '2013-2014', '2012-2013'
-);
+TRUNCATE FROM "Committee" 
 
 -- Current Committee
-INSERT INTO "Committee" (year, 'role_id', role, person_name, status, is_current)
+INSERT INTO "Committee" (member_id, year, 'role_id', role, person_name, status, is_current)
+VALUES
+    (107964483445919094240, '2025-2026', 1, 'President', 'Nat Tompkins' , 'current', true),
+    (110936195513898250932, '2025-2026', 1, 'President', 'Danylo Mankovsky', 'current', true),
+    (105090196157524926523, '2025-2026', 2, 'Secretary', 'Cameron Kirk', 'current', true),
+    (107964483445919094240, '2025-2026', 3, 'Treasurer', 'Nat Tompkins', 'current', true),
+    (102156118315328359041, '2025-2026', 4, 'Gear', 'Noah Grodzinski', 'current', true),
+    (114448866611585755249, '2025-2026', 5, 'Indoor Meet', 'Henry Beare', 'current', true),
+    (112252704509864257043, '2024-2025', 16, 'Outdoor Meet', 'Jade Westfoot', 'past', false),
+    (110995723222612439588, '2025-2026', 8, 'Competition', 'Carys Bonell', 'current', true),
+    (116963819595381660196, '2025-2026', 8, 'Competition', 'Catrin Hughes-Gibbard', 'current', true),
+    (105546270123250389602, '2025-2026', 9, 'Social', 'Lucy Mountain', 'current', true),
+    (115866035697833724752, '2025-2026', 9, 'Social', 'Luna Lord', 'current', true),
+    (104342208797649925226, '2025-2026', 10, 'Postgrad Social', 'Paula Juan Royo', 'current', true),
+    (104378208082774628802, '2025-2026', 12, 'Journal', 'Alex Maltby', 'current', true),
+    (107964483445919094240, '2025-2026', 13, 'Librarian', 'Nat Tompkins', 'current', true),
+    (111657966392378812800, '2025-2026', 11, 'Webmaster', 'Ben Browning', 'current', true),
+    (116963819595381660196, '2025-2026', 14, 'Welfare', 'Catrin Hughes-Gibbard', 'current', true),
+    (108608491356932955975, '2025-2026', 17, 'Intro/Outreach', 'Ashwin Sridhar', 'current', true),
+    (104477230443776403528, '2025-2026', 17, 'Intro/Outreach', 'Prateeti Saran', 'current', true);
+
+    
 
 -- Linked data - So the roles work
-INSERT INTO "Committee" (year, 'role_id', role, person_name, status, is_current)
+INSERT INTO "Committee" (member_id, year, 'role_id', role, person_name, status, is_current)
 VALUES
     -- Edmund
     (112879374578849302274, ),
 
     (108782615540405947547, '2024-2025', 1, 'President', 'Tessa Mullen', 'past', false),
-    (112252704509864257043, '2024-2025', 1, 'President', 'Jade Westfoot', 'past', false),
+    (112252704509864257043, '2024-2025', 1, 'President', 'Jade Westfoot', 'past', false);
 
 /* 2. Insert the verified data from oldCommittee */
 INSERT INTO "Committee" (year, 'role_id', role, person_name, status, is_current)
