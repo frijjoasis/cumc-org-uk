@@ -4,13 +4,11 @@ import { committeeService, committeeRoleService } from '../../services';
 
 const router = Router();
 
-// === COMMITTEE MEMBER ROUTES ===
 
 router.get('/current', async (req: Request, res: Response) => {
   try {
     const committeeModels = await committeeService.getCurrent();
 
-    // Transform the models using your shared service logic
     const exposedCommittee = await Promise.all(
       committeeModels.map(cm => committeeService.getExposedModel(cm))
     );

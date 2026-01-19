@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CommitteeRole } from '@/types/models';
@@ -305,6 +306,11 @@ const RolesManager = () => {
             <DialogTitle className="text-xl font-black uppercase italic tracking-tight">
               {editingRole ? 'Update Role' : 'Create New Position'}
             </DialogTitle>
+            <DialogDescription>
+              {editingRole 
+                ? 'Modify the details and permissions for this existing role.' 
+                : 'Fill in the details below to create a new committee position.'}
+            </DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-6 pt-4">
