@@ -1,9 +1,8 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { CommitteePersonData } from '@/types/committee';
-import { Mail, Instagram } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
-import defaultCover from '@/assets/img/committee/tradAlpine2Cover.jpg';
 
 interface UserCardProps {
   person: CommitteePersonData;
@@ -19,7 +18,7 @@ const UserCard: React.FC<UserCardProps> = ({ person }) => {
           <img
             src={person.cover}
             alt={`${person.name} cover`}
-            className="w-full h-full object-cover transition-transform duration-500 opacity-90"
+            className="w-full h-full object-cover object-center"
             onError={() => setCoverError(true)}
           />
         )}
@@ -32,6 +31,7 @@ const UserCard: React.FC<UserCardProps> = ({ person }) => {
               <AvatarImage
                 src={person.profile || undefined}
                 alt={person.name}
+                className="aspect-square h-full w-full object-cover"
               />
               <AvatarFallback>
                 {person.name?.charAt(0).toUpperCase() || 'U'}
@@ -40,7 +40,6 @@ const UserCard: React.FC<UserCardProps> = ({ person }) => {
           </div>
         </div>
 
-        {/* Text Content */}
         <div className="space-y-1">
           <p className="text-[10px] font-black uppercase tracking-widest text-primary italic">
             {person.role}
@@ -50,14 +49,10 @@ const UserCard: React.FC<UserCardProps> = ({ person }) => {
           </h4>
         </div>
 
-        {/* Social / Email Footer */}
         <div className="mt-6 pt-4 border-t border-zinc-100 flex justify-center gap-4">
-          {/* If social is an email, we show mail icon, otherwise instagram */}
           <div className="flex items-center gap-2 text-zinc-400 hover:text-primary transition-colors cursor-pointer">
-            {person.social?.includes('@') ? (
+            {person.social && (
               <Mail className="h-4 w-4" />
-            ) : (
-              <Instagram className="h-4 w-4" />
             )}
             <span className="text-xs font-semibold">{person.social}</span>
           </div>
