@@ -1,8 +1,8 @@
 /* 1. Remove the incorrect/corrupted 'past' data */
-TRUNCATE FROM "Committee" 
+TRUNCATE "Committee" ;
 
 -- Current Committee
-INSERT INTO "Committee" (member_id, year, 'role_id', role, person_name, status, is_current)
+INSERT INTO "Committee" (member_id, year, "role_id", role, person_name, status, is_current)
 VALUES
     (107964483445919094240, '2025-2026', 1, 'President', 'Nat Tompkins' , 'current', true),
     (110936195513898250932, '2025-2026', 1, 'President', 'Danylo Mankovsky', 'current', true),
@@ -26,16 +26,13 @@ VALUES
     
 
 -- Linked data - So the roles work
-INSERT INTO "Committee" (member_id, year, 'role_id', role, person_name, status, is_current)
+INSERT INTO "Committee" (member_id, year, "role_id", role, person_name, status, is_current)
 VALUES
-    -- Edmund
-    (112879374578849302274, ),
-
     (108782615540405947547, '2024-2025', 1, 'President', 'Tessa Mullen', 'past', false),
     (112252704509864257043, '2024-2025', 1, 'President', 'Jade Westfoot', 'past', false);
 
 /* 2. Insert the verified data from oldCommittee */
-INSERT INTO "Committee" (year, 'role_id', role, person_name, status, is_current)
+INSERT INTO "Committee" (year, "role_id", role, person_name, status, is_current)
 VALUES
 -- 2024-2025
 ('2024-2025', 2, 'Secretary', 'Danylo Mankovsky', 'past', false),
@@ -69,7 +66,7 @@ VALUES
 ('2023-2024', 15, 'Alpine and Winter', 'Lev Davies', 'past', false),
 ('2023-2024', 8, 'Competition', 'Jade Westfoot', 'past', false),
 ('2023-2024', 8, 'Competition', 'Inigo Holman', 'past', false),
-('2023-2024', 9, 'Social',Journal 'Tessa Mullen', 'past', false),
+('2023-2024', 9, 'Social', 'Tessa Mullen', 'past', false),
 ('2023-2024', 9, 'Social', 'Josh Davies', 'past', false),
 ('2023-2024', 12, 'Journal', 'Eren Ozturk', 'past', false),
 ('2023-2024', 13, 'Librarian', 'Tessa Mullen', 'past', false),
