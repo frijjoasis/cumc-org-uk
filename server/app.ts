@@ -38,7 +38,7 @@ app.use(express.urlencoded({ extended: false }));
 app.enable('trust proxy');
 
 // Static Files
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.resolve(process.cwd(), 'public')));
 app.use(express.static(path.join(__dirname, '../../client/build')));
 
 passport.use(

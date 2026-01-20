@@ -8,10 +8,13 @@ import {
   CreationOptional,
 } from 'sequelize';
 
-class BritRockModel extends Model<
-  InferAttributes<BritRockModel>,
-  InferCreationAttributes<BritRockModel>
-> implements BritRock {
+class BritRockModel
+  extends Model<
+    InferAttributes<BritRockModel>,
+    InferCreationAttributes<BritRockModel>
+  >
+  implements BritRock
+{
   declare id: CreationOptional<number>;
   declare name: string;
   declare email: string;
@@ -47,17 +50,15 @@ function define(sequelize: Sequelize): typeof BritRockModel {
     },
     {
       sequelize,
-      tableName: 'BritRock', 
+      tableName: 'BritRock',
       modelName: 'britrock',
-      timestamps: true, 
+      timestamps: true,
     }
   );
 
   return BritRockModel;
 }
 
-
-function associate(): void {
-}
+function associate(): void {}
 
 export { BritRockModel, define, associate };
