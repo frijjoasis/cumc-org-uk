@@ -1,5 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { logger } from '../logger.js';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import * as UserModule from './models/user.js';
 import * as MemberModule from './models/member.js';
@@ -8,6 +11,10 @@ import * as SignupModule from './models/signup.js';
 import * as BritRockModule from './models/britrock.js';
 import * as CommitteeModule from './models/committee.js';
 import * as CommitteeRoleModule from './models/committeeRole.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(process.cwd(), 'server/.env') });
 
 const sequelize = new Sequelize(process.env.DATABASE_URL!, {
   dialect: 'postgres',
@@ -20,7 +27,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL!, {
           }
         : false,
   },
-  logging: (msg) => logger.debug(msg),
+  logging: msg => logger.debug(msg),
 });
 
 interface ModelModule {
@@ -36,7 +43,7 @@ const modules: ModelModule[] = [
   BritRockModule,
   CommitteeModule,
   CommitteeRoleModule,
-]; 
+];
 
 async function init(): Promise<void> {
   try {
@@ -54,8 +61,8 @@ async function init(): Promise<void> {
     }
 
     const isDev = process.env.NODE_ENV !== 'production';
-    await sequelize.sync({ alter: isDev }); 
-    
+    await sequelize.sync({ alter: isDev });
+
     logger.info('All models synchronized successfully.');
   } catch (error) {
     logger.error('Database initialization failed:', error);
