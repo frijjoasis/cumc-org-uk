@@ -13,10 +13,10 @@
   ],
   "scripts": {
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run dev -w server\" \"npm run start -w client\"",
-    "build": "npm run build --workspaces",
+    "build": "npm run build -w shared && npm run build -w server && npm run build -w client",
     "start": "node server/dist/app.js",
     "test": "npm test --workspaces",
-    "clean": "rm -rf node_modules server/dist client/build"
+    "clean": "rm -rf node_modules server/dist client/build shared/dist"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

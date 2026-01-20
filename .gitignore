@@ -12,6 +12,7 @@ node_modules/
 /build
 /client/build
 /server/dist
+/shared/dist
 
 # idea
 /.idea
