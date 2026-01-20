@@ -39,7 +39,7 @@ app.enable('trust proxy');
 
 // Static Files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, '../client/build')));
+app.use(express.static(path.join(__dirname, '../../client/build')));
 
 passport.use(
   new GoogleStrategy(
@@ -111,7 +111,7 @@ const routers = [
 routers.forEach(route => app.use(route.path, route.router));
 
 app.get('*', (req: Request, res: Response) => {
-  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+  res.sendFile(path.join(__dirname, '../../client/build/index.html'));
 });
 
 try {
