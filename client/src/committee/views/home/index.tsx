@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { 
-  ShieldCheck, 
-  Info, 
-  Github, 
-  History, 
+import {
+  ShieldCheck,
+  Info,
+  Github,
+  History,
   User as UserIcon,
   AlertTriangle,
-  Terminal
+  Terminal,
 } from 'lucide-react';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { User, Member } from '@/types/models';
+import { User, Member } from '@cumc/shared-types';
 
 interface CommitteeHomeProps {
   user: User;
@@ -27,18 +33,18 @@ const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('/api/committee/current')
+    axios
+      .get('/api/committee/current')
       .then(res => {
         if (res.data.err) setError(res.data.err);
         else setCommitteeList(res.data);
       })
-      .catch(() => setError("Failed to fetch committee data"))
+      .catch(() => setError('Failed to fetch committee data'))
       .finally(() => setLoading(false));
   }, []);
 
   return (
     <div className="space-y-6">
-
       {error && (
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
@@ -56,10 +62,21 @@ const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
                 <ShieldCheck className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-xl font-black uppercase italic tracking-tight">Committee Area</CardTitle>
+                <CardTitle className="text-xl font-black uppercase italic tracking-tight">
+                  Committee Area
+                </CardTitle>
                 <CardDescription>
-                  Welcome back, <span className="text-zinc-900 font-bold">{user?.displayName || 'Admin'}</span>. 
-                  Role: <Badge variant="outline" className="ml-1 uppercase text-[10px]">{member?.committee}</Badge>
+                  Welcome back,{' '}
+                  <span className="text-zinc-900 font-bold">
+                    {user?.displayName || 'Admin'}
+                  </span>
+                  . Role:{' '}
+                  <Badge
+                    variant="outline"
+                    className="ml-1 uppercase text-[10px]"
+                  >
+                    {member?.committee}
+                  </Badge>
                 </CardDescription>
               </div>
             </div>
@@ -76,13 +93,19 @@ const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
                 <tbody className="divide-y divide-zinc-100">
                   {committeeList.length > 0 ? (
                     committeeList.map((c, i) => (
-                      <tr key={i} className="hover:bg-zinc-50/30 transition-colors">
+                      <tr
+                        key={i}
+                        className="hover:bg-zinc-50/30 transition-colors"
+                      >
                         <td className="px-4 py-3 font-bold text-zinc-900 flex items-center gap-2">
                           <UserIcon className="h-3 w-3 text-zinc-400" />
                           {c.person_name}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge variant="secondary" className="font-medium bg-zinc-100 text-zinc-700">
+                          <Badge
+                            variant="secondary"
+                            className="font-medium bg-zinc-100 text-zinc-700"
+                          >
                             {c.role}
                           </Badge>
                         </td>
@@ -90,8 +113,13 @@ const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={2} className="px-4 py-8 text-center text-zinc-400 italic">
-                        {loading ? 'Syncing committee data...' : 'No current committee records found.'}
+                      <td
+                        colSpan={2}
+                        className="px-4 py-8 text-center text-zinc-400 italic"
+                      >
+                        {loading
+                          ? 'Syncing committee data...'
+                          : 'No current committee records found.'}
                       </td>
                     </tr>
                   )}
@@ -107,26 +135,38 @@ const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2 text-blue-700">
                 <Info className="h-4 w-4" />
-                <CardTitle className="text-sm font-bold uppercase tracking-wide">Webmaster Briefing</CardTitle>
+                <CardTitle className="text-sm font-bold uppercase tracking-wide">
+                  Webmaster Briefing
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent>
               <ul className="text-xs space-y-3 text-zinc-600 font-medium">
                 <li className="flex gap-2">
                   <span className="text-blue-500">•</span>
-                  <span>Meet signups create a **payment promise** valid for 30 days.</span>
+                  <span>
+                    Meet signups create a **payment promise** valid for 30 days.
+                  </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-blue-500">•</span>
-                  <span>Void promises before cancelling meets to prevent accidental charges.</span>
+                  <span>
+                    Void promises before cancelling meets to prevent accidental
+                    charges.
+                  </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="text-blue-500">•</span>
-                  <span>Promises only cover up to **115%** of original price. Re-sign if price hikes.</span>
+                  <span>
+                    Promises only cover up to **115%** of original price.
+                    Re-sign if price hikes.
+                  </span>
                 </li>
                 <li className="flex gap-2 text-emerald-700 font-bold">
                   <span className="text-emerald-500">•</span>
-                  <span>Remember to fill out the reimbursement form after capture!</span>
+                  <span>
+                    Remember to fill out the reimbursement form after capture!
+                  </span>
                 </li>
               </ul>
             </CardContent>
@@ -134,14 +174,30 @@ const CommitteeHome = ({ user, member }: CommitteeHomeProps) => {
 
           {/* Quick Actions */}
           <div className="grid grid-cols-1 gap-3">
-            <Button variant="outline" className="w-full justify-start gap-2 border-zinc-200" asChild>
-              <a href="https://github.com/frijjoasis/cumc-org-uk/commits/master" target="_blank" rel="noreferrer">
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2 border-zinc-200"
+              asChild
+            >
+              <a
+                href="https://github.com/frijjoasis/cumc-org-uk/commits/master"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <History className="h-4 w-4" />
                 Recent Changes
               </a>
             </Button>
-            <Button variant="outline" className="w-full justify-start gap-2 border-zinc-200" asChild>
-              <a href="https://github.com/frijjoasis/cumc-org-uk" target="_blank" rel="noreferrer">
+            <Button
+              variant="outline"
+              className="w-full justify-start gap-2 border-zinc-200"
+              asChild
+            >
+              <a
+                href="https://github.com/frijjoasis/cumc-org-uk"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <Github className="h-4 w-4" />
                 Source Code
               </a>

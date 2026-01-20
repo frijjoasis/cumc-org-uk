@@ -1,19 +1,30 @@
 import { ComponentType } from 'react';
 
-export interface RouteConfig {
-  path?: string;
+interface PageRoute {
+  path: string;
   name: string;
+  layout: string;
+  Component: ComponentType<any>;
   icon?: string;
-  Component?: ComponentType<any>;
-  layout?: string;
-  category?: boolean;
   hide?: boolean;
   auth?: boolean;
+  category?: false; // Explicitly not a category
 }
 
-// Extend Window interface to include PayPal
+interface CategoryRoute {
+  name: string;
+  category: true;
+  path?: never;
+  layout?: never;
+  Component?: never;
+  icon?: never;
+}
+
+export type RouteConfig = PageRoute | CategoryRoute;
+
+// Global window extensions
 declare global {
   interface Window {
-    paypal: any;
+    paypal?: any; // Marked optional as it loads asynchronously
   }
 }

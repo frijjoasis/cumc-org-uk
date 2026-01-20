@@ -1,40 +1,35 @@
-import { MeetModel, SignupModel, UserModel } from '../database/database';
-import type { MeetType } from '../database/types';
+import { MeetModel, SignupModel, UserModel } from '../database/database.js';
+import type { Meet } from '@cumc/shared-types';
 import { Op, Sequelize } from 'sequelize';
 
-interface MeetCreateData {
+interface MeetCreateData extends Partial<Meet> {
   title: string;
-  subtitle?: string;
-  desc?: string;
   startDate: Date;
   endDate: Date;
-  type: MeetType;
-  signupControl?: 'Default' | 'Members' | 'Everyone';
-  disabled: boolean;
-  questions?: object;
-  price?: number;
-  hidden?: boolean;
+  type: Meet['type'];
+  organiser: string;
 }
 
 class MeetService {
+  private get signupCountLiteral() {
+    return [
+      Sequelize.literal(`(
+        SELECT COUNT(*)
+        FROM "Signups" AS signup
+        WHERE signup."meetID" = "meet"."id"
+      )`),
+      'signupCount',
+    ] as const;
+  }
+
   async getAllUpcoming(): Promise<MeetModel[]> {
     return MeetModel.findAll({
       where: {
-        startDate: {
-          [Op.gte]: new Date(),
-        },
+        startDate: { [Op.gte]: new Date() },
+        hidden: false,
       },
       attributes: {
-        include: [
-          [
-            Sequelize.literal(`(
-            SELECT COUNT(*)
-            FROM "Signups" AS signup
-            WHERE signup."meetID" = "meet"."id"
-          )`),
-            'signupCount',
-          ],
-        ],
+        include: [this.signupCountLiteral],
       },
       order: [['startDate', 'ASC']],
     });
@@ -43,16 +38,7 @@ class MeetService {
   async getAll(): Promise<MeetModel[]> {
     return MeetModel.findAll({
       attributes: {
-        include: [
-          [
-            Sequelize.literal(`(
-            SELECT COUNT(*)
-            FROM "Signups" AS signup
-            WHERE signup."meetID" = "meet"."id"
-          )`),
-            'signupCount',
-          ],
-        ],
+        include: [this.signupCountLiteral],
       },
       order: [['startDate', 'ASC']],
     });
@@ -63,12 +49,8 @@ class MeetService {
       include: [
         {
           model: SignupModel,
-          include: [
-            {
-              model: UserModel,
-              attributes: ['email'],
-            },
-          ],
+          as: 'signups',
+          include: [{ model: UserModel, as: 'user', attributes: ['email'] }],
         },
         {
           model: UserModel,
@@ -84,13 +66,9 @@ class MeetService {
       include: [
         {
           model: SignupModel,
+          as: 'signups',
           attributes: ['displayName'],
-          include: [
-            {
-              model: UserModel,
-              attributes: ['email'],
-            },
-          ],
+          include: [{ model: UserModel, as: 'user', attributes: ['email'] }],
         },
         {
           model: UserModel,
@@ -98,16 +76,6 @@ class MeetService {
           attributes: ['email', 'firstName', 'lastName', 'phone'],
         },
       ],
-    });
-  }
-
-  async upsert(
-    data: MeetCreateData,
-    organiserId: string
-  ): Promise<[MeetModel, boolean | null]> {
-    return MeetModel.upsert({
-      ...data,
-      organiser: organiserId,
     });
   }
 
@@ -130,15 +98,24 @@ class MeetService {
     });
   }
 
+  async upsert(
+    data: Omit<MeetCreateData, 'organiser'>,
+    organiserId: string
+  ): Promise<[MeetModel, boolean | null]> {
+    return MeetModel.upsert({
+      ...data,
+      organiser: organiserId,
+      disabled: data.disabled ?? false,
+    } as any);
+  }
+
   async updateQuestions(
     id: string | number,
-    questions: object
+    questions: Record<string, any>
   ): Promise<number> {
     const [affectedCount] = await MeetModel.update(
       { questions },
-      {
-        where: { id },
-      }
+      { where: { id } }
     );
     return affectedCount;
   }

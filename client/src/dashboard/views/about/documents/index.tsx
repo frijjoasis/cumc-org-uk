@@ -17,7 +17,6 @@ import {
   AlertCircle,
 } from 'lucide-react';
 
-// Document Content Imports
 import { safetyAbout } from './safety';
 import { codeOfConductAbout } from './codeOfConduct';
 import { dataAbout } from './privacy';

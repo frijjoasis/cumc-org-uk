@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
-import { User as UserModel } from '@/types/models';
+import { User as UserModel } from '@cumc/shared-types';
 
 interface MeetFormProps {
   user: UserModel;

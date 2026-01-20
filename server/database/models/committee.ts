@@ -9,13 +9,14 @@ import {
   ForeignKey,
   Association,
 } from 'sequelize';
-import type { MemberModel } from './member';
-import type { CommitteeRoleModel } from './committeeRole';
+import type { MemberModel } from './member.js';
+import type { CommitteeRoleModel } from './committeeRole.js';
+import { Committee } from '@cumc/shared-types';
 
 class CommitteeModel extends Model<
   InferAttributes<CommitteeModel>,
   InferCreationAttributes<CommitteeModel>
-> {
+> implements Committee {
   declare id: CreationOptional<number>;
   declare member_id: ForeignKey<MemberModel['id']> | null;
   declare year: string;
@@ -30,11 +31,9 @@ class CommitteeModel extends Model<
   declare status: CreationOptional<string | null>;
   declare staging_year: string | null;
 
-  // Associations
   declare member?: NonAttribute<MemberModel>;
   declare committeeRole?: NonAttribute<CommitteeRoleModel>;
 
-  // Association methods
   declare getCommitteeRole: () => Promise<CommitteeRoleModel | null>;
   declare setCommitteeRole: (role: CommitteeRoleModel | null) => Promise<void>;
   declare getMember: () => Promise<MemberModel | null>;
@@ -46,7 +45,7 @@ class CommitteeModel extends Model<
   };
 }
 
-function define(sequelize: Sequelize) {
+function define(sequelize: Sequelize): typeof CommitteeModel {
   CommitteeModel.init(
     {
       id: {
@@ -60,7 +59,7 @@ function define(sequelize: Sequelize) {
       },
       year: {
         type: DataTypes.STRING(20),
-        allowNull: false,
+        allowNull: false, 
       },
       role: {
         type: DataTypes.STRING(100),
@@ -85,7 +84,7 @@ function define(sequelize: Sequelize) {
       is_current: {
         type: DataTypes.BOOLEAN,
         allowNull: true,
-        defaultValue: true,
+        defaultValue: false, 
       },
       sort_order: {
         type: DataTypes.INTEGER,
@@ -99,7 +98,7 @@ function define(sequelize: Sequelize) {
       status: {
         type: DataTypes.STRING(20),
         allowNull: true,
-        defaultValue: 'current',
+        defaultValue: 'past',
       },
       staging_year: {
         type: DataTypes.STRING(20),
@@ -110,31 +109,29 @@ function define(sequelize: Sequelize) {
       sequelize,
       tableName: 'Committee',
       modelName: 'committee',
-      timestamps: false,
+      timestamps: false, 
     }
   );
 
   return CommitteeModel;
 }
 
-function associate(sequelize: Sequelize) {
-  // Associate with member if member model exists
-  if (sequelize.models.member) {
-    CommitteeModel.belongsTo(sequelize.models.member as typeof MemberModel, {
+function associate(sequelize: Sequelize): void {
+  const { member, committeeRole } = sequelize.models;
+
+  if (member) {
+    CommitteeModel.belongsTo(member, {
       foreignKey: 'member_id',
       as: 'member',
     });
   }
 
-  // Associate with committee role
-  if (sequelize.models.committeeRole) {
-    CommitteeModel.belongsTo(
-      sequelize.models.committeeRole as typeof CommitteeRoleModel,
-      {
-        foreignKey: 'role_id',
-        as: 'committeeRole',
-      }
-    );
+  if (committeeRole) {
+    CommitteeModel.belongsTo(committeeRole, {
+      foreignKey: 'role_id',
+      as: 'committeeRole',
+    });
   }
 }
+
 export { CommitteeModel, define, associate };

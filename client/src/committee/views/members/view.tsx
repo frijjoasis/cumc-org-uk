@@ -1,22 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { 
-  User as UserIcon, 
-  History, 
-  MapPin, 
-  Phone, 
-  LifeBuoy, 
-  Mail, 
+import {
+  User as UserIcon,
+  History,
+  MapPin,
+  Phone,
+  LifeBuoy,
+  Mail,
   Calendar,
   AlertCircle,
 } from 'lucide-react';
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from '@/components/ui/table';
-import { User, Meet } from '@/types/models';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+} from '@/components/ui/table';
+import { UserWithProfile, Meet } from '@cumc/shared-types';
 
 interface MeetHistoryItem {
   meet: Meet;
@@ -25,7 +38,7 @@ interface MeetHistoryItem {
 
 const ViewMember = () => {
   const { id } = useParams();
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserWithProfile | null>(null);
   const [history, setHistory] = useState<MeetHistoryItem[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -37,15 +50,15 @@ const ViewMember = () => {
       try {
         const [userRes, historyRes] = await Promise.all([
           axios.post('/api/user/member', { id }),
-          axios.post('/api/meets/historyOther', { id })
+          axios.post('/api/meets/historyOther', { id }),
         ]);
 
         if (userRes.data.err) setError(userRes.data.err);
         else setUser(userRes.data);
-        
+
         setHistory(historyRes.data);
       } catch (err) {
-        setError("Could not retrieve member profile.");
+        setError('Could not retrieve member profile.');
       } finally {
         setLoading(false);
       }
@@ -54,7 +67,12 @@ const ViewMember = () => {
     fetchData();
   }, [id]);
 
-  if (loading) return <div className="p-12 text-center animate-pulse font-black italic text-zinc-400 uppercase tracking-widest">Accessing Profile...</div>;
+  if (loading)
+    return (
+      <div className="p-12 text-center animate-pulse font-black italic text-zinc-400 uppercase tracking-widest">
+        Accessing Profile...
+      </div>
+    );
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
@@ -67,7 +85,6 @@ const ViewMember = () => {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Left Column: Personal Bio Card */}
         <div className="lg:col-span-1 space-y-6">
           <Card className="border-zinc-200 shadow-sm overflow-hidden">
@@ -81,16 +98,23 @@ const ViewMember = () => {
                 <h2 className="text-2xl font-black uppercase italic tracking-tighter">
                   {user?.firstName} {user?.lastName}
                 </h2>
-                <Badge variant="outline" className="mt-1 font-mono uppercase text-[10px]">
+                <Badge
+                  variant="outline"
+                  className="mt-1 font-mono uppercase text-[10px]"
+                >
                   {user?.college || 'No College'}
                 </Badge>
               </div>
 
               <div className="flex justify-center py-2">
                 {user?.member?.hasPaid ? (
-                  <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-none px-4 py-1">Active Member</Badge>
+                  <Badge className="bg-emerald-500 hover:bg-emerald-500 text-white border-none px-4 py-1">
+                    Active Member
+                  </Badge>
                 ) : (
-                  <Badge variant="destructive" className="px-4 py-1 italic">Membership Lapsed</Badge>
+                  <Badge variant="destructive" className="px-4 py-1 italic">
+                    Membership Lapsed
+                  </Badge>
                 )}
               </div>
 
@@ -99,10 +123,12 @@ const ViewMember = () => {
                   <Mail className="h-4 w-4 text-zinc-400" /> {user?.email}
                 </div>
                 <div className="flex items-center gap-3 text-sm text-zinc-600">
-                  <Phone className="h-4 w-4 text-zinc-400" /> {user?.phone || 'N/A'}
+                  <Phone className="h-4 w-4 text-zinc-400" />{' '}
+                  {user?.phone || 'N/A'}
                 </div>
                 <div className="flex items-center gap-3 text-sm text-zinc-600">
-                  <Calendar className="h-4 w-4 text-zinc-400" /> DOB: {user?.dob}
+                  <Calendar className="h-4 w-4 text-zinc-400" /> DOB:{' '}
+                  {user?.dob}
                 </div>
               </div>
             </CardContent>
@@ -117,14 +143,20 @@ const ViewMember = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Emergency Contact</p>
-                <p className="text-sm font-bold text-zinc-900">{user?.emergencyName || 'Missing'}</p>
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Emergency Contact
+                </p>
+                <p className="text-sm font-bold text-zinc-900">
+                  {user?.emergencyName || 'Missing'}
+                </p>
                 <p className="text-xs text-zinc-600">{user?.emergencyPhone}</p>
               </div>
               <div className="space-y-1 border-t border-rose-100 pt-3">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Medical Information</p>
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                  Medical Information
+                </p>
                 <p className="text-xs text-rose-800 font-medium leading-relaxed">
-                  {user?.medicalInfo || "No medical info disclosed."}
+                  {user?.medicalInfo || 'No medical info disclosed.'}
                 </p>
               </div>
             </CardContent>
@@ -142,8 +174,12 @@ const ViewMember = () => {
             <CardContent className="text-sm text-zinc-600 space-y-1">
               <p>{user?.address1}</p>
               {user?.address2 && <p>{user?.address2}</p>}
-              <p className="font-bold text-zinc-900">{user?.postCode}, {user?.city}</p>
-              <p className="uppercase tracking-widest text-[10px]">{user?.country}</p>
+              <p className="font-bold text-zinc-900">
+                {user?.postCode}, {user?.city}
+              </p>
+              <p className="uppercase tracking-widest text-[10px]">
+                {user?.country}
+              </p>
             </CardContent>
           </Card>
 
@@ -151,7 +187,9 @@ const ViewMember = () => {
             <CardHeader className="bg-zinc-50 border-b border-zinc-100">
               <div className="flex items-center gap-2">
                 <History className="h-4 w-4 text-zinc-500" />
-                <CardTitle className="text-sm font-black uppercase tracking-widest">Meet History</CardTitle>
+                <CardTitle className="text-sm font-black uppercase tracking-widest">
+                  Meet History
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="p-0">
@@ -168,19 +206,33 @@ const ViewMember = () => {
                   {history.length > 0 ? (
                     history.map((s, i) => (
                       <TableRow key={i} className="hover:bg-zinc-50/50">
-                        <TableCell className="font-bold text-zinc-900">{s.meet.title}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="text-[10px] uppercase">{s.meet.type}</Badge>
+                        <TableCell className="font-bold text-zinc-900">
+                          {s.meet.title}
                         </TableCell>
-                        <TableCell className="font-medium">£{s.meet.price || 0}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] uppercase"
+                          >
+                            {s.meet.type}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          £{s.meet.price || 0}
+                        </TableCell>
                         <TableCell className="text-right text-zinc-500 text-xs">
-                          {new Date(s.meet.startDate).toLocaleDateString('en-GB')}
+                          {new Date(s.meet.startDate).toLocaleDateString(
+                            'en-GB'
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-zinc-400 italic">
+                      <TableCell
+                        colSpan={4}
+                        className="text-center py-8 text-zinc-400 italic"
+                      >
                         No recorded meet attendance.
                       </TableCell>
                     </TableRow>

@@ -13,21 +13,23 @@ interface PayPalButtonsProps {
   onError: (error: string) => void;
 }
 
-const PayPalButtons = ({ 
-  description, 
-  price, 
-  intent, 
-  form, 
-  payer, 
-  onSuccess, 
-  onError 
+const PayPalButtons = ({
+  description,
+  price,
+  intent,
+  form,
+  payer,
+  onSuccess,
+  onError,
 }: PayPalButtonsProps) => {
   const paypalRef = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
+  const [status, setStatus] = useState<
+    'idle' | 'processing' | 'success' | 'error'
+  >('idle');
 
   useEffect(() => {
     // Prevent double-rendering in Strict Mode
-    if (!paypalRef.current || paypalRef.current.innerHTML !== "") return;
+    if (!paypalRef.current || paypalRef.current.innerHTML !== '') return;
 
     window.paypal
       .Buttons({
@@ -39,10 +41,12 @@ const PayPalButtons = ({
         },
         createOrder: (data: any, actions: any) => {
           return actions.order.create({
-            purchase_units: [{
-              description: description,
-              amount: { value: price },
-            }],
+            purchase_units: [
+              {
+                description: description,
+                amount: { value: price },
+              },
+            ],
             application_context: {
               shipping_preference: 'NO_SHIPPING',
             },
@@ -64,12 +68,12 @@ const PayPalButtons = ({
               setTimeout(() => onSuccess(), 2000);
             }
           } catch (err) {
-            onError("Backend verification failed.");
+            onError('Backend verification failed.');
             setStatus('error');
           }
         },
         onError: (err: any) => {
-          console.error("PayPal Script Error:", err);
+          console.error('PayPal Script Error:', err);
           setStatus('error');
         },
       })
@@ -108,7 +112,7 @@ const PayPalButtons = ({
           </AlertDescription>
         </Alert>
       )}
-      <div ref={paypalRef} className="min-h-[45px]" />
+      <div ref={paypalRef} className="min-h-11.25" />
     </div>
   );
 };

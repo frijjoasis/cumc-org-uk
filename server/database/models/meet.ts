@@ -8,13 +8,14 @@ import {
   NonAttribute,
   ForeignKey,
 } from 'sequelize';
-import type { UserModel } from './user';
-import type { SignupModel } from './signup';
+import type { UserModel } from './user.js';
+import type { SignupModel } from './signup.js';
+import { Meet } from '@cumc/shared-types';
 
 class MeetModel extends Model<
   InferAttributes<MeetModel>,
   InferCreationAttributes<MeetModel>
-> {
+> implements Meet {
   declare id: CreationOptional<number>;
   declare title: string;
   declare subtitle: string | null;
@@ -29,11 +30,11 @@ class MeetModel extends Model<
   declare price: number | null;
   declare maxSignups: number | null;
   declare hidden: CreationOptional<boolean>;
-
   // Foreign keys
   declare organiser: ForeignKey<UserModel['id']>;
 
   // Associations
+  declare signupCount?: NonAttribute<number>;
   declare organiserUser?: NonAttribute<UserModel>;
   declare signups?: NonAttribute<SignupModel[]>;
 
@@ -41,7 +42,7 @@ class MeetModel extends Model<
   declare updatedAt: CreationOptional<Date>;
 }
 
-function define(sequelize: Sequelize) {
+function define(sequelize: Sequelize): typeof MeetModel {
   MeetModel.init(
     {
       id: {
@@ -78,9 +79,10 @@ function define(sequelize: Sequelize) {
         allowNull: false,
         type: DataTypes.BOOLEAN,
       },
-      questions: DataTypes.JSON,
+      questions: DataTypes.JSONB,
       price: DataTypes.FLOAT,
       maxSignups: DataTypes.INTEGER,
+      
       hidden: {
         allowNull: false,
         defaultValue: false,
@@ -93,27 +95,35 @@ function define(sequelize: Sequelize) {
       sequelize,
       tableName: 'Meets',
       modelName: 'meet',
+      timestamps: true, 
     }
   );
 
   return MeetModel;
 }
 
-function associate(sequelize: Sequelize) {
-  MeetModel.belongsTo(sequelize.models.user as typeof UserModel, {
-    foreignKey: {
-      name: 'organiser',
-      allowNull: false,
-    },
-    as: 'organiserUser',
-  });
+function associate(sequelize: Sequelize): void {
+  const { user, signup } = sequelize.models;
 
-  MeetModel.hasMany(sequelize.models.signup as typeof SignupModel, {
-    foreignKey: {
-      name: 'meetID',
-      allowNull: false,
-    },
-  });
+  if (user) {
+    MeetModel.belongsTo(user as typeof UserModel, {
+      foreignKey: {
+        name: 'organiser',
+        allowNull: false,
+      },
+      as: 'organiserUser',
+    });
+  }
+
+  if (signup) {
+    MeetModel.hasMany(signup as typeof SignupModel, {
+      foreignKey: {
+        name: 'meetID',
+        allowNull: false,
+      },
+      as: 'signups', 
+    });
+  }
 }
 
 export { MeetModel, define, associate };

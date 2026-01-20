@@ -9,39 +9,53 @@ import Footer from '../components/Footer/Footer';
 import NotFound from '../404';
 
 import sidebarImg from '@/assets/img/sidebar/sidebar.jpg';
+import { RouteConfig } from '@/types';
 
 const Frame = () => {
   const [user, setUser] = useState(null);
-  const [committee, setCommittee] = useState(null);
+  const [committee, setCommittee] = useState<{
+    link: string;
+    text: string;
+  } | null>(null);
   const [image] = useState(sidebarImg);
-  const [color] = useState('black');
+  const [color] = useState<'black' | 'blue' | 'red' | 'green' | undefined>(
+    'black'
+  );
   const [isOpen, setIsOpen] = useState(false);
 
   const location = useLocation();
 
   const getBrandText = (pathname: string) => {
-    for (let route of routes) {
-      if (pathname.includes(route.layout + route.path)) {
-        return route.name;
+    const activeRoute = routes.find((route: RouteConfig) => {
+      if (!route.category && route.path && route.layout !== undefined) {
+        return pathname.includes(route.layout + route.path);
       }
-    }
-    return '404';
+      return false;
+    });
+
+    return activeRoute ? activeRoute.name : '404';
   };
 
   const brandText = getBrandText(location.pathname);
 
   useEffect(() => {
-    axios.get('/api/user/')
+    axios
+      .get('/api/user/')
       .then(res => setUser(res.data.user))
-      .catch(err => console.log('User not authenticated:', err.response?.status));
+      .catch(err =>
+        console.log('User not authenticated:', err.response?.status)
+      );
 
-    axios.get('/api/member/committee')
+    axios
+      .get('/api/member/committee')
       .then(res => {
-        if (res.data) {
+        if (res.data && res.data.isCommittee) {
           setCommittee({ link: '/committee/home', text: 'Committee' });
         }
       })
-      .catch(err => console.log('Not a committee member:', err.response?.status));
+      .catch(err =>
+        console.log('Not a committee member:', err.response?.status)
+      );
   }, []);
 
   return (
@@ -52,15 +66,18 @@ const Frame = () => {
         </Helmet>
       </HelmetProvider>
 
-      <Sidebar 
-        routes={routes} 
-        color={color} 
-        image={image} 
-        isOpen={isOpen} 
-        setIsOpen={setIsOpen} 
+      <Sidebar
+        routes={routes}
+        color={color}
+        image={image}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
       />
 
-      <div id="main-panel" className="relative flex flex-1 overflow-y-auto flex-col overflow-hidden">
+      <div
+        id="main-panel"
+        className="relative flex flex-1 overflow-y-auto flex-col overflow-hidden"
+      >
         <Header
           routes={routes}
           user={user}

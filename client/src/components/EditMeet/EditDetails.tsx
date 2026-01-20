@@ -267,7 +267,7 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
         <Button
           type="submit"
           disabled={isSubmitting || !formData.title}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-[150px] gap-2"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white min-w-37.5 gap-2"
         >
           {isSubmitting ? (
             'Saving...'

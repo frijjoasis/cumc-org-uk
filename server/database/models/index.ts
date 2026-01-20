@@ -1,10 +1,10 @@
-import { BritRockModel } from './britrock';
-import { CommitteeModel } from './committee';
-import { CommitteeRoleModel } from './committeeRole';
-import { MeetModel } from './meet';
-import { MemberModel } from './member';
-import { SignupModel } from './signup';
-import { UserModel } from './user';
+import { BritRockModel } from './britrock.js';
+import { CommitteeModel } from './committee.js';
+import { CommitteeRoleModel } from './committeeRole.js';
+import { MeetModel } from './meet.js';
+import { MemberModel } from './member.js';
+import { SignupModel } from './signup.js';
+import { UserModel } from './user.js';
 
 export {
   BritRockModel,

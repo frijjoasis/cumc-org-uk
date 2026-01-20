@@ -1,5 +1,5 @@
 import { Router } from 'express';
-const router = Router();
+const router: Router = Router();
 
 type Ascent = [string, string, string, string];
 

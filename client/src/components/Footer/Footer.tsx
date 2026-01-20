@@ -17,7 +17,7 @@ const Footer = () => {
   }, []);
 
   return (
-    <footer className="w-full py-3 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <footer className="w-full py-3 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex justify-center">
         <nav>
           <ul className="flex items-center gap-6">

@@ -17,7 +17,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CommitteeRole } from '@/types/models';
+import { CommitteeRole } from '@cumc/shared-types';
 
 interface RoleStatusInfo {
   id: number;
@@ -211,7 +211,7 @@ const RolesManager = () => {
               </thead>
               <tbody className="divide-y divide-zinc-100">
                 {roles
-                  .sort((a, b) => a.sort_order - b.sort_order)
+                  .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
                   .map(role => {
                     const status = rolesStatus.find(s => s.id === role.id);
                     return (
@@ -307,8 +307,8 @@ const RolesManager = () => {
               {editingRole ? 'Update Role' : 'Create New Position'}
             </DialogTitle>
             <DialogDescription>
-              {editingRole 
-                ? 'Modify the details and permissions for this existing role.' 
+              {editingRole
+                ? 'Modify the details and permissions for this existing role.'
                 : 'Fill in the details below to create a new committee position.'}
             </DialogDescription>
           </DialogHeader>

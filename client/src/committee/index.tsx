@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Helmet, HelmetProvider } from 'react-helmet-async';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import routes from './routes'; // Committee specific routes
+import routes from './routes';
 import links from '../dashboard/routes';
 import Sidebar from '../components/Sidebar/Sidebar';
 import Header from '../components/Navbar/Navbar';
@@ -10,26 +10,26 @@ import Footer from '../components/Footer/Footer';
 import NotFound from '../404';
 
 import sidebarImg from '@/assets/img/sidebar/sidebarCommittee.jpg';
-import { Member, User } from '@/types/models';
+import { Member, User } from '@cumc/shared-types';
+import { RouteConfig } from '@/types';
 
-const Admin = () => {
+const Admin: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [member, setMember] = useState<Member | null>(null);
   const [image] = useState(sidebarImg);
-  const [color] = useState('black');
+  const [color] = useState<'black' | 'blue' | 'red' | 'green' | undefined>(
+    'black'
+  );
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
 
   const location = useLocation();
 
-  // Helper to get current page title from routes
   const getBrandText = (pathname: string) => {
-    for (let route of routes) {
-      if (pathname.includes(route.layout + route.path)) {
-        return route.name;
-      }
-    }
-    return 'Admin';
+    const activeRoute = routes.find(
+      (r: RouteConfig) => r.path && pathname.includes(r.path)
+    );
+    return activeRoute ? activeRoute.name : 'Admin';
   };
 
   const brandText = getBrandText(location.pathname);
@@ -54,7 +54,7 @@ const Admin = () => {
     fetchData();
   }, []);
 
-  const isCommittee = (member && member.committee);
+  const isCommittee = member && member.committee;
 
   if (loading) {
     return (
@@ -102,24 +102,20 @@ const Admin = () => {
           <div className="mx-auto min-h-[calc(100vh-200px)] max-w-7xl">
             <Routes>
               {routes.map((prop, key) => {
-                if (!prop.category) {
+                if (!prop.category && prop.Component) {
+                  const RouteComponent = prop.Component;
+
                   return (
                     <Route
-                      path={prop.path} // Note: simplified pathing
-                      element={
-                        <prop.Component
-                          user={user}
-                          member={member}
-                        />
-                      }
+                      path={prop.path}
                       key={key}
+                      element={<RouteComponent user={user} member={member} />}
                     />
                   );
                 }
                 return null;
               })}
 
-              {/* Default Redirect within /committee */}
               <Route path="/" element={<Navigate to="home" replace />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

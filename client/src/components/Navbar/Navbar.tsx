@@ -46,7 +46,7 @@ const Header: React.FC<HeaderProps> = ({
     }
   };
 
-  const navLinkClass = ({ isActive }) =>
+  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
       'text-sm font-medium transition-colors hover:text-primary',
       isActive ? 'text-black dark:text-white' : 'text-muted-foreground'

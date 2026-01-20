@@ -1,4 +1,5 @@
-import { SignupModel, MeetModel, sequelize } from '../database/database';
+import { Op } from 'sequelize';
+import { SignupModel, MeetModel, sequelize } from '../database/database.js';
 
 interface SignupData {
   answers: object;
@@ -36,19 +37,19 @@ class SignupService {
         throw new Error('MEET_FULL');
       }
 
-      const signupData = {
+      const signupPayload = {
         answers: data.answers,
         meetID: data.meetID,
         userID: user.id,
-        authID: data.authID,
-        captureID: data.captureID,
+        authID: data.authID || null,
+        captureID: data.captureID || null,
         displayName: user.displayName,
       };
 
       if (existingSignup) {
-        return await existingSignup.update(signupData, { transaction: t });
+        return await existingSignup.update(signupPayload, { transaction: t });
       } else {
-        return await SignupModel.create(signupData, { transaction: t });
+        return await SignupModel.create(signupPayload, { transaction: t });
       }
     });
   }
@@ -56,9 +57,7 @@ class SignupService {
   async updatePayment(id: number, captureID: string): Promise<number> {
     const [affectedCount] = await SignupModel.update(
       { captureID },
-      {
-        where: { id },
-      }
+      { where: { id } }
     );
     return affectedCount;
   }
@@ -71,15 +70,16 @@ class SignupService {
 
   async getHistory(userId: string): Promise<SignupModel[]> {
     return SignupModel.findAll({
-      where: {
-        userID: userId,
-      },
-      include: {
+      where: { userID: userId },
+      include: [{
         model: MeetModel,
+        as: 'meet', 
         attributes: ['title', 'startDate', 'type', 'price'],
-      },
+      }],
+      order: [[{ model: MeetModel, as: 'meet' }, 'startDate', 'DESC']]
     });
   }
+
   async getCountByMeetId(meetID: number): Promise<number> {
     return await SignupModel.count({ where: { meetID } });
   }

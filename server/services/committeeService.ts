@@ -1,10 +1,11 @@
+import { Op, QueryTypes, type Transaction } from 'sequelize';
 import {
   CommitteeModel,
   CommitteeRoleModel,
   sequelize,
-} from '../database/database';
-import { Op, QueryTypes } from 'sequelize';
-import { getHashedFilename } from '../utils/hash';
+} from '../database/database.js';
+import { getHashedFilename } from '../utils/hash.js';
+
 import type {
   AdminPublicCommitteeModel,
   PublicCommitteeModel,
@@ -18,47 +19,20 @@ class CommitteeService {
       role: cm.committeeRole?.role_name || cm.role || 'Member',
       profile_hash: getHashedFilename(cm.id, 'profile'),
       cover_hash: getHashedFilename(cm.id, 'cover'),
-      email_alias: cm.committeeRole?.email_alias,
+      email_alias: cm.committeeRole?.email_alias || null,
     };
   }
 
-  async getAdminDetails(
-    status: 'current' | 'staged'
-  ): Promise<CommitteeModel[]> {
-    return CommitteeModel.findAll({
-      where: { status },
-      include: [{ model: CommitteeRoleModel, as: 'committeeRole' }],
-      order: [
-        [
-          sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
-          ),
-          'ASC',
-        ],
-        ['sort_order', 'ASC'],
+  private getSortOrder(): any {
+    return [
+      [
+        sequelize.literal(
+          'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
+        ),
+        'ASC',
       ],
-    });
-  }
-
-  async getAdminExposed(
-    status: 'current' | 'staged'
-  ): Promise<AdminPublicCommitteeModel[]> {
-    const members = await this.getAdminDetails(status);
-
-    return Promise.all(
-      members.map(async m => {
-        const exposed = await this.getExposedModel(m);
-        return {
-          ...exposed,
-          id: m.id,
-          role_id: m.role_id,
-          member_id: m.member_id,
-          person_email: m.person_email,
-          sort_order: m.sort_order,
-          is_current: m.is_current,
-        };
-      })
-    );
+      ['sort_order', 'ASC'],
+    ];
   }
 
   async getCurrent(): Promise<CommitteeModel[]> {
@@ -73,19 +47,10 @@ class CommitteeService {
           attributes: ['role_name', 'role_slug', 'email_alias', 'description'],
         },
       ],
-      order: [
-        [
-          sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
-          ),
-          'ASC',
-        ],
-        ['sort_order', 'ASC'],
-      ],
+      order: this.getSortOrder(),
     });
   }
 
-  // Get staged committee
   async getStaged(): Promise<CommitteeModel[]> {
     return CommitteeModel.findAll({
       where: { status: 'staged' },
@@ -96,19 +61,10 @@ class CommitteeService {
           attributes: ['role_name', 'role_slug', 'email_alias', 'description'],
         },
       ],
-      order: [
-        [
-          sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
-          ),
-          'ASC',
-        ],
-        ['sort_order', 'ASC'],
-      ],
+      order: this.getSortOrder(),
     });
   }
 
-  // Get past committees
   async getPast(): Promise<Map<string, CommitteeModel[]>> {
     const committees = await CommitteeModel.findAll({
       where: {
@@ -124,15 +80,7 @@ class CommitteeService {
           attributes: ['role_name', 'sort_order'],
         },
       ],
-      order: [
-        ['year', 'DESC'],
-        [
-          sequelize.literal(
-            'COALESCE("committeeRole"."sort_order", "committee"."sort_order")'
-          ),
-          'ASC',
-        ],
-      ],
+      order: [['year', 'DESC'], ...this.getSortOrder()],
     });
 
     return this.groupCommitteesByYear(committees);
@@ -150,36 +98,34 @@ class CommitteeService {
     return result;
   }
 
-  private groupCommitteesByYear(
-    committees: CommitteeModel[]
-  ): Map<string, CommitteeModel[]> {
-    const yearMap = new Map<string, CommitteeModel[]>();
-
-    committees.forEach(committee => {
-      const year = committee.year;
-      if (!yearMap.has(year)) {
-        yearMap.set(year, []);
-      }
-
-      // Push committee into year
-      yearMap.get(year)!.push(committee);
+  async getAdminExposed(
+    status: 'current' | 'staged'
+  ): Promise<AdminPublicCommitteeModel[]> {
+    const members = await CommitteeModel.findAll({
+      where: { status },
+      include: [{ model: CommitteeRoleModel, as: 'committeeRole' }],
+      order: this.getSortOrder(),
     });
 
-    return yearMap;
-  }
-
-  // Get committee status summary
-  async getStatusSummary(): Promise<any[]> {
-    return sequelize.query('SELECT * FROM committee_status_summary', {
-      type: QueryTypes.SELECT,
-    });
+    return Promise.all(
+      members.map(async m => {
+        const exposed = await this.getExposedModel(m);
+        return {
+          ...exposed,
+          id: m.id,
+          role_id: m.role_id ?? 0,
+          member_id: m.member_id ?? '',
+          person_email: m.person_email,
+          sort_order: m.sort_order ?? 0,
+          is_current: !!m.is_current,
+        };
+      })
+    );
   }
 
   async create(data: any): Promise<CommitteeModel> {
     const roleRecord = await CommitteeRoleModel.findByPk(data.role_id);
-    if (!roleRecord) {
-      throw new Error('Valid Constitutional Role is required');
-    }
+    if (!roleRecord) throw new Error('Valid Constitutional Role is required');
 
     const status = data.status || (data.is_current ? 'current' : 'staged');
 
@@ -190,9 +136,9 @@ class CommitteeService {
       person_name: data.person_name,
       person_email: data.person_email,
       sort_order: data.sort_order || 0,
-      is_current: data.is_current ?? true,
+      is_current: data.is_current ?? status === 'current',
       status: status,
-    });
+    } as any);
   }
 
   async update(id: number, data: any): Promise<CommitteeModel | null> {
@@ -201,9 +147,7 @@ class CommitteeService {
 
     if (data.role_id && data.role_id !== member.role_id) {
       const roleRecord = await CommitteeRoleModel.findByPk(data.role_id);
-      if (roleRecord) {
-        data.role = roleRecord.role_name;
-      }
+      if (roleRecord) data.role = roleRecord.role_name;
     }
 
     if (data.is_current !== undefined) {
@@ -213,52 +157,35 @@ class CommitteeService {
     return member.update(data);
   }
 
-  // Delete committee member
   async delete(id: number): Promise<boolean> {
-    const deleted = await CommitteeModel.destroy({
-      where: { id },
-    });
+    const deleted = await CommitteeModel.destroy({ where: { id } });
     return deleted > 0;
   }
 
-  // Transition committee year
   async transitionYear(): Promise<{ success: boolean; message: string }> {
     const transaction = await sequelize.transaction();
-
     try {
-      // Check if there's a staged committee
       const stagedCount = await CommitteeModel.count({
         where: { status: 'staged' },
         transaction,
       });
 
-      if (stagedCount === 0) {
-        await transaction.rollback();
-        throw new Error('No staged committee found');
-      }
+      if (stagedCount === 0) throw new Error('No staged committee found');
 
-      // Archive current committee
       await CommitteeModel.update(
         { status: 'past', is_current: false },
         {
-          where: {
-            [Op.or]: [{ status: 'current' }, { is_current: true }],
-          },
+          where: { [Op.or]: [{ status: 'current' }, { is_current: true }] },
           transaction,
         }
       );
 
-      // Promote staged to current
       await CommitteeModel.update(
         { status: 'current', is_current: true },
-        {
-          where: { status: 'staged' },
-          transaction,
-        }
+        { where: { status: 'staged' }, transaction }
       );
 
       await transaction.commit();
-
       return {
         success: true,
         message: 'Committee year transitioned successfully',
@@ -269,19 +196,32 @@ class CommitteeService {
     }
   }
 
-  // Check if staging is in progress
+  async clearStaged(): Promise<number> {
+    return CommitteeModel.destroy({ where: { status: 'staged' } });
+  }
+
+  private groupCommitteesByYear(
+    committees: CommitteeModel[]
+  ): Map<string, CommitteeModel[]> {
+    const yearMap = new Map<string, CommitteeModel[]>();
+    committees.forEach(c => {
+      if (!yearMap.has(c.year)) yearMap.set(c.year, []);
+      yearMap.get(c.year)!.push(c);
+    });
+    return yearMap;
+  }
+
+  async getStatusSummary(): Promise<any[]> {
+    return sequelize.query('SELECT * FROM committee_status_summary', {
+      type: QueryTypes.SELECT,
+    });
+  }
+
   async isStagingInProgress(): Promise<boolean> {
     const count = await CommitteeModel.count({
       where: { status: 'staged' },
     });
     return count > 0;
-  }
-
-  // Clear staged committee
-  async clearStaged(): Promise<number> {
-    return CommitteeModel.destroy({
-      where: { status: 'staged' },
-    });
   }
 }
 

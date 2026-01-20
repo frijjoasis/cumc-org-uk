@@ -32,7 +32,13 @@ import {
   homeImagesThree,
 } from './text';
 
-import { Meet, Member, User } from '@/types/models';
+import {
+  Meet,
+  Member,
+  Signup,
+  SignupWithDetails,
+  User,
+} from '@cumc/shared-types';
 
 interface HomeProps {
   user: User;
@@ -54,9 +60,9 @@ const Home = ({ user }: HomeProps) => {
     axios.get('/api/meets/history').then(res => {
       if (res.data.length) {
         const sortedHistory = res.data
-          .map((h: any) => h.meet)
+          .map((h: SignupWithDetails) => h.meet)
           .sort(
-            (m, n) =>
+            (m: Meet, n: Meet) =>
               new Date(n.startDate).getTime() - new Date(m.startDate).getTime()
           );
         setHistory(sortedHistory);
@@ -90,8 +96,8 @@ const Home = ({ user }: HomeProps) => {
               </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex-grow">
-              <div className="h-[1px] bg-border mb-4" />
+            <CardContent className="grow">
+              <div className="h-px bg-border mb-4" />
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {member && member.hasPaid
                   ? "You are a current member. Control your mailing preferences by clicking 'Profile' and then 'Mailing Lists'. Your recent meet history can be found below."

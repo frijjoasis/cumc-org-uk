@@ -1,14 +1,13 @@
 import { Sequelize } from 'sequelize';
-import { logger } from '../logger';
+import { logger } from '../logger.js';
 
-// Import model modules
-import * as UserModule from './models/user';
-import * as MemberModule from './models/member';
-import * as MeetModule from './models/meet';
-import * as SignupModule from './models/signup';
-import * as BritRockModule from './models/britrock';
-import * as CommitteeModule from './models/committee';
-import * as CommitteeRoleModule from './models/committeeRole';
+import * as UserModule from './models/user.js';
+import * as MemberModule from './models/member.js';
+import * as MeetModule from './models/meet.js';
+import * as SignupModule from './models/signup.js';
+import * as BritRockModule from './models/britrock.js';
+import * as CommitteeModule from './models/committee.js';
+import * as CommitteeRoleModule from './models/committeeRole.js';
 
 const sequelize = new Sequelize(process.env.DATABASE_URL!, {
   dialect: 'postgres',
@@ -21,7 +20,7 @@ const sequelize = new Sequelize(process.env.DATABASE_URL!, {
           }
         : false,
   },
-  logging: false,
+  logging: (msg) => logger.debug(msg),
 });
 
 interface ModelModule {
@@ -29,7 +28,7 @@ interface ModelModule {
   associate: (sequelize: Sequelize) => void;
 }
 
-const models: ModelModule[] = [
+const modules: ModelModule[] = [
   UserModule,
   MemberModule,
   MeetModule,
@@ -37,42 +36,36 @@ const models: ModelModule[] = [
   BritRockModule,
   CommitteeModule,
   CommitteeRoleModule,
-];
+]; 
 
 async function init(): Promise<void> {
-  await sequelize.authenticate();
-  logger.info('Database connection established.');
+  try {
+    await sequelize.authenticate();
+    logger.info('Database connection established.');
 
-  // Initialize all models - Model.init() automatically registers them on sequelize.models
-  models.forEach(modelModule => {
-    modelModule.define(sequelize);
-  });
+    for (const modelModule of modules) {
+      modelModule.define(sequelize);
+    }
 
-  // Setup associations after all models are defined
-  models.forEach(modelModule => {
-    modelModule.associate(sequelize);
-  });
+    for (const modelModule of modules) {
+      if (typeof modelModule.associate === 'function') {
+        modelModule.associate(sequelize);
+      }
+    }
 
-  await sequelize.sync();
-  logger.info('All models synchronized successfully.');
+    const isDev = process.env.NODE_ENV !== 'production';
+    await sequelize.sync({ alter: isDev }); 
+    
+    logger.info('All models synchronized successfully.');
+  } catch (error) {
+    logger.error('Database initialization failed:', error);
+    throw error;
+  }
 }
 
-// Export additional exports from user and signup modules
 export const required = UserModule.required;
 export const userFields = SignupModule.userFields;
 
 export { init, sequelize };
-export * from './models';
 
-// Export types with clean names (no "Model" suffix)
-export type {
-  User,
-  Member,
-  Meet,
-  Signup,
-  Committee,
-  CommitteeRole,
-  BritRock,
-  MeetType,
-  SignupControl,
-} from './types';
+export * from './models/index.js';

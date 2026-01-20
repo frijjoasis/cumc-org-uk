@@ -2,7 +2,7 @@ import React from 'react';
 import axios from 'axios';
 
 class Blog extends React.Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.state = {
       content: false,

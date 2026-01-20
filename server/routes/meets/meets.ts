@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { meetService, signupService } from '../../services';
-import { logger } from '../../logger';
-import { committeeAuth, userAuth } from '../middleware';
+import { meetService, signupService } from '../../services/index.js';
+import { logger } from '../../logger.js';
+import { committeeAuth, userAuth } from '../middleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 router.get('/upcoming', async function (req: Request, res: Response) {
   try {
@@ -40,7 +40,7 @@ const handleEditOrCreate = async (req: Request, res: Response) => {
 
     const meetData = { ...req.body, id: meetId };
 
-    const [meet] = await meetService.upsert(meetData, req.user.id.toString());
+    const [meet] = await meetService.upsert(meetData, req.user!.id.toString());
 
     if (meet) {
       res.json(meet);
@@ -136,7 +136,7 @@ router.get(
 );
 
 router.get('/history', userAuth, async function (req: Request, res: Response) {
-  const history = await signupService.getHistory(req.user.id.toString());
+  const history = await signupService.getHistory(req.user!.id.toString());
   res.json(history);
 });
 

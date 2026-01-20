@@ -1,3 +1,4 @@
+import { BritRock } from '@cumc/shared-types';
 import {
   Sequelize,
   Model,
@@ -10,18 +11,17 @@ import {
 class BritRockModel extends Model<
   InferAttributes<BritRockModel>,
   InferCreationAttributes<BritRockModel>
-> {
+> implements BritRock {
   declare id: CreationOptional<number>;
   declare name: string;
   declare email: string;
   declare ticket: string;
 
-  // Timestamps
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
 }
 
-function define(sequelize: Sequelize) {
+function define(sequelize: Sequelize): typeof BritRockModel {
   BritRockModel.init(
     {
       id: {
@@ -47,16 +47,17 @@ function define(sequelize: Sequelize) {
     },
     {
       sequelize,
-      tableName: 'BritRock',
+      tableName: 'BritRock', 
       modelName: 'britrock',
+      timestamps: true, 
     }
   );
 
   return BritRockModel;
 }
 
-function associate(sequelize: Sequelize) {
-  // No associations for britrock model
+
+function associate(): void {
 }
 
 export { BritRockModel, define, associate };

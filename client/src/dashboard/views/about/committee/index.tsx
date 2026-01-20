@@ -22,7 +22,7 @@ import defaultProfile from '@/assets/img/committee/gear.jpg';
 import defaultCover from '@/assets/img/committee/gearCover.jpg';
 
 import { CommitteePersonData } from '@/types/committee';
-import { PublicCommitteeModel } from '@/types/models';
+import { PublicCommitteeModel } from '@cumc/shared-types';
 
 interface PastCommitteeData {
   [year: string]: {
@@ -82,7 +82,7 @@ const CommitteeAbout = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
+      <div className="flex justify-center items-center min-h-100">
         <p className="animate-pulse font-bold text-zinc-500 text-lg uppercase tracking-widest">
           Loading Committee...
         </p>
@@ -123,7 +123,7 @@ const CommitteeAbout = () => {
               const memberData: CommitteePersonData = {
                 role: member.role,
                 name: member.person_name,
-                social: member.email_alias,
+                social: member.email_alias || undefined,
                 profile: profileUrl,
                 cover: coverUrl,
               };

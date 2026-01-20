@@ -25,7 +25,7 @@ const AboutCard = ({ title, text, button }: AboutCardProps) => {
       <Card className="shadow-md overflow-hidden p-0">
         <CardHeader className="pb-2 pt-6">
           <CardTitle className="text-2xl font-bold">{title}</CardTitle>
-          <div className="h-[1px] bg-border mt-2" />
+          <div className="h-px bg-border mt-2" />
         </CardHeader>
 
         <CardContent className={button ? '' : 'pb-6'}>

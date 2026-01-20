@@ -13,7 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User } from '@/types/models';
+import { User } from '@cumc/shared-types';
 
 const UpcomingMeets = ({ user }: { user: User }) => {
   const [meets, setMeets] = useState<any[]>([]);

@@ -1,14 +1,13 @@
 import { Router, Request, Response } from 'express';
-import { memberService } from '../../services';
-import { logger } from '../../logger';
-import { userAuth, rootAuth } from '../middleware';
+import { memberService } from '../../services/index.js';
+import { logger } from '../../logger.js';
+import { userAuth, rootAuth } from '../middleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 router.get('/', userAuth, async function (req: Request, res: Response) {
-
   try {
-    const member = await memberService.getById(req.user.id);
+    const member = await memberService.getById(req.user!.id);
     res.json({
       member: member,
     });
@@ -40,7 +39,9 @@ router.get('/reset', rootAuth, async function (req: Request, res: Response) {
     res.json(true);
   } catch (err: any) {
     logger.error('Database error: ', err);
-    res.status(500).json({ err: 'Database error: Please contact the webmaster' });
+    res
+      .status(500)
+      .json({ err: 'Database error: Please contact the webmaster' });
   }
 });
 
@@ -50,7 +51,9 @@ router.post('/update', rootAuth, async function (req: Request, res: Response) {
     res.json(true);
   } catch (err: any) {
     logger.error('Database error: ', err);
-    res.status(500).json({ err: 'Database error: Please contact the webmaster' });
+    res
+      .status(500)
+      .json({ err: 'Database error: Please contact the webmaster' });
   }
 });
 

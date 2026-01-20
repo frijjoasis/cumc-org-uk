@@ -76,7 +76,7 @@ const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
   const applyTemplate = (category: keyof typeof defaults) => {
     const template = defaults[category].map(q => ({
       ...q,
-      id: `${Date.now()}-${Math.random()}`, // Ensure unique string IDs
+      id: Date.now() + Math.floor(Math.random() * 1000), // Ensure unique string IDs
       type: (q as any).type ?? 'text',
     }));
     setQuestions([...questions, ...template]);
@@ -306,7 +306,7 @@ const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
         <Button
           onClick={handleSave}
           disabled={isSaving || !activeID}
-          className={`min-w-[180px] h-12 gap-2 font-black uppercase tracking-widest italic transition-all duration-500 shadow-lg ${
+          className={`min-w-45 h-12 gap-2 font-black uppercase tracking-widest italic transition-all duration-500 shadow-lg ${
             saveStatus === 'success'
               ? 'bg-emerald-500 hover:bg-emerald-500'
               : saveStatus === 'error'

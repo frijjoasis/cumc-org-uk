@@ -32,7 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { User as UserModel } from '@/types/models';
+import { User as UserModel } from '@cumc/shared-types';
 
 interface ViewMeetProps {
   user: UserModel;

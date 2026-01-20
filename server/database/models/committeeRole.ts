@@ -7,12 +7,13 @@ import {
   CreationOptional,
   NonAttribute,
 } from 'sequelize';
-import type { CommitteeModel } from './committee';
+import type { CommitteeModel } from './committee.js';
+import { CommitteeRole } from '@cumc/shared-types';
 
 class CommitteeRoleModel extends Model<
   InferAttributes<CommitteeRoleModel>,
   InferCreationAttributes<CommitteeRoleModel>
-> {
+> implements CommitteeRole {
   declare id: CreationOptional<number>;
   declare role_name: string;
   declare role_slug: string;
@@ -25,11 +26,10 @@ class CommitteeRoleModel extends Model<
   declare created_at: CreationOptional<Date | null>;
   declare updated_at: CreationOptional<Date | null>;
 
-  // Associations
   declare committeeMembers?: NonAttribute<CommitteeModel[]>;
 }
 
-function define(sequelize: Sequelize) {
+function define(sequelize: Sequelize): typeof CommitteeRoleModel {
   CommitteeRoleModel.init(
     {
       id: {
@@ -90,22 +90,21 @@ function define(sequelize: Sequelize) {
       tableName: 'CommitteeRoles',
       modelName: 'committeeRole',
       timestamps: false,
+      underscored: true,
     }
   );
 
   return CommitteeRoleModel;
 }
 
-function associate(sequelize: Sequelize) {
-  // A committee role can have many committee members
-  if (sequelize.models.committee) {
-    CommitteeRoleModel.hasMany(
-      sequelize.models.committee as typeof CommitteeModel,
-      {
-        foreignKey: 'role_id',
-        as: 'committeeMembers',
-      }
-    );
+function associate(sequelize: Sequelize): void {
+  const { committee } = sequelize.models;
+  
+  if (committee) {
+    CommitteeRoleModel.hasMany(committee, {
+      foreignKey: 'role_id',
+      as: 'committeeMembers',
+    });
   }
 }
 

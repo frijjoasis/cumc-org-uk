@@ -2,9 +2,24 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import logo from '../../assets/img/logo.png';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '../ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '../ui/sheet';
+import { RouteConfig } from '@/types';
 
-function Sidebar({ routes, color, image, isOpen, setIsOpen }) {
+interface SideProps {
+  routes: RouteConfig[];
+  image: string;
+  color?: 'black' | 'blue' | 'red' | 'green';
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+function Sidebar({ routes, color, image, isOpen, setIsOpen }: SideProps) {
   const colorOverlays = {
     black: 'bg-black/80',
     blue: 'bg-blue-900/75',
@@ -12,7 +27,7 @@ function Sidebar({ routes, color, image, isOpen, setIsOpen }) {
     green: 'bg-green-900/75',
   };
 
-  const activeColor = colorOverlays[color] || colorOverlays.black;
+  const activeColor = color ? colorOverlays[color] : colorOverlays.black;
 
   const SidebarContent = ({ isMobile = false }) => (
     <div className="relative z-20 flex h-full flex-col text-white">
@@ -20,9 +35,15 @@ function Sidebar({ routes, color, image, isOpen, setIsOpen }) {
       <div className="flex h-16 items-center border-b border-white/20 px-6">
         <NavLink to="/home" className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white p-1.5 shadow-lg">
-            <img src={logo} alt="logo" className="h-full w-full object-contain" />
+            <img
+              src={logo}
+              alt="logo"
+              className="h-full w-full object-contain"
+            />
           </div>
-          <span className="text-xl font-extrabold tracking-wider uppercase">CUMC</span>
+          <span className="text-xl font-extrabold tracking-wider uppercase">
+            CUMC
+          </span>
         </NavLink>
       </div>
 
@@ -71,14 +92,20 @@ function Sidebar({ routes, color, image, isOpen, setIsOpen }) {
     <>
       {/* DESKTOP VERSION */}
       <div className="relative hidden md:flex h-full w-64 flex-col overflow-hidden border-r text-white shadow-xl shrink-0">
-        <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${image})` }}
+        />
         <div className={cn('absolute inset-0 z-10 opacity-90', activeColor)} />
         <SidebarContent />
       </div>
 
       {/* MOBILE VERSION (DRAWER) */}
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetContent side="left" className="p-0 w-72 border-none [&>button]:z-[100] [&>button]:text-white [&>button]:opacity-70 [&>button:hover]:opacity-100">
+        <SheetContent
+          side="left"
+          className="p-0 w-72 border-none [&>button]:z-100 [&>button]:text-white [&>button]:opacity-70 [&>button:hover]:opacity-100"
+        >
           <SheetHeader className="sr-only">
             <SheetTitle>Navigation Menu</SheetTitle>
             <SheetDescription>
@@ -87,8 +114,13 @@ function Sidebar({ routes, color, image, isOpen, setIsOpen }) {
           </SheetHeader>
 
           <div className="relative h-full w-full overflow-hidden">
-            <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
-            <div className={cn('absolute inset-0 z-10 opacity-95', activeColor)} />
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${image})` }}
+            />
+            <div
+              className={cn('absolute inset-0 z-10 opacity-95', activeColor)}
+            />
             <div className="relative z-20 flex h-full flex-col">
               <SidebarContent isMobile />
             </div>

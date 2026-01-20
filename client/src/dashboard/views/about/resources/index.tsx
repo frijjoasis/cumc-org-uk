@@ -45,7 +45,7 @@ const ResourcesAbout = () => {
                 )}
               </div>
             </CardHeader>
-            <CardContent className="flex-grow space-y-4">
+            <CardContent className="grow space-y-4">
               <p className="text-zinc-600 font-medium text-sm leading-relaxed">
                 {res.description}
               </p>

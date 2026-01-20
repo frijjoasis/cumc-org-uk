@@ -1,6 +1,6 @@
-import { Member, MemberModel, UserModel } from '../database/database';
-import { CommitteeModel, CommitteeRoleModel } from '../database/models';
 import { Op } from 'sequelize';
+import { MemberModel, UserModel } from '../database/database.js';
+import { CommitteeModel, CommitteeRoleModel } from '../database/models/index.js';
 
 export interface CommitteeStatus {
   isCommittee: boolean;
@@ -20,8 +20,8 @@ class MemberService {
   }
 
   async getCommitteeRole(memberId: string): Promise<CommitteeStatus> {
-    const currentYear = process.env.CURRENT_YEAR;
-    const previousYear = process.env.PREVIOUS_YEAR;
+    const currentYear = process.env.CURRENT_YEAR || '';
+    const previousYear = process.env.PREVIOUS_YEAR || '';
 
     const committeeRecords = await CommitteeModel.findAll({
       where: { member_id: memberId },
@@ -35,17 +35,17 @@ class MemberService {
       const year = record.year;
 
       const isPowerRole = ['president', 'webmaster'].includes(slug || '');
-      const isValidYear = [currentYear, previousYear].filter(Boolean).includes(year);
+      const isRecentYear = [currentYear, previousYear].includes(year);
 
-      return isPowerRole && isValidYear;
+      return isPowerRole && isRecentYear;
     });
 
     const isRoot = isHardcodedRoot || isRoleBasedRoot;
 
-    const currentRoles = committeeRecords.filter((r) => r.is_current === true);
-    const isCommittee = isRoot || currentRoles.length > 0;
+    const currentAssignments = committeeRecords.filter((r) => r.is_current === true);
+    const isCommittee = isRoot || currentAssignments.length > 0;
 
-    const roleNames = currentRoles.map(
+    const roleNames = currentAssignments.map(
       (r) => r.committeeRole?.role_name || 'Unknown Role'
     );
 
@@ -58,24 +58,20 @@ class MemberService {
 
   async getCommitteeMembers(): Promise<MemberModel[]> {
     return MemberModel.findAll({
-      attributes: ['committee'],
       where: {
-        committee: {
-          [Op.not]: null,
-        },
+        committee: { [Op.ne]: null },
       },
-      include: {
+      include: [{
         model: UserModel,
+        as: 'user',
         attributes: ['firstName', 'lastName'],
-      },
+      }],
     });
   }
 
-  async getWithDetails(id: number): Promise<MemberModel | null> {
+  async getWithDetails(id: string): Promise<MemberModel | null> {
     return MemberModel.findByPk(id, {
-      include: {
-        all: true,
-      },
+      include: [{ all: true, nested: true }],
     });
   }
 
@@ -92,11 +88,7 @@ class MemberService {
   async resetAllMemberships(): Promise<number> {
     const [affectedCount] = await MemberModel.update(
       { hasPaid: false },
-      {
-        where: {
-          hasPaid: true,
-        },
-      }
+      { where: { hasPaid: true } }
     );
     return affectedCount;
   }

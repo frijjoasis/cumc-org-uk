@@ -1,10 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { userService } from '../../services';
-import { logger } from '../../logger';
-import { userAuth, committeeAuth } from '../middleware';
-import { UserModel } from 'database/models';
+import { userService } from '../../services/index.js';
+import { logger } from '../../logger.js';
+import { userAuth, committeeAuth } from '../middleware.js';
 
-const router = Router();
+const router: Router = Router();
 
 router.get('/', userAuth, function (req: Request, res: Response) {
   res.json({
@@ -17,7 +16,7 @@ router.post(
   userAuth,
   async function (req: Request, res: Response) {
     try {
-      await userService.updateInfo(req.body, req.user.id);
+      await userService.updateInfo(req.body, req.user!.id);
       res.json(true);
     } catch (err: any) {
       logger.error('Database error: ', err);
@@ -27,7 +26,7 @@ router.post(
 );
 
 router.get('/info', userAuth, async function (req: Request, res: Response) {
-  const user = await userService.getById(req.user.id);
+  const user = await userService.getById(req.user!.id);
   res.json(user);
 });
 

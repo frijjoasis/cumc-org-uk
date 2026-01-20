@@ -84,7 +84,8 @@ const MeetView = () => {
 
       const answers = (data.questions || []).map(q => {
         const ans = s.answers?.find(
-          a => a.id === q.id || a.questionID === q.id
+          (a: { id: any; questionID: any }) =>
+            a.id === q.id || a.questionID === q.id
         );
         if (!ans) return '-';
         if (ans.value === true || ans.value === 'true') return 'Yes';
@@ -191,7 +192,8 @@ const MeetView = () => {
                     </td>
                     {questions.map(q => {
                       const ans = s.answers?.find(
-                        a => a.id === q.id || a.questionID === q.id
+                        (a: { id: any; questionID: any }) =>
+                          a.id === q.id || a.questionID === q.id
                       );
                       const displayValue =
                         ans?.value === true || ans?.value === 'true'

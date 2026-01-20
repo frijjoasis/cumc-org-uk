@@ -1,16 +1,16 @@
 import { Router, Request, Response } from 'express';
-import { committeeAuth, userAuth } from '../middleware';
+import { committeeAuth, userAuth } from '../middleware.js';
 import {
   memberService,
   userService,
   signupService,
   meetService,
   britRockService,
-} from '../../services';
-import { logger } from '../../logger';
+} from '../../services/index.js';
+import { logger } from '../../logger.js';
 import axios, { AxiosError } from 'axios';
 
-const router = Router();
+const router: Router = Router();
 
 // ============================================================================
 // Constants & Configuration
@@ -61,25 +61,18 @@ class PayPalClient {
   }
 
   private async refreshAccessToken(): Promise<void> {
-    const response = await axios.post(
-      PAYPAL_OAUTH_API,
-      {},
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        auth: {
-          username: process.env.PAYPAL_ID || '',
-          password: process.env.PAYPAL_SECRET || '',
-        },
-        params: {
-          grant_type: 'client_credentials',
-        },
-      }
-    );
+    const params = new URLSearchParams();
+    params.append('grant_type', 'client_credentials');
+
+    const response = await axios.post(PAYPAL_OAUTH_API, params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      auth: {
+        username: process.env.PAYPAL_ID || '',
+        password: process.env.PAYPAL_SECRET || '',
+      },
+    });
 
     this.accessToken = response.data.access_token;
-    // Refresh token 5 minutes before expiry (default is usually 9 hours)
     this.tokenExpiresAt = Date.now() + (response.data.expires_in - 300) * 1000;
   }
 
@@ -95,29 +88,20 @@ class PayPalClient {
   ): Promise<PaymentResult<true>> {
     try {
       await this.ensureValidToken();
-      const response = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, {
-        headers: {
-          Authorization: `Bearer ${this.accessToken}`,
-        },
+      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, {
+        headers: { Authorization: `Bearer ${this.accessToken}` },
       });
 
-      const actualPrice = parseFloat(
-        response.data.purchase_units[0].amount.value
-      );
+      const actualPrice = parseFloat(data.purchase_units[0].amount.value);
       const expected = parseFloat(expectedPrice);
 
-      if (actualPrice === expected) {
+      // Use a small epsilon to handle float precision
+      if (Math.abs(actualPrice - expected) < 0.01) {
         return true;
-      } else {
-        return {
-          err: 'An error occurred verifying the amount paid. You have not been charged',
-        };
       }
+      return { err: 'Price mismatch detected.' };
     } catch (err) {
-      this.logPayPalError('Verify order', err);
-      return {
-        err: 'An error occurred verifying the payment. You have not been charged',
-      };
+      return { err: 'Payment verification failed.' };
     }
   }
 
@@ -332,7 +316,7 @@ router.post('/membership', userAuth, async (req: Request, res: Response) => {
       price: process.env.MEMBERSHIP_PRICE || '0',
       onSuccess: async captureID => {
         await memberService.upsert({
-          id: req.user.id,
+          id: req.user!.id,
           hasPaid: true,
           hasFree: false,
           paymentID: captureID,
@@ -375,7 +359,7 @@ router.post('/britrock', async (req: Request, res: Response) => {
 router.post('/register', userAuth, async (req: Request, res: Response) => {
   try {
     const eligibility = await checkMeetEligibility(
-      req.user.id,
+      req.user!.id,
       req.body.form.meetID
     );
     if (isError(eligibility)) return res.json(eligibility);
@@ -402,7 +386,7 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
           throw new Error('CAPACITY_REACHED');
         }
         await handleMeetSignup(
-          req.user.id,
+          req.user!.id,
           (req.user as any).displayName || '',
           meet.id,
           req.body.form,
@@ -430,7 +414,7 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
 router.post('/required', userAuth, async (req: Request, res: Response) => {
   try {
     const eligibility = await checkMeetEligibility(
-      req.user.id,
+      req.user!.id,
       req.body.meetID
     );
 
@@ -444,7 +428,7 @@ router.post('/required', userAuth, async (req: Request, res: Response) => {
 
     // Payment not required - register directly
     await handleMeetSignup(
-      req.user.id,
+      req.user!.id,
       (req.user as any).displayName || '',
       eligibility.meet.id,
       req.body
@@ -460,35 +444,43 @@ router.post('/required', userAuth, async (req: Request, res: Response) => {
 router.post('/capture', committeeAuth, async (req: Request, res: Response) => {
   try {
     const meet = await meetService.getById(req.body.id);
-    if (!meet) {
-      return res.json({ err: 'Database error: Could not find meet' });
-    }
+    if (!meet) return res.status(404).json({ err: 'Meet not found' });
 
-    const signups = (meet as any).signups || [];
+    const signups = meet.signups || [];
     const targetAuthID = req.body.authID;
 
-    const capturePromises = signups
-      .filter(
-        (signup: any) =>
-          signup.authID &&
-          !signup.captureID &&
-          (!targetAuthID || targetAuthID === signup.authID)
-      )
-      .map(async (signup: any) => {
+    const price = meet.price?.toString() || '0';
+    let successCount = 0;
+    let failCount = 0;
+
+    // Sequential capturing of payments -- We would effectively dos paypal otherwise
+    for (const signup of signups) {
+      const shouldCapture =
+        signup.authID &&
+        !signup.captureID &&
+        (!targetAuthID || targetAuthID === signup.authID);
+
+      if (shouldCapture) {
         const result = await paypalClient.captureAuthorization(
-          signup.authID,
-          meet.price?.toString() || '0'
+          signup.authID!,
+          price
         );
 
-        const captureID = isError(result) ? 'Capture Failed' : result;
-        await signupService.updatePayment(signup.id, captureID);
-      });
+        if (isError(result)) {
+          failCount++;
+          await signupService.updatePayment(signup.id, 'Capture Failed');
+          logger.error(`Failed to capture ${signup.authID}: ${result.err}`);
+        } else {
+          successCount++;
+          await signupService.updatePayment(signup.id, result);
+        }
+      }
+    }
 
-    await Promise.all(capturePromises);
-    res.json(true);
-  } catch (err: any) {
+    res.json({ success: true, captured: successCount, failed: failCount });
+  } catch (err) {
     logger.error('Capture payments error:', err);
-    res.json({ err: 'Encountered an error. Please contact the webmaster' });
+    res.status(500).json({ err: 'Encountered an error during processing.' });
   }
 });
 

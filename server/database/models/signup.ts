@@ -8,13 +8,14 @@ import {
   NonAttribute,
   ForeignKey,
 } from 'sequelize';
-import type { UserModel } from './user';
-import type { MeetModel } from './meet';
+import type { UserModel } from './user.js';
+import type { MeetModel } from './meet.js';
+import { Signup } from '@cumc/shared-types';
 
 class SignupModel extends Model<
   InferAttributes<SignupModel>,
   InferCreationAttributes<SignupModel>
-> {
+> implements Signup {
   declare id: CreationOptional<number>;
   declare displayName: string | null;
   declare authID: string | null;
@@ -35,7 +36,7 @@ class SignupModel extends Model<
 
 const userFields = ['displayName', 'userID', 'meetID', 'answers'];
 
-function define(sequelize: Sequelize) {
+function define(sequelize: Sequelize): typeof SignupModel {
   SignupModel.init(
     {
       id: {
@@ -47,7 +48,7 @@ function define(sequelize: Sequelize) {
       displayName: DataTypes.STRING,
       authID: DataTypes.STRING,
       captureID: DataTypes.STRING,
-      answers: DataTypes.JSON,
+      answers: DataTypes.JSONB,
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
     },
@@ -67,20 +68,28 @@ function define(sequelize: Sequelize) {
   return SignupModel;
 }
 
-function associate(sequelize: Sequelize) {
-  SignupModel.belongsTo(sequelize.models.meet as typeof MeetModel, {
-    foreignKey: {
-      name: 'meetID',
-      allowNull: false,
-    },
-  });
+function associate(sequelize: Sequelize): void {
+  const { meet, user } = sequelize.models;
 
-  SignupModel.belongsTo(sequelize.models.user as typeof UserModel, {
-    foreignKey: {
-      name: 'userID',
-      allowNull: false,
-    },
-  });
+  if (meet) {
+    SignupModel.belongsTo(meet as typeof MeetModel, {
+      foreignKey: {
+        name: 'meetID',
+        allowNull: false,
+      },
+      as: 'meet' // Added alias for cleaner queries
+    });
+  }
+
+  if (user) {
+    SignupModel.belongsTo(user as typeof UserModel, {
+      foreignKey: {
+        name: 'userID',
+        allowNull: false,
+      },
+      as: 'user'
+    });
+  }
 }
 
 export { SignupModel, define, associate, userFields };

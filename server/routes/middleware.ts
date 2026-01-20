@@ -1,31 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
-import { memberService } from '../services';
 import multer from 'multer';
-import fs from 'fs';
-import { getHashedFilename } from '../utils/hash';
-import { CommitteeModel, CommitteeRoleModel } from '../database/models';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Op } from 'sequelize';
+import { memberService } from '../services/index.js';
+import { CommitteeModel, CommitteeRoleModel } from '../database/database.js';
+import { getHashedFilename } from '../utils/hash.js';
 
 const storage = multer.diskStorage({
-  destination: async (req, file, cb) => {
-    let { year } = req.body;
+  destination: async (req, _file, cb) => {
+    let year = req.body.year;
     
     if (!year || !/^\d{4}(-\d{4})?$/.test(year)) {
         const currentYear = new Date().getFullYear();
         year = `${currentYear}-${currentYear + 1}`;
     }
 
-    const uploadPath = `./public/img/committee/${year}`;
+    const uploadPath = path.join(process.cwd(), 'public', 'img', 'committee', year);
 
     try {
-        await fs.promises.mkdir(uploadPath, { recursive: true });
+        await fs.mkdir(uploadPath, { recursive: true });
         cb(null, uploadPath);
     } catch (err) {
-        cb(err as Error, '');
+        cb(err as Error, uploadPath);
     }
   },
-  filename: (req, file, cb) => {
-    const id = req.body.id || 'unknown'; 
+  filename: (req, _file, cb) => {
+    // If id isn't in body yet, we fallback to a temp name or timestamp
+    const id = req.body.id || Date.now().toString(); 
     const type = req.body.type || 'photo';
     const filename = `${getHashedFilename(id, type)}.jpg`;
     cb(null, filename);
@@ -34,51 +36,40 @@ const storage = multer.diskStorage({
 
 export const uploadCommitteePhoto = multer({
   storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
-async function committeeAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void | Response> {
+export const userAuth = (req: Request, res: Response, next: NextFunction) => {
+  if (req.isAuthenticated()) return next();
+  res.status(401).json({ err: 'You need to be signed in to do that!' });
+};
+
+export const committeeAuth = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.isAuthenticated()) {
-    return res.status(401).json({ err: 'You need to be signed in to do that!' });
+    return res.status(401).json({ err: 'Sign in required.' });
   }
 
   try {
     const isRoot = await memberService.getUserIsRoot(req.user.id);
-    
     if (isRoot) return next();
 
     const committeeMember = await CommitteeModel.findOne({
-      where: {
-        member_id: req.user.id,
-        is_current: true, 
-      },
+      where: { member_id: req.user.id, is_current: true },
     });
 
     if (committeeMember) return next();
 
-    return res.status(403).json({ err: 'You need a committee role to do that!' });
+    res.status(403).json({ err: 'Committee access required.' });
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ err: 'Internal Server Error' });
+    res.status(500).json({ err: 'Auth check failed.' });
   }
-}
+};
 
-const VALID_ROOT_YEARS = [
-  process.env.CURRENT_YEAR, 
-  process.env.PREVIOUS_YEAR
-].filter(Boolean); 
+const VALID_ROOT_YEARS = [process.env.CURRENT_YEAR, process.env.PREVIOUS_YEAR].filter(Boolean) as string[];
 
-async function rootAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void | Response> {
+export const rootAuth = async (req: Request, res: Response, next: NextFunction) => {
   if (!req.isAuthenticated()) {
-    return res.status(401).json({ err: 'You need to be signed in to do that!' });
+    return res.status(401).json({ err: 'Sign in required.' });
   }
 
   try {
@@ -88,44 +79,19 @@ async function rootAuth(
     const hasRootAccess = await CommitteeModel.findOne({
       where: {
         member_id: req.user.id,
-        year: {
-            [Op.in]: VALID_ROOT_YEARS 
-        }
+        year: { [Op.in]: VALID_ROOT_YEARS }
       },
-      include: [
-        {
-          model: CommitteeRoleModel,
-          as: 'committeeRole',
-          where: {
-            role_slug: {
-              [Op.in]: ['webmaster', 'president'],
-            },
-          },
-        },
-      ],
+      include: [{
+        model: CommitteeRoleModel,
+        as: 'committeeRole',
+        where: { role_slug: { [Op.in]: ['webmaster', 'president'] } },
+      }],
     });
 
     if (hasRootAccess) return next();
 
-    return res.status(403).json({
-      err: 'You are not in the sudoers file. This incident will be reported.',
-    });
+    res.status(403).json({ err: 'You are not in the sudoers file. This incident will be reported.' });
   } catch (error) {
-    console.error('Auth Error:', error);
-    return res.status(500).json({ err: 'Internal authorization error.' });
+    res.status(500).json({ err: 'Internal authorization error.' });
   }
-}
-
-function userAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): void | Response {
-  if (req.isAuthenticated()) {
-    return next();
-  } else {
-    return res.status(401).json({ err: 'You need to be signed in to do that!' });
-  }
-}
-
-export { committeeAuth, userAuth, rootAuth };
+};

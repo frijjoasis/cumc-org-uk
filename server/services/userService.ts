@@ -1,33 +1,38 @@
 import { Op } from 'sequelize';
-import { UserModel, MemberModel, required } from '../database/database';
-import type { User } from '../database/types';
+import { UserModel, MemberModel, required } from '../database/database.js';
+import type { User } from '@cumc/shared-types';
+
+type UserUpsertPayload = Partial<User> & { 
+  id: string; 
+  email: string; 
+  displayName: string; 
+};
 
 class UserService {
-  async upsert(userData: Partial<User>): Promise<[UserModel, boolean | null]> {
+  async upsert(userData: UserUpsertPayload): Promise<[UserModel, boolean | null]> {
     return UserModel.upsert(userData);
   }
-
-  async updateInfo(userData: Partial<User>, id: string): Promise<[number]> {
-    // Get all nullable fields from User model
-    const fields = Object.keys(UserModel.getAttributes()).filter(
-      col => UserModel.getAttributes()[col].allowNull !== false
+  async updateInfo(userData: Partial<Omit<User, 'id'>>, id: string): Promise<[number]> {
+    const attributes = UserModel.getAttributes();
+    const allowedFields = (Object.keys(attributes) as Array<keyof typeof attributes>).filter(
+      (col: keyof typeof attributes) => attributes[col].allowNull !== false && col !== 'id'
     );
 
-    return [
-      await UserModel.update(userData, {
-        where: { id },
-        fields: fields as any,
-        returning: false,
-      }).then(v => v[0]),
-    ];
+    const [affectedCount] = await UserModel.update(userData, {
+      where: { id },
+      fields: allowedFields as any,
+    });
+    
+    return [affectedCount];
   }
 
   async list(): Promise<UserModel[]> {
     return UserModel.findAll({
-      include: {
+      include: [{
         model: MemberModel,
+        as: 'member',
         attributes: ['hasPaid', 'committee'],
-      },
+      }],
     });
   }
 
@@ -37,10 +42,11 @@ class UserService {
 
   async getWithMember(id: string): Promise<UserModel | null> {
     return UserModel.findByPk(id, {
-      include: {
+      include: [{
         model: MemberModel,
+        as: 'member',
         attributes: ['hasPaid'],
-      },
+      }],
     });
   }
 
@@ -49,15 +55,16 @@ class UserService {
     if (!user) return true;
 
     return !required.every(field => {
-      const value = user[field as keyof User];
+      const value = user.get(field as keyof UserModel);
       return value !== null && value !== undefined && value !== '';
     });
   }
 
-  async getRequiredFields(): Promise<string[]> {
+  async getRequiredFields(): Promise<readonly string[]> {
     return required;
   }
-  async listSimple(): Promise<Partial<UserModel>[]> {
+
+  async listSimple(): Promise<UserModel[]> {
     return UserModel.findAll({
       attributes: ['id', 'displayName', 'email'],
       order: [['displayName', 'ASC']],
@@ -65,24 +72,21 @@ class UserService {
   }
 
   async getByCrsidOrId(query: string): Promise<UserModel | null> {
-    let input = query.toLowerCase().trim();
+    const input = query.toLowerCase().trim();
+    const crsid = input.split('@')[0].replace(/[^a-z0-9]/g, '');
 
-    if (input.includes('@')) {
-      input = input.split('@')[0];
-    }
-    const cleanQuery = input.replace(/[^a-z0-9]/g, '');
-
-    if (!cleanQuery) return null;
+    if (!crsid) return null;
 
     return UserModel.findOne({
       where: {
         [Op.or]: [
-          { id: cleanQuery },
-          { email: { [Op.like]: `${cleanQuery}@cam.ac.uk` } },
+          { id: crsid },
+          { email: { [Op.iLike]: `${crsid}@cam.ac.uk` } },
         ],
       },
       attributes: ['id', 'displayName', 'email'],
     });
   }
 }
+
 export const userService = new UserService();

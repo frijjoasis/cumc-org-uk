@@ -8,13 +8,14 @@ import {
   NonAttribute,
   ForeignKey,
 } from 'sequelize';
-import type { UserModel } from './user';
-import type { CommitteeModel } from './committee';
+import type { UserModel } from './user.js';
+import type { CommitteeModel } from './committee.js';
+import { Member } from '@cumc/shared-types';
 
 class MemberModel extends Model<
   InferAttributes<MemberModel>,
   InferCreationAttributes<MemberModel>
-> {
+> implements Member {
   // id is both primary key AND foreign key to User
   declare id: ForeignKey<UserModel['id']>;
 
@@ -32,12 +33,12 @@ class MemberModel extends Model<
   declare updatedAt: CreationOptional<Date>;
 }
 
-function define(sequelize: Sequelize) {
+function define(sequelize: Sequelize): typeof MemberModel {
   MemberModel.init(
     {
       id: {
         primaryKey: true,
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DECIMAL, 
       },
       hasPaid: {
         allowNull: false,
@@ -58,23 +59,28 @@ function define(sequelize: Sequelize) {
       sequelize,
       tableName: 'Members',
       modelName: 'member',
+      timestamps: true,
     }
   );
 
   return MemberModel;
 }
 
-function associate(sequelize: Sequelize) {
-  MemberModel.belongsTo(sequelize.models.user as typeof UserModel, {
-    foreignKey: {
-      name: 'id',
-      field: 'id',
-    },
-  });
+function associate(sequelize: Sequelize): void {
+  const { user, committee } = sequelize.models;
 
-  // Associate with committee if it exists
-  if (sequelize.models.committee) {
-    MemberModel.hasMany(sequelize.models.committee as typeof CommitteeModel, {
+  if (user) {
+    MemberModel.belongsTo(user as typeof UserModel, {
+      foreignKey: {
+        name: 'id',
+        field: 'id',
+      },
+      as: 'user',
+    });
+  }
+
+  if (committee) {
+    MemberModel.hasMany(committee as typeof CommitteeModel, {
       foreignKey: 'member_id',
       as: 'committeeMembers',
     });

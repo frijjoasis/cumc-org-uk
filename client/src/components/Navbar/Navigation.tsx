@@ -5,8 +5,23 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import logo from '../../assets/img/logo.png';
+import { RouteConfig } from '@/types';
 
-const Navigation = ({ routes, image, color = 'black', isOpen, setIsOpen }) => {
+interface NavProps {
+  routes: RouteConfig[];
+  image: string;
+  color?: 'black' | 'blue' | 'red' | 'green';
+  isOpen: boolean;
+  setIsOpen: (open: boolean) => void;
+}
+
+const Navigation: React.FC<NavProps> = ({
+  routes,
+  image,
+  color = 'black',
+  isOpen,
+  setIsOpen,
+}) => {
   const colorOverlays = {
     black: 'bg-black/80',
     blue: 'bg-blue-900/75',
@@ -55,11 +70,19 @@ const Navigation = ({ routes, image, color = 'black', isOpen, setIsOpen }) => {
     <>
       {/* --- DESKTOP SIDEBAR --- */}
       <div className="relative hidden md:flex h-full w-64 flex-col overflow-hidden border-r text-white shadow-xl shrink-0">
-        <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
-        <div className={cn('absolute inset-0 z-10 opacity-95', colorOverlays[color])} />
+        <div
+          className="absolute inset-0 z-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${image})` }}
+        />
+        <div
+          className={cn(
+            'absolute inset-0 z-10 opacity-95',
+            colorOverlays[color]
+          )}
+        />
         <div className="relative z-20 flex h-full flex-col">
           <div className="flex h-16 items-center border-b border-white/10 px-6">
-             <LogoSection />
+            <LogoSection />
           </div>
           <div className="flex-1 overflow-y-auto px-3 py-6">
             <NavItems />
@@ -71,16 +94,24 @@ const Navigation = ({ routes, image, color = 'black', isOpen, setIsOpen }) => {
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side="left" className="p-0 border-none w-72">
           <div className="relative h-full w-full flex flex-col text-white">
-             <div className="absolute inset-0 z-0 bg-cover bg-center" style={{ backgroundImage: `url(${image})` }} />
-             <div className={cn('absolute inset-0 z-10 opacity-95', colorOverlays[color])} />
-             <div className="relative z-20 flex h-full flex-col">
-                <div className="flex h-16 items-center border-b border-white/10 px-6">
-                   <LogoSection />
-                </div>
-                <div className="flex-1 overflow-y-auto px-3 py-6">
-                  <NavItems isMobile />
-                </div>
-             </div>
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${image})` }}
+            />
+            <div
+              className={cn(
+                'absolute inset-0 z-10 opacity-95',
+                colorOverlays[color]
+              )}
+            />
+            <div className="relative z-20 flex h-full flex-col">
+              <div className="flex h-16 items-center border-b border-white/10 px-6">
+                <LogoSection />
+              </div>
+              <div className="flex-1 overflow-y-auto px-3 py-6">
+                <NavItems isMobile />
+              </div>
+            </div>
           </div>
         </SheetContent>
       </Sheet>

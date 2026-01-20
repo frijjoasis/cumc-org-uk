@@ -2,7 +2,7 @@ import {
   CommitteeRoleModel,
   CommitteeModel,
   sequelize,
-} from '../database/database';
+} from '../database/database.js';
 import { QueryTypes } from 'sequelize';
 
 interface RoleCreateData {

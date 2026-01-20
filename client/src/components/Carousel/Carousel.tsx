@@ -34,11 +34,11 @@ const PreparedCarousel: React.FC<PreparedCarouselProps> = ({ slides }) => {
       </CarouselContent>
       <CarouselPrevious
         variant="ghost"
-        className="left-4 !opacity-0 group-hover:!opacity-100 group-hover:disabled:!opacity-50 bg-white/20 rounded-full backdrop-blur-sm border-none text-white hover:bg-white/30 transition-all"
+        className="left-4 opacity-0! group-hover:opacity-100! group-hover:disabled:opacity-50! bg-white/20 rounded-full backdrop-blur-sm border-none text-white hover:bg-white/30 transition-all"
       />
       <CarouselNext
         variant="ghost"
-        className="right-4 !opacity-0 group-hover:!opacity-100 group-hover:disabled:!opacity-50 bg-white/20 border-none rounded-full backdrop-blur-sm text-white hover:bg-white/30 transition-all"
+        className="right-4 opacity-0! group-hover:opacity-100! group-hover:disabled:opacity-50! bg-white/20 border-none rounded-full backdrop-blur-sm text-white hover:bg-white/30 transition-all"
       />
     </Carousel>
   );

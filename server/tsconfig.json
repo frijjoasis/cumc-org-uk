@@ -1,31 +1,16 @@
 {
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "es2021",
-    "module": "CommonJS",
-    "lib": ["es2021"],
+    "rootDir": ".",
     "outDir": "./dist",
-    "strict": false,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "moduleResolution": "node",
-    "allowJs": true,
-    "checkJs": false,
-    "declaration": true,
-    "declarationMap": true,
     "baseUrl": ".",
-    "sourceMap": true,
-    "types": ["node"],
-    "typeRoots": ["./node_modules/@types", "./types", "../node_modules/@types"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["node", "multer", "passport"],
     "paths": {
-      "@cumc/shared-types": ["../shared/types"]
+      "@cumc/shared-types": ["../shared/index.ts"]
     }
   },
-  "include": ["**/*.ts", "**/*.js", "types/**/*.d.ts"],
-  "exclude": ["node_modules", "dist"],
-  "ts-node": {
-    "transpileOnly": false,
-    "files": true
-  }
+  "include": ["**/*.ts", "types/**/*.d.ts"],
+  "references": [{ "path": "../shared" }]
 }

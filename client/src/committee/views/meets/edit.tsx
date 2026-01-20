@@ -189,7 +189,7 @@ const EditMeet = () => {
                     endDate: endDate.toISOString().split('T')[0],
                   };
 
-                  const stringId = updatedMeet.id.toString();
+                  const stringId = updatedMeet.id?.toString();
                   setNewID(stringId);
                   setContent(formattedMeet);
                   setError(null);

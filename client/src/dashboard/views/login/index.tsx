@@ -27,7 +27,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 
 import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
-import { User } from '@/types/models';
+import { User } from '@cumc/shared-types';
 
 const Register = ({ user }: { user: User }) => {
   const [form, setForm] = useState<any>({});
@@ -82,7 +82,6 @@ const Register = ({ user }: { user: User }) => {
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-4 space-y-8">
-
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div className="space-y-1">
           <h1 className="text-4xl font-black uppercase italic tracking-tighter">

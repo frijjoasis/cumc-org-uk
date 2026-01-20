@@ -1,9 +1,15 @@
 import { Router, Request, Response } from 'express';
-import { committeeAuth, rootAuth, uploadCommitteePhoto } from '../middleware';
-import { committeeService, committeeRoleService } from '../../services';
+import {
+  committeeAuth,
+  rootAuth,
+  uploadCommitteePhoto,
+} from '../middleware.js';
+import {
+  committeeService,
+  committeeRoleService,
+} from '../../services/index.js';
 
-const router = Router();
-
+const router: Router = Router();
 
 router.get('/current', async (req: Request, res: Response) => {
   try {

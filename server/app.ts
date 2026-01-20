@@ -1,25 +1,102 @@
-#!/usr/bin/env node
-import path from 'path';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
-dotenv.config({ path: path.join(__dirname, '.env') });
-
 import express, { Request, Response } from 'express';
 import passport from 'passport';
-import { OAuth2Strategy } from 'passport-google-oauth';
+import {
+  Strategy as GoogleStrategy,
+  type Profile,
+} from 'passport-google-oauth20';
 import session from 'express-session';
-import * as database from './database/database';
-import { logger, expressLogger } from './logger';
-import { userService } from './services';
 
-import aboutRouter from './routes/about/about';
-import committeeRouter from './routes/committee/committee';
-import authRouter from './routes/auth/auth';
-import userRouter from './routes/user/user';
-import meetsRouter from './routes/meets/meets';
-import memberRouter from './routes/member/member';
-import paypalRouter from './routes/paypal/paypal';
-import mailmanRouter from './routes/mailman/mailman';
+import * as database from './database/database.js';
+import { logger, expressLogger } from './logger.js';
+import { userService } from './services/index.js';
 
+// Route Imports
+import aboutRouter from './routes/about/about.js';
+import committeeRouter from './routes/committee/committee.js';
+import authRouter from './routes/auth/auth.js';
+import userRouter from './routes/user/user.js';
+import meetsRouter from './routes/meets/meets.js';
+import memberRouter from './routes/member/member.js';
+import paypalRouter from './routes/paypal/paypal.js';
+import mailmanRouter from './routes/mailman/mailman.js';
+
+// Recreating __dirname for ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '.env') });
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+app.use(expressLogger);
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.enable('trust proxy');
+
+// Static Files
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../client/build')));
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_ID || '',
+      clientSecret: process.env.GOOGLE_SECRET || '',
+      callbackURL: '/api/auth/callback',
+      proxy: true,
+    },
+    async (accessToken, refreshToken, profile: Profile, done) => {
+      try {
+        const userData = {
+          id: profile.id,
+          displayName: profile.displayName,
+          email: profile.emails?.[0]?.value || '',
+        };
+
+        // userService.getById should handle find-or-create logic
+        const user = await userService.getById(profile.id);
+        return done(null, user as any);
+      } catch (err) {
+        return done(err as Error);
+      }
+    }
+  )
+);
+
+passport.serializeUser((user: any, done) => done(null, user.id));
+
+passport.deserializeUser(async (id: string, done) => {
+  try {
+    const user = await userService.getById(id);
+    done(null, user);
+  } catch (err) {
+    done(err, null);
+  }
+});
+
+app.use(
+  session({
+    secret: process.env.SECRET || 'cumc',
+    resave: false,
+    saveUninitialized: false,
+    name: 'connect.sid.cumc',
+    cookie: {
+      secure: process.env.NODE_ENV === 'production',
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Register Routers
 const routers = [
   { path: '/api/about/', router: aboutRouter },
   { path: '/api/committee/', router: committeeRouter },
@@ -31,117 +108,21 @@ const routers = [
   { path: '/api/mailman', router: mailmanRouter },
 ];
 
-const app = express();
-const port = process.env.PORT || 5000;
-
-app.use(expressLogger);
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-app.enable('trust proxy');
-
-app.use(express.static(path.join(__dirname, 'public'))); // Serve everything in public at /
-app.use(express.static(path.join(__dirname, '../client/build')));
-
-interface GoogleProfile {
-  id: string;
-  displayName: string;
-  emails?: Array<{ value: string }>;
-}
-
-passport.use(
-  new OAuth2Strategy(
-    {
-      clientID: process.env.GOOGLE_ID || '',
-      clientSecret: process.env.GOOGLE_SECRET || '',
-      callbackURL: '/api/auth/callback',
-      proxy: true,
-    } as any,
-    function (
-      accessToken: string,
-      refreshToken: string,
-      profile: GoogleProfile,
-      done: (error: any, user?: Express.User) => void
-    ) {
-      const user = {
-        id: profile.id,
-        displayName: profile.displayName,
-        email: profile.emails?.[0]?.value || '',
-      };
-      userService.getById(profile.id).then(() => {
-        done(null, user as any);
-      });
-    }
-  )
-);
-passport.serializeUser(function (user: any, done) {
-  done(null, user.id); 
-});
-
-passport.deserializeUser(function (id: string, done) {
-  userService.getById(id)
-    .then(user => {
-      done(null, user); // Attaches full user object to req.user
-    })
-    .catch(err => {
-      done(err, null);
-    });
-});
-
-app.use(
-  session({
-    secret: process.env.SECRET || '',
-    resave: false,
-    // secure: process.env.NODE_ENV === 'production',
-    saveUninitialized: false,
-    name: 'connect.sid.cumc',
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-//TODO: A session store actually meant for production
-
-routers.forEach(i => {
-  app.use(i.path, i.router);
-});
+routers.forEach(route => app.use(route.path, route.router));
 
 app.get('*', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, '../client/build/index.html'));
-}); // Serve react app
-
-// Start server first, then try database
-app.listen(port, () => {
-  logger.info(`Listening on port ${port}`);
-
-  // Try database connection in development mode
-  if (process.env.NODE_ENV === 'development') {
-    logger.info(`Checking database connection...`);
-    database
-      .init()
-      .then(() => {
-        logger.info('Database initialised.');
-      })
-      .catch(error => {
-        logger.warn(
-          'Database connection failed in development mode. Some features may not work:',
-          error.message
-        );
-        logger.info(
-          'Server will continue running without database connection.'
-        );
-      });
-  } else {
-    // In production, database is required
-    logger.info(`Checking database connection...`);
-    database
-      .init()
-      .then(() => {
-        logger.info('Database initialised.');
-      })
-      .catch(error => {
-        logger.error('Unable to connect to the database:', error);
-        process.exit(1);
-      });
-  }
 });
+
+try {
+  logger.info('Initializing database...');
+  await database.init();
+  logger.info('Database initialized successfully.');
+
+  app.listen(port, () => {
+    logger.info(`Server running on port ${port} [${process.env.NODE_ENV}]`);
+  });
+} catch (error) {
+  logger.error('Failed to start server:', error);
+  process.exit(1);
+}
