@@ -7,9 +7,9 @@
   "author": "Edmund Ross",
   "license": "ISC",
   "workspaces": [
+    "shared",
     "server",
-    "client",
-    "shared"
+    "client"
   ],
   "scripts": {
     "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,green\" \"npm run dev -w server\" \"npm run start -w client\"",
@@ -24,7 +24,8 @@
   },
   "overrides": {
     "react-helmet-async": {
-      "react": "$react"
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0"
     }
   }
 }
