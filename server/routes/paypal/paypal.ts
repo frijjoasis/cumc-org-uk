@@ -34,6 +34,7 @@ type PaymentResult<T> = T | PaymentError;
 interface PaymentWorkflow {
   orderID: string;
   price: string;
+  capture: boolean;
   onSuccess: (captureID: string) => Promise<void>;
 }
 
@@ -267,15 +268,19 @@ async function executePaymentWorkflow(
     return authResult;
   }
 
-  const captureResult = await paypalClient.captureAuthorization(
-    authResult,
-    workflow.price
-  );
-  if (isError(captureResult)) {
-    return captureResult;
+  if (workflow.capture) {
+    const captureResult = await paypalClient.captureAuthorization(
+      authResult,
+      workflow.price
+    );
+    if (isError(captureResult)) {
+      return captureResult;
+    }
+    await workflow.onSuccess(captureResult);
+  } else {
+    await workflow.onSuccess(authResult); // Passes Auth ID
   }
 
-  await workflow.onSuccess(captureResult);
   return null;
 }
 
@@ -386,6 +391,7 @@ router.post('/membership', userAuth, async (req: Request, res: Response) => {
     const error = await executePaymentWorkflow({
       orderID: req.body.data.orderID,
       price: process.env.MEMBERSHIP_PRICE || '0',
+      capture: true,
       onSuccess: async captureID => {
         await memberService.upsert({
           id: req.user!.id,
@@ -412,6 +418,7 @@ router.post('/britrock', async (req: Request, res: Response) => {
     const error = await executePaymentWorkflow({
       orderID: req.body.data.orderID,
       price: process.env.BRITROCK_PRICE || '0',
+      capture: true,
       onSuccess: async () => {
         await britRockService.upsert(req.body.form);
       },
@@ -447,6 +454,7 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
     const error = await executePaymentWorkflow({
       orderID: req.body.data.orderID,
       price: meet.price?.toString() || '0',
+      capture: false,
       onSuccess: async authID => {
         const finalCount = await signupService.getCountByMeetId(meet.id);
         if (meet.maxSignups && finalCount >= meet.maxSignups) {
