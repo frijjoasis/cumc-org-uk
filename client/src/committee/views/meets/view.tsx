@@ -42,18 +42,35 @@ const MeetView = () => {
   }, [id]);
 
   const handlePaypalAction = async (url: string, signup?: SignupData) => {
+    const action = url === 'capture' ? 'capture' : 'void';
     const confirmMsg = signup
-      ? `Are you sure you want to ${url} payment for ${signup.user?.firstName}?`
-      : `Are you sure you want to ${url} ALL payments for this meet?`;
+      ? `Are you sure you want to ${action} payment for ${signup.user?.firstName}?`
+      : `Are you sure you want to ${action} ALL payments for this meet?`;
 
     if (!window.confirm(confirmMsg)) return;
 
     try {
       const payload = signup ? { id, authID: signup.authID } : { id };
-      await axios.post(`/api/paypal/${url}`, payload);
+      const response = await axios.post(`/api/paypal/${url}`, payload);
+
+      if (!signup && response.data.success) {
+        const { captured, voided, failed, skipped, errors } = response.data;
+        let msg = `Operation complete:\n`;
+        if (captured) msg += `✓ Captured: ${captured}\n`;
+        if (voided) msg += `✓ Voided: ${voided}\n`;
+        if (failed) msg += `✗ Failed: ${failed}\n`;
+        if (skipped) msg += `- Skipped: ${skipped}\n`;
+        if (errors && errors.length > 0) {
+          msg += `\nErrors:\n${errors.slice(0, 5).join('\n')}`;
+          if (errors.length > 5) msg += `\n... and ${errors.length - 5} more`;
+        }
+        alert(msg);
+      }
+
       fetchData(); // Refresh the table
     } catch (err) {
-      alert('Payment action failed. check console.');
+      console.error('Payment action error:', err);
+      alert('Payment action failed. Check console for details.');
     }
   };
 
@@ -74,11 +91,21 @@ const MeetView = () => {
     const questionTitles = (data.questions || []).map(q => q.title);
 
     const rows = data.signups.map(s => {
+      const getPaymentStatus = () => {
+        if (s.captureID === 'Void' || s.captureID === 'Void Failed')
+          return s.captureID;
+        if (s.captureID === 'Capture Failed') return 'Capture Failed';
+        if (s.captureID === 'Not Paying') return 'Free Entry';
+        if (s.captureID) return 'Captured';
+        if (s.authID) return 'Authorized';
+        return 'Unpaid';
+      };
+
       const basicInfo = [
         `${s.user?.firstName} ${s.user?.lastName}`,
         s.user?.email,
         new Date(s.createdAt).toISOString(),
-        s.captureID ? 'Captured' : s.authID ? 'Authorized' : 'Unpaid',
+        getPaymentStatus(),
         s.authID || '-',
       ];
 
@@ -178,7 +205,20 @@ const MeetView = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {s.captureID ? (
+                      {s.captureID === 'Void' ||
+                      s.captureID === 'Void Failed' ? (
+                        <Badge className="bg-zinc-500 text-white border-none">
+                          {s.captureID}
+                        </Badge>
+                      ) : s.captureID === 'Capture Failed' ? (
+                        <Badge className="bg-rose-500 text-white border-none">
+                          Capture Failed
+                        </Badge>
+                      ) : s.captureID === 'Not Paying' ? (
+                        <Badge className="bg-blue-500 text-white border-none">
+                          Free Entry
+                        </Badge>
+                      ) : s.captureID ? (
                         <Badge className="bg-emerald-500 text-white border-none">
                           Captured
                         </Badge>
@@ -209,31 +249,47 @@ const MeetView = () => {
                     })}
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-1">
-                        {!s.captureID && s.authID && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-emerald-600"
-                            onClick={() => handlePaypalAction('capture', s)}
-                          >
-                            <CreditCard className="h-4 w-4" />
-                          </Button>
-                        )}
-                        {!s.captureID && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-amber-600"
-                            onClick={() => handlePaypalAction('void', s)}
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </Button>
-                        )}
+                        {s.authID &&
+                          (!s.captureID ||
+                            s.captureID === 'Capture Failed') && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-emerald-600"
+                              onClick={() => handlePaypalAction('capture', s)}
+                              title={
+                                s.captureID === 'Capture Failed'
+                                  ? 'Retry capture'
+                                  : 'Capture payment'
+                              }
+                            >
+                              <CreditCard className="h-4 w-4" />
+                            </Button>
+                          )}
+                        {s.authID &&
+                          (!s.captureID ||
+                            s.captureID === 'Void Failed' ||
+                            s.captureID === 'Capture Failed') && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-amber-600"
+                              onClick={() => handlePaypalAction('void', s)}
+                              title={
+                                s.captureID === 'Void Failed'
+                                  ? 'Retry void'
+                                  : 'Void payment'
+                              }
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          )}
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-rose-600"
                           onClick={() => deleteSignup(s.id)}
+                          title="Delete signup"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

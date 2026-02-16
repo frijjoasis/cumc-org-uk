@@ -40,7 +40,7 @@ interface PaymentWorkflow {
 interface SignupData {
   meetID: number;
   answers: object;
-  [key: string]: any; // Allow additional properties
+  [key: string]: any;
 }
 
 // ============================================================================
@@ -95,7 +95,6 @@ class PayPalClient {
       const actualPrice = parseFloat(data.purchase_units[0].amount.value);
       const expected = parseFloat(expectedPrice);
 
-      // Use a small epsilon to handle float precision
       if (Math.abs(actualPrice - expected) < 0.01) {
         return true;
       }
@@ -149,6 +148,30 @@ class PayPalClient {
       return response.data.id;
     } catch (err) {
       this.logPayPalError('Capture authorization', err);
+
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const errorName = err.response?.data?.name;
+
+        // Authorization already captured
+        if (status === 422 && errorName === 'AUTHORIZATION_ALREADY_CAPTURED') {
+          logger.warn(`Authorization ${authID} was already captured`);
+          return { err: 'This payment has already been captured.' };
+        }
+
+        // Authorization voided
+        if (status === 422 && errorName === 'AUTHORIZATION_VOIDED') {
+          logger.warn(`Authorization ${authID} was voided`);
+          return { err: 'Cannot capture a voided payment.' };
+        }
+
+        // Authorization expired
+        if (status === 422 && errorName === 'AUTHORIZATION_EXPIRED') {
+          logger.warn(`Authorization ${authID} has expired`);
+          return { err: 'Payment authorization has expired.' };
+        }
+      }
+
       return {
         err: 'An error occurred capturing payment. You may have been charged. Please contact the webmaster',
       };
@@ -170,6 +193,35 @@ class PayPalClient {
       return true;
     } catch (err) {
       this.logPayPalError('Void authorization', err);
+
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const errorName = err.response?.data?.name;
+
+        // Authorization not found (404) or already voided/captured (422)
+        if (status === 404) {
+          logger.warn(
+            `Authorization ${authID} not found - may already be voided`
+          );
+          return true;
+        }
+
+        if (status === 422 && errorName === 'AUTHORIZATION_VOIDED') {
+          logger.warn(`Authorization ${authID} already voided`);
+          return true;
+        }
+
+        if (status === 422 && errorName === 'AUTHORIZATION_ALREADY_CAPTURED') {
+          logger.error(`Cannot void ${authID} - already captured`);
+          return { err: 'Cannot void - payment already captured' };
+        }
+
+        if (status === 422 && errorName === 'AUTHORIZATION_EXPIRED') {
+          logger.warn(`Authorization ${authID} expired - treating as voided`);
+          return true; // Expired auth can't be captured, effectively voided
+        }
+      }
+
       return {
         err: 'An error occurred voiding payment. Please contact the webmaster',
       };
@@ -179,7 +231,10 @@ class PayPalClient {
   private logPayPalError(operation: string, err: any): void {
     logger.error(`PayPal ${operation} error:`, err);
     if (axios.isAxiosError(err) && err.response?.data) {
-      logger.error('PayPal error details:', err.response.data.details);
+      logger.error(
+        'PayPal error details:',
+        JSON.stringify(err.response.data, null, 2)
+      );
     }
   }
 }
@@ -245,7 +300,6 @@ async function handleMeetSignup(
 
   const meet = await meetService.getById(meetId);
   if (meet && meet.signupControl !== 'Everyone') {
-    // Meet type causes loss of free waiver
     await memberService.upsert({
       id: userId,
       hasFree: false,
@@ -303,6 +357,24 @@ async function isPaymentNeeded(
   }
 
   return { err: 'You need to pay for membership to do that!' };
+}
+
+function canVoidPayment(signup: any): boolean {
+  if (!signup.authID) return false;
+
+  // Can void if no captureID, or if previous void/capture failed
+  return (
+    !signup.captureID ||
+    signup.captureID === 'Void Failed' ||
+    signup.captureID === 'Capture Failed'
+  );
+}
+
+function canCapturePayment(signup: any): boolean {
+  if (!signup.authID) return false;
+
+  // Can capture if not already captured/voided
+  return !signup.captureID || signup.captureID === 'Capture Failed';
 }
 
 // ============================================================================
@@ -376,12 +448,8 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
       orderID: req.body.data.orderID,
       price: meet.price?.toString() || '0',
       onSuccess: async authID => {
-        // capacity double check
         const finalCount = await signupService.getCountByMeetId(meet.id);
         if (meet.maxSignups && finalCount >= meet.maxSignups) {
-          // void the payment if they were too slow
-          // Maybe not the best outcome, but since we have a smallish club
-          // This likely wont occur (often)
           await paypalClient.voidAuthorization(authID);
           throw new Error('CAPACITY_REACHED');
         }
@@ -426,7 +494,6 @@ router.post('/required', userAuth, async (req: Request, res: Response) => {
       return res.json(eligibility.paymentRequired);
     }
 
-    // Payment not required - register directly
     await handleMeetSignup(
       req.user!.id,
       (req.user as any).displayName || '',
@@ -448,16 +515,17 @@ router.post('/capture', committeeAuth, async (req: Request, res: Response) => {
 
     const signups = meet.signups || [];
     const targetAuthID = req.body.authID;
-
     const price = meet.price?.toString() || '0';
+
     let successCount = 0;
     let failCount = 0;
+    let skippedCount = 0;
+    const errors: string[] = [];
 
-    // Sequential capturing of payments -- We would effectively dos paypal otherwise
+    // Sequential to avoid overwhelming PayPal
     for (const signup of signups) {
       const shouldCapture =
-        signup.authID &&
-        !signup.captureID &&
+        canCapturePayment(signup) &&
         (!targetAuthID || targetAuthID === signup.authID);
 
       if (shouldCapture) {
@@ -469,15 +537,25 @@ router.post('/capture', committeeAuth, async (req: Request, res: Response) => {
         if (isError(result)) {
           failCount++;
           await signupService.updatePayment(signup.id, 'Capture Failed');
+          errors.push(`${signup.user?.firstName}: ${result.err}`);
           logger.error(`Failed to capture ${signup.authID}: ${result.err}`);
         } else {
           successCount++;
           await signupService.updatePayment(signup.id, result);
+          logger.info(`Successfully captured ${signup.authID} → ${result}`);
         }
+      } else if (signup.captureID && signup.captureID !== 'Capture Failed') {
+        skippedCount++;
       }
     }
 
-    res.json({ success: true, captured: successCount, failed: failCount });
+    res.json({
+      success: true,
+      captured: successCount,
+      failed: failCount,
+      skipped: skippedCount,
+      errors: errors.length > 0 ? errors : undefined,
+    });
   } catch (err) {
     logger.error('Capture payments error:', err);
     res.status(500).json({ err: 'Encountered an error during processing.' });
@@ -494,21 +572,42 @@ router.post('/void', committeeAuth, async (req: Request, res: Response) => {
     const signups = (meet as any).signups || [];
     const targetAuthID = req.body.authID;
 
-    const voidPromises = signups
-      .filter(
-        (signup: any) =>
-          signup.authID &&
-          !signup.captureID &&
-          (!targetAuthID || targetAuthID === signup.authID)
-      )
-      .map(async (signup: any) => {
-        const result = await paypalClient.voidAuthorization(signup.authID);
-        const status = isError(result) ? 'Void Failed' : 'Void';
-        await signupService.updatePayment(signup.id, status);
-      });
+    let successCount = 0;
+    let failCount = 0;
+    let skippedCount = 0;
+    const errors: string[] = [];
 
-    await Promise.all(voidPromises);
-    res.json(true);
+    // Sequential
+    for (const signup of signups) {
+      const shouldVoid =
+        canVoidPayment(signup) &&
+        (!targetAuthID || targetAuthID === signup.authID);
+
+      if (shouldVoid) {
+        const result = await paypalClient.voidAuthorization(signup.authID!);
+
+        if (isError(result)) {
+          failCount++;
+          await signupService.updatePayment(signup.id, 'Void Failed');
+          errors.push(`${signup.user?.firstName}: ${result.err}`);
+          logger.error(`Failed to void ${signup.authID}: ${result.err}`);
+        } else {
+          successCount++;
+          await signupService.updatePayment(signup.id, 'Void');
+          logger.info(`Successfully voided ${signup.authID}`);
+        }
+      } else if (signup.captureID === 'Void') {
+        skippedCount++;
+      }
+    }
+
+    res.json({
+      success: true,
+      voided: successCount,
+      failed: failCount,
+      skipped: skippedCount,
+      errors: errors.length > 0 ? errors : undefined,
+    });
   } catch (err: any) {
     logger.error('Void payments error:', err);
     res.json({ err: 'Encountered an error. Please contact the webmaster' });
