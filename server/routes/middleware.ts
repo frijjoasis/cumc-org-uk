@@ -19,7 +19,7 @@ const storage = multer.diskStorage({
     const uploadPath = path.join(process.cwd(), 'public', 'img', 'committee', year);
 
     try {
-        await fs.mkdir(uploadPath, { recursive: true });
+        await fs.mkdir(uploadPath, { recursive: true, mode: 0o775 });
         cb(null, uploadPath);
     } catch (err) {
         cb(err as Error, uploadPath);

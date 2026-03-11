@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import { Router, Request, Response } from 'express';
 import {
   committeeAuth,
@@ -286,6 +287,9 @@ router.post(
       if (!req.file) {
         return res.status(400).json({ error: 'No image provided' });
       }
+
+      // Ensure uploaded file is not world-writable
+      await fs.chmod(req.file.path, 0o664);
 
       res.json({
         success: true,
