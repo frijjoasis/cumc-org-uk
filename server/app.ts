@@ -57,8 +57,7 @@ passport.use(
           email: profile.emails?.[0]?.value || '',
         };
 
-        // userService.getById should handle find-or-create logic
-        const user = await userService.getById(profile.id);
+        const [user] = await userService.upsert(userData);
         return done(null, user as any);
       } catch (err) {
         return done(err as Error);
