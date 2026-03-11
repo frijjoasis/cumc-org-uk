@@ -24,7 +24,7 @@ function getTransport(filename: string, level?: string): winston.transports.File
     : '/societies/cumc/cumc-org-uk/logs';
 
   if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+    fs.mkdirSync(logDir, { recursive: true, mode: 0o775 });
   }
 
   return new winston.transports.File({
@@ -49,7 +49,7 @@ const expressLogger = expressWinston.logger({
 });
 
 const transports: winston.transport[] = [
-  getTransport('application_%DATE%.log'),
+  getTransport('application_%DATE%.log', 'warn'),
   getTransport('exceptions_%DATE%.log', 'error'),
 ];
 
