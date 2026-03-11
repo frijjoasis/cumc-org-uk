@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch --env-file=.env app.ts",
     "build": "tsc",
-    "start": "node --env-file=.env dist/app.js"
+    "start": "node --env-file=.env dist/app.js",
+    "test": "vitest run --exclude 'dist/**'"
   },
   "dependencies": {
     "@cumc/shared-types": "*",
@@ -39,6 +40,7 @@
     "@types/sequelize": "^4.28.20",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   }
 }

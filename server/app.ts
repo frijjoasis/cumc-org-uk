@@ -9,10 +9,8 @@ dotenv.config({ path: path.resolve(process.cwd(), 'server/.env') });
 
 import express, { Request, Response } from 'express';
 import passport from 'passport';
-import {
-  Strategy as GoogleStrategy,
-  type Profile,
-} from 'passport-google-oauth20';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { createGoogleVerifyCallback } from './auth/googleVerifyCallback.js';
 import session from 'express-session';
 
 import * as database from './database/database.js';
@@ -49,20 +47,7 @@ passport.use(
       callbackURL: '/api/auth/callback',
       proxy: true,
     },
-    async (accessToken, refreshToken, profile: Profile, done) => {
-      try {
-        const userData = {
-          id: profile.id,
-          displayName: profile.displayName,
-          email: profile.emails?.[0]?.value || '',
-        };
-
-        const [user] = await userService.upsert(userData);
-        return done(null, user as any);
-      } catch (err) {
-        return done(err as Error);
-      }
-    }
+    createGoogleVerifyCallback(userService)
   )
 );
 
