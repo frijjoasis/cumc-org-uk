@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Router, Request, Response } from 'express';
 import {
   committeeAuth,
@@ -9,6 +10,8 @@ import {
   committeeService,
   committeeRoleService,
 } from '../../services/index.js';
+import { CommitteeModel } from '../../database/database.js';
+import { getHashedFilename } from '../../utils/hash.js';
 
 const router: Router = Router();
 
@@ -290,6 +293,22 @@ router.post(
 
       // Ensure uploaded file is not world-writable
       await fs.chmod(req.file.path, 0o664);
+
+      // Copy photo to all other committee rows for the same person in the same year
+      const source = await CommitteeModel.findByPk(id);
+      if (source?.member_id) {
+        const siblings = await CommitteeModel.findAll({
+          where: { member_id: source.member_id, year },
+        });
+
+        const dir = path.dirname(req.file.path);
+        for (const sibling of siblings) {
+          if (sibling.id === source.id) continue;
+          const siblingFilename = `${getHashedFilename(sibling.id, type)}.jpg`;
+          await fs.copyFile(req.file.path, path.join(dir, siblingFilename));
+          await fs.chmod(path.join(dir, siblingFilename), 0o664);
+        }
+      }
 
       res.json({
         success: true,
