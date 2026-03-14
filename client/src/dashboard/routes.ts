@@ -143,6 +143,7 @@ const routes: RouteConfig[] = [
     path: '/register',
     name: 'Register',
     hide: true,
+    auth: true,
     Component: Register,
     layout: '',
   },
