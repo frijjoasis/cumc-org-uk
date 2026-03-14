@@ -25,6 +25,7 @@ vi.mock('../database/database.js', () => {
   const mockMemberModel = {};
   const required = [
     'firstName', 'lastName', 'dob', 'phone', 'emergencyName', 'emergencyPhone',
+    'address1', 'postCode', 'country', 'college',
   ] as const;
   return { UserModel: mockUserModel, MemberModel: mockMemberModel, required };
 });
@@ -41,10 +42,10 @@ const makeUser = (overrides: Record<string, string | null> = {}) => {
     phone: '07700000000',
     emergencyName: 'Mum',
     emergencyPhone: '07700000001',
-    college: null,
-    address1: null,
-    postCode: null,
-    country: null,
+    college: 'Queens',
+    address1: '1 Test St',
+    postCode: 'CB1 1AA',
+    country: 'UK',
   };
   const data = { ...defaults, ...overrides };
   return { get: (field: string) => data[field] ?? null };
@@ -68,19 +69,29 @@ describe('userService.isProfileIncomplete', () => {
     expect(await userService.isProfileIncomplete('123')).toBe(true);
   });
 
-  it('returns false when all required fields are filled (optional fields absent)', async () => {
+  it('returns false when all required fields are filled', async () => {
     vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser() as any);
     expect(await userService.isProfileIncomplete('123')).toBe(false);
   });
 
-  it('returns false when all fields including optional ones are filled', async () => {
-    vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({
-      college: 'Queens',
-      address1: '1 Test St',
-      postCode: 'CB1 1AA',
-      country: 'UK',
-    }) as any);
-    expect(await userService.isProfileIncomplete('123')).toBe(false);
+  it('returns true when address is missing', async () => {
+    vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({ address1: null }) as any);
+    expect(await userService.isProfileIncomplete('123')).toBe(true);
+  });
+
+  it('returns true when postCode is missing', async () => {
+    vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({ postCode: '' }) as any);
+    expect(await userService.isProfileIncomplete('123')).toBe(true);
+  });
+
+  it('returns true when country is missing', async () => {
+    vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({ country: null }) as any);
+    expect(await userService.isProfileIncomplete('123')).toBe(true);
+  });
+
+  it('returns true when college is missing', async () => {
+    vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({ college: null }) as any);
+    expect(await userService.isProfileIncomplete('123')).toBe(true);
   });
 
   it('returns true when emergency contact name is missing', async () => {

@@ -122,6 +122,8 @@ function associate(sequelize: Sequelize): void {
   }
 }
 
+// The address, and much of this information is required
+// For the bmc membership
 const required = [
   'firstName',
   'lastName',
@@ -129,6 +131,10 @@ const required = [
   'phone',
   'emergencyName',
   'emergencyPhone',
+  'address1',
+  'postCode',
+  'country',
+  'college',
 ] as const;
 
 export { UserModel, define, associate, required };

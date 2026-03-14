@@ -194,11 +194,12 @@ const Register = ({ user }: { user: User }) => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                      College / Dept <span className="normal-case font-normal">(optional)</span>
+                      College / Dept
                     </Label>
                     <Input
                       name="college"
                       defaultValue={form.college}
+                      required
                       className="h-12"
                     />
                   </div>
@@ -220,31 +221,34 @@ const Register = ({ user }: { user: User }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="md:col-span-1 space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                      Address <span className="normal-case font-normal">(optional)</span>
+                      Address
                     </Label>
                     <Input
                       name="address1"
                       defaultValue={form.address1}
+                      required
                       className="h-12"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                      Post Code <span className="normal-case font-normal">(optional)</span>
+                      Post Code
                     </Label>
                     <Input
                       name="postCode"
                       defaultValue={form.postCode}
+                      required
                       className="h-12"
                     />
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                      Country <span className="normal-case font-normal">(optional)</span>
+                      Country
                     </Label>
                     <Input
                       name="country"
                       defaultValue={form.country}
+                      required
                       className="h-12"
                     />
                   </div>
