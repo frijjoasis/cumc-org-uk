@@ -13,10 +13,10 @@ import type { MeetModel } from './meet.js';
 import type { SignupModel } from './signup.js';
 import { User } from '@cumc/shared-types';
 
-class UserModel extends Model<
-  InferAttributes<UserModel>,
-  InferCreationAttributes<UserModel>
-> implements User {
+class UserModel
+  extends Model<InferAttributes<UserModel>, InferCreationAttributes<UserModel>>
+  implements User
+{
   declare id: string; // Stored as Numeric/Decimal, handled as string in JS
   declare email: string;
   declare displayName: string;
@@ -97,7 +97,7 @@ function associate(sequelize: Sequelize): void {
         name: 'id',
         field: 'id',
       },
-      as: 'member'
+      as: 'member',
     });
   }
 
@@ -107,7 +107,7 @@ function associate(sequelize: Sequelize): void {
         name: 'organiser',
         allowNull: false,
       },
-      as: 'meets'
+      as: 'meets',
     });
   }
 
@@ -117,7 +117,7 @@ function associate(sequelize: Sequelize): void {
         name: 'userID',
         allowNull: false,
       },
-      as: 'signups'
+      as: 'signups',
     });
   }
 }
@@ -126,11 +126,7 @@ const required = [
   'firstName',
   'lastName',
   'dob',
-  'college',
   'phone',
-  'address1',
-  'postCode',
-  'country',
   'emergencyName',
   'emergencyPhone',
 ] as const;

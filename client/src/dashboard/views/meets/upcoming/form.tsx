@@ -115,7 +115,19 @@ const MeetForm = ({ user }: MeetFormProps) => {
         <Alert variant="destructive" className="border-2 shadow-lg">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Registration Error</AlertTitle>
-          <AlertDescription>{err}</AlertDescription>
+          <AlertDescription className="space-y-3">
+            <p>{err}</p>
+            {err.toLowerCase().includes('profile') && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white text-white hover:bg-white hover:text-red-600 font-bold"
+                onClick={() => navigate('/home')}
+              >
+                Complete Profile
+              </Button>
+            )}
+          </AlertDescription>
         </Alert>
       )}
 

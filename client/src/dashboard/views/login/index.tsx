@@ -194,12 +194,11 @@ const Register = ({ user }: { user: User }) => {
                   </div>
                   <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
-                      College / Dept
+                      College / Dept <span className="normal-case font-normal">(optional)</span>
                     </Label>
                     <Input
                       name="college"
                       defaultValue={form.college}
-                      required
                       className="h-12"
                     />
                   </div>
@@ -211,6 +210,67 @@ const Register = ({ user }: { user: User }) => {
                       name="phone"
                       type="tel"
                       defaultValue={form.phone}
+                      required
+                      className="h-12"
+                    />
+                  </div>
+                </div>
+
+                {/* Address */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-1 space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Address <span className="normal-case font-normal">(optional)</span>
+                    </Label>
+                    <Input
+                      name="address1"
+                      defaultValue={form.address1}
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Post Code <span className="normal-case font-normal">(optional)</span>
+                    </Label>
+                    <Input
+                      name="postCode"
+                      defaultValue={form.postCode}
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Country <span className="normal-case font-normal">(optional)</span>
+                    </Label>
+                    <Input
+                      name="country"
+                      defaultValue={form.country}
+                      className="h-12"
+                    />
+                  </div>
+                </div>
+
+                {/* Emergency Contact */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Emergency Contact Name
+                    </Label>
+                    <Input
+                      name="emergencyName"
+                      defaultValue={form.emergencyName}
+                      required
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Emergency Contact Phone
+                    </Label>
+                    <Input
+                      name="emergencyPhone"
+                      type="tel"
+                      defaultValue={form.emergencyPhone}
                       required
                       className="h-12"
                     />
