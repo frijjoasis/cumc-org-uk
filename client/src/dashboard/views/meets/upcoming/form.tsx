@@ -121,8 +121,8 @@ const MeetForm = ({ user }: MeetFormProps) => {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-white text-white hover:bg-white hover:text-red-600 font-bold"
-                onClick={() => navigate('/home')}
+                className="border-white bg-white text-red-600 hover:bg-red-50 font-bold"
+                onClick={() => navigate('/register')}
               >
                 Complete Profile
               </Button>
