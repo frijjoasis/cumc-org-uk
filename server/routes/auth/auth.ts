@@ -61,7 +61,7 @@ router.get(
       const isMissing = await userService.isProfileIncomplete(user!.id);
 
       const redirectPath = isMissing ? '/register' : '/';
-      res.redirect(`${FRONTEND_URL}${redirectPath}`);
+      res.redirect(`${FRONTEND_URL.replace(/\/$/, '')}${redirectPath}`);
     } catch (error) {
       console.error('Callback redirect error:', error);
       res.redirect(`${FRONTEND_URL}/?error=auth_failed`);
