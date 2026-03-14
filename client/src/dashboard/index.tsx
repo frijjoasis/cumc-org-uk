@@ -8,7 +8,7 @@ import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import NotFound from '../404';
 
-import sidebarImg from '@/assets/img/sidebar/sidebar.jpg';
+import sidebarImg from '@/assets/img/sidebar/sidebar.webp';
 import { RouteConfig } from '@/types';
 
 const Frame = () => {

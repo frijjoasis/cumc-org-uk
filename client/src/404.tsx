@@ -5,9 +5,8 @@ import { ChevronLeft, Home, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
-// Assuming these are renamed to follow a modern convention or kept as is
-import img404 from './assets/img/404.jpg';
-import imgNight from './assets/img/4041.jpg';
+import img404 from './assets/img/404.webp';
+import imgNight from './assets/img/4041.webp';
 
 const NotFound = () => {
   const navigate = useNavigate();

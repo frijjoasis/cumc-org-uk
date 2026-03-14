@@ -4,7 +4,7 @@ import { indoorMeets } from './text';
 import AboutCard from '@/components/AboutCard/AboutCard';
 
 // Assets
-import img from '@/assets/img/indoor-1.jpg';
+import img from '@/assets/img/indoor-1.webp';
 
 const IndoorMeets = () => {
   return (

@@ -4,7 +4,7 @@ import { Menu, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import logo from '../../assets/img/logo.png';
+import logo from '../../assets/img/logo.webp';
 import { RouteConfig } from '@/types';
 
 interface NavProps {

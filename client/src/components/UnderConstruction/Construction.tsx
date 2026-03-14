@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-import img from '../../assets/img/404.jpg';
+import img from '../../assets/img/404.webp';
 
 function Construction() {
   const navigate = useNavigate();

@@ -4,9 +4,9 @@ import { competitionsAbout } from './text';
 import AboutCard from '@/components/AboutCard/AboutCard';
 
 // Assets
-import img1 from '@/assets/img/competitions-1.jpg';
-import img2 from '@/assets/img/competitions-2.jpg';
-import img3 from '@/assets/img/competitions-3.jpg';
+import img1 from '@/assets/img/competitions-1.webp';
+import img2 from '@/assets/img/competitions-2.webp';
+import img3 from '@/assets/img/competitions-3.webp';
 
 const CompetitionsAbout = () => {
   return (

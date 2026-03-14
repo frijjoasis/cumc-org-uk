@@ -17,9 +17,9 @@ import {
 } from '@/components/ui/table';
 import UserCard from '@/components/UserCard/UserCard';
 
-import img from '@/assets/img/committee-1.jpg';
-import defaultProfile from '@/assets/img/committee/gear.jpg';
-import defaultCover from '@/assets/img/committee/gearCover.jpg';
+import img from '@/assets/img/committee-1.webp';
+import defaultProfile from '@/assets/img/committee/gear.webp';
+import defaultCover from '@/assets/img/committee/gearCover.webp';
 
 import { CommitteePersonData } from '@/types/committee';
 import { PublicCommitteeModel } from '@cumc/shared-types';

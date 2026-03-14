@@ -22,8 +22,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-import img1 from '@/assets/img/theClub-1.jpg';
-import img2 from '@/assets/img/theClub-2.jpg';
+import img1 from '@/assets/img/theClub-1.webp';
+import img2 from '@/assets/img/theClub-2.webp';
 import { clubAbout, historyAbout } from './text';
 import AboutCard from '@/components/AboutCard/AboutCard';
 

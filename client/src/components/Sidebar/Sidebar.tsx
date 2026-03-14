@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import logo from '../../assets/img/logo.png';
+import logo from '../../assets/img/logo.webp';
 import {
   Sheet,
   SheetContent,

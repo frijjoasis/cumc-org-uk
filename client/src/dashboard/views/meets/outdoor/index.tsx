@@ -2,9 +2,9 @@ import React from 'react';
 import { Mountain, Compass, CalendarDays } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 
-import img1 from '@/assets/img/outdoor-1.jpg';
-import img2 from '@/assets/img/outdoor-2.jpg';
-import img3 from '@/assets/img/outdoor-3.jpg';
+import img1 from '@/assets/img/outdoor-1.webp';
+import img2 from '@/assets/img/outdoor-2.webp';
+import img3 from '@/assets/img/outdoor-3.webp';
 
 import { outdoorMeets } from './text';
 import { Card, CardContent } from '@/components/ui/card';

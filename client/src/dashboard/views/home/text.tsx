@@ -3,20 +3,20 @@ import React from 'react';
 import { Slide } from '@/types/carousel';
 
 // carousel images
-import welcomeImg from '@assets/img/carousel/welcome.jpg';
-import competitionsImg from '@assets/img/carousel/competitions.jpg';
-import tradImg from '@assets/img/carousel/trad.jpg';
-import boulderingImg from '@assets/img/carousel/bouldering.jpg';
-import alpineImg from '@assets/img/carousel/alpine.jpg';
+import welcomeImg from '@assets/img/carousel/welcome.webp';
+import competitionsImg from '@assets/img/carousel/competitions.webp';
+import tradImg from '@assets/img/carousel/trad.webp';
+import boulderingImg from '@assets/img/carousel/bouldering.webp';
+import alpineImg from '@assets/img/carousel/alpine.webp';
 
 // home images
-import home1 from '@assets/img/home-1.jpg';
-import home2 from '@assets/img/home-2.jpg';
-import home3 from '@assets/img/home-3.jpg';
-import home4 from '@assets/img/home-4.jpg';
-import home5 from '@assets/img/home-5.jpg';
-import home6 from '@assets/img/home-6.jpg';
-import home7 from '@assets/img/home-7.jpg';
+import home1 from '@assets/img/home-1.webp';
+import home2 from '@assets/img/home-2.webp';
+import home3 from '@assets/img/home-3.webp';
+import home4 from '@assets/img/home-4.webp';
+import home5 from '@assets/img/home-5.webp';
+import home6 from '@assets/img/home-6.webp';
+import home7 from '@assets/img/home-7.webp';
 
 const slides: Slide[] = [
   {

@@ -9,7 +9,7 @@ import Header from '../components/Navbar/Navbar';
 import Footer from '../components/Footer/Footer';
 import NotFound from '../404';
 
-import sidebarImg from '@/assets/img/sidebar/sidebarCommittee.jpg';
+import sidebarImg from '@/assets/img/sidebar/sidebarCommittee.webp';
 import { Member, User } from '@cumc/shared-types';
 import { RouteConfig } from '@/types';
 

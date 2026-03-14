@@ -1,6 +1,6 @@
 import React from 'react';
 
-import learnToBelayImg from '@assets/img/document/learn2belay.png';
+import learnToBelayImg from '@assets/img/document/learn2belay.webp';
 
 const safetyAbout = [
   <h2>Cambridge University Mountaineering Club (CUMC) Safety Policy</h2>,

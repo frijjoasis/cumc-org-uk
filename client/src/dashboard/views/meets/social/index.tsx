@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Users, PartyPopper, Coffee, CalendarDays } from 'lucide-react';
 
-import img from '@/assets/img/social-1.jpg';
+import img from '@/assets/img/social-1.webp';
 import { socialMeets } from './text';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

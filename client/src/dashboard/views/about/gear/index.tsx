@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { gearAbout } from './text';
 import AboutCard from '@/components/AboutCard/AboutCard';
-import img from '@/assets/img/gear-1.jpg';
+import img from '@/assets/img/gear-1.webp';
 
 const GearAbout = () => {
   return (
