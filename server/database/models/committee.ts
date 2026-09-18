@@ -54,7 +54,7 @@ function define(sequelize: Sequelize): typeof CommitteeModel {
         autoIncrement: true,
       },
       member_id: {
-        type: DataTypes.BIGINT,
+        type: DataTypes.DECIMAL,
         allowNull: true,
       },
       year: {

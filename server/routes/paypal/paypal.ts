@@ -16,10 +16,14 @@ const router: Router = Router();
 // Constants & Configuration
 // ============================================================================
 
-const PAYPAL_OAUTH_API = 'https://api.paypal.com/v1/oauth2/token/';
-const PAYPAL_ORDER_API = 'https://api.paypal.com/v2/checkout/orders/';
-const PAYPAL_AUTHORIZATION_API =
-  'https://api.paypal.com/v2/payments/authorizations/';
+const isDevelopment = process.env.NODE_ENV === 'development';
+const PAYPAL_API_BASE = isDevelopment
+  ? 'https://api.sandbox.paypal.com'
+  : 'https://api.paypal.com';
+
+const PAYPAL_OAUTH_API = `${PAYPAL_API_BASE}/v1/oauth2/token/`;
+const PAYPAL_ORDER_API = `${PAYPAL_API_BASE}/v2/checkout/orders/`;
+const PAYPAL_AUTHORIZATION_API = `${PAYPAL_API_BASE}/v2/payments/authorizations/`;
 
 // ============================================================================
 // Types

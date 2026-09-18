@@ -86,7 +86,7 @@ start_docker() {
     fi
 
     cd "$PROJECT_ROOT"
-    docker-compose up -d
+    docker compose up -d
 
     if [ $? -eq 0 ]; then
         print_success "Docker containers started"
@@ -100,7 +100,7 @@ start_docker() {
 stop_docker() {
     print_info "Stopping Docker containers..."
     cd "$PROJECT_ROOT"
-    docker-compose down
+    docker compose down
     print_success "Docker containers stopped"
 }
 
@@ -124,39 +124,20 @@ reset_database() {
 run_sequelize_sync() {
     print_info "Creating database schema via Sequelize..."
 
-    cd "$PROJECT_ROOT/server"
+    cd "$PROJECT_ROOT"
 
-    # Create a temporary Node.js script in the server directory to run sequelize sync
-    cat > ./cumc-db-sync-temp.js << 'EOF'
-const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env.development') });
+    if npx --no-install tsx --env-file="$ENV_FILE" -e '
+        import { init } from "./server/database/database.ts";
 
-const { init } = require('./database/database');
-
-async function syncDatabase() {
-    try {
-        console.log('Initializing database connection...');
-        await init();
-        console.log('Database schema created successfully!');
-        process.exit(0);
-    } catch (error) {
-        console.error('Error syncing database:', error);
-        process.exit(1);
-    }
-}
-
-syncDatabase();
-EOF
-
-    # Run the sync script
-    node ./cumc-db-sync-temp.js
-
-    local exit_code=$?
-    
-    # Clean up the temporary file
-    rm -f ./cumc-db-sync-temp.js
-
-    if [ $exit_code -eq 0 ]; then
+        init()
+            .then(() => {
+                console.log("Database schema created successfully!");
+            })
+            .catch((error) => {
+                console.error("Error syncing database:", error);
+                process.exit(1);
+            });
+    '; then
         print_success "Database schema created"
     else
         print_error "Failed to create database schema"

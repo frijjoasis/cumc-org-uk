@@ -84,6 +84,9 @@ const Header: React.FC<HeaderProps> = ({
               <span className="hidden sm:inline text-sm font-medium text-zinc-500">
                 {user.displayName}
               </span>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/register">Profile</Link>
+              </Button>
               <Button variant="outline" size="sm" onClick={handleLogout}>
                 Logout
               </Button>

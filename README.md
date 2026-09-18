@@ -4,7 +4,7 @@ Code repository for cumc.org.uk
 
 ## ⚠️ Important: Node.js Version
 
-This project requires **Node.js v16.14.2**. Seriously, other versions will cause issues.
+This project requires **Node.js v20.x.x**. Seriously, other versions will cause issues.
 
 ### Setting up Node
 
@@ -15,19 +15,29 @@ Use nvm to manage your Node versions:
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
 
 # Install and use the correct version
-nvm install 16.14.2
-nvm use 16.14.2
+nvm install 20
+nvm use 20
 ```
 
 If `npm run dev` shows the wrong Node version:
 
 ```bash
 source ~/.nvm/nvm.sh
-nvm use 16.14.2
+nvm use 20
 npm run dev
 ```
 
 ## Getting Started
+
+### First Time Setup
+
+Run:
+
+```bash
+npm install
+```
+
+Then follow the steps below.
 
 ### Quick Setup
 
@@ -55,7 +65,7 @@ cd client && npm install && npm start
 
 ### First Time Setup
 
-Run this command to get the database ready:
+Install docker via your preferred method. Then run this command to get the database ready:
 
 ```bash
 ./scripts/db-setup.sh init
@@ -84,14 +94,18 @@ The project uses `.env.development` for local development with these defaults:
 
 - `DATABASE_URL` - PostgreSQL connection string (default: `postgresql://cumc_dev:dev_password@localhost:5432/cumc_dev`)
 - `NODE_ENV` - Environment mode (default: `development`)
-- `DEV_ADMIN_BYPASS` - Skip authentication in dev mode (default: `true`)
 - `SECRET` - Session cookie secret (change this in production!)
-
-For production, create a `.env` file in `/server` with:
-
+- `MEMBERSHIP_PRICE` - Membership fee (default: 30.00)
+- `BRITROCK_PRICE` - Britrock fee (default: 12.00)
+- `CURRENT_YEAR` - Current academic year (default: 2025-2026)
+- `PREVIOUS_YEAR` - Previous academic year (default: 2024-2025)
+- `FRONTEND_URL` - Frontend URL for redirects (default: `http://localhost:3000`)
 - `PORT` - Express server port (default: 5000)
 - `GOOGLE_ID`, `GOOGLE_SECRET` - OAuth2 credentials from Google API
 - `PAYPAL_ID`, `PAYPAL_SECRET` - PayPal API credentials
+- `WHATSAPP` - WhatsApp chat link (default: `chat dot whatsapp dot com slash awdasfgasdfgtestetsttdev`)
+
+Copy it to `/sever/.env`. You can get test credentials from the respective service providers. These values are obviously different in the production environment.
 
 ## Available Commands
 
