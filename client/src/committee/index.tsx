@@ -34,16 +34,20 @@ const Admin: React.FC = () => {
 
   const brandText = getBrandText(location.pathname);
 
+  const [isCommittee, setIsCommittee] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [userRes, memberRes] = await Promise.all([
+        const [userRes, memberRes, committeeRes] = await Promise.all([
           axios.get('/api/user/'),
           axios.get('/api/member/'),
+          axios.get('/api/member/committee'),
         ]);
 
         setUser(userRes.data.user);
         setMember(memberRes.data.member);
+        setIsCommittee(!!committeeRes.data?.isCommittee);
       } catch (err) {
         console.error('Admin Auth Error:', err);
       } finally {
@@ -53,8 +57,6 @@ const Admin: React.FC = () => {
 
     fetchData();
   }, []);
-
-  const isCommittee = member && member.committee;
 
   if (loading) {
     return (

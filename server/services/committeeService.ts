@@ -2,9 +2,23 @@ import { Op, QueryTypes, type Transaction } from 'sequelize';
 import {
   CommitteeModel,
   CommitteeRoleModel,
+  MemberModel,
+  UserModel,
   sequelize,
 } from '../database/database.js';
 import { getHashedFilename } from '../utils/hash.js';
+
+async function ensureMemberShell(
+  memberId: string | null | undefined
+): Promise<void> {
+  if (!memberId) return;
+  const user = await UserModel.findByPk(memberId);
+  if (!user) throw new Error(`No user account found for id ${memberId}`);
+  await MemberModel.findOrCreate({
+    where: { id: memberId },
+    defaults: { id: memberId } as any,
+  });
+}
 
 import type {
   AdminPublicCommitteeModel,
@@ -129,6 +143,8 @@ class CommitteeService {
 
     const status = data.status || (data.is_current ? 'current' : 'staged');
 
+    await ensureMemberShell(data.member_id);
+
     return CommitteeModel.create({
       year: data.year,
       role_id: data.role_id,
@@ -152,6 +168,10 @@ class CommitteeService {
 
     if (data.is_current !== undefined) {
       data.status = data.is_current ? 'current' : 'staged';
+    }
+
+    if (data.member_id !== undefined) {
+      await ensureMemberShell(data.member_id);
     }
 
     return member.update(data);

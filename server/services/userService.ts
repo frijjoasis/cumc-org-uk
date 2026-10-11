@@ -2,37 +2,47 @@ import { Op } from 'sequelize';
 import { UserModel, MemberModel, required } from '../database/database.js';
 import type { User } from '@cumc/shared-types';
 
-type UserUpsertPayload = Partial<User> & { 
-  id: string; 
-  email: string; 
-  displayName: string; 
+type UserUpsertPayload = Partial<User> & {
+  id: string;
+  email: string;
+  displayName: string;
 };
 
 class UserService {
-  async upsert(userData: UserUpsertPayload): Promise<[UserModel, boolean | null]> {
+  async upsert(
+    userData: UserUpsertPayload
+  ): Promise<[UserModel, boolean | null]> {
     return UserModel.upsert(userData);
   }
-  async updateInfo(userData: Partial<Omit<User, 'id'>>, id: string): Promise<[number]> {
+  async updateInfo(
+    userData: Partial<Omit<User, 'id'>>,
+    id: string
+  ): Promise<[number]> {
     const attributes = UserModel.getAttributes();
-    const allowedFields = (Object.keys(attributes) as Array<keyof typeof attributes>).filter(
-      (col: keyof typeof attributes) => attributes[col].allowNull !== false && col !== 'id'
+    const allowedFields = (
+      Object.keys(attributes) as Array<keyof typeof attributes>
+    ).filter(
+      (col: keyof typeof attributes) =>
+        attributes[col].allowNull !== false && col !== 'id'
     );
 
     const [affectedCount] = await UserModel.update(userData, {
       where: { id },
       fields: allowedFields as any,
     });
-    
+
     return [affectedCount];
   }
 
   async list(): Promise<UserModel[]> {
     return UserModel.findAll({
-      include: [{
-        model: MemberModel,
-        as: 'member',
-        attributes: ['hasPaid', 'committee'],
-      }],
+      include: [
+        {
+          model: MemberModel,
+          as: 'member',
+          attributes: ['hasPaid', 'committee'],
+        },
+      ],
     });
   }
 
@@ -42,11 +52,13 @@ class UserService {
 
   async getWithMember(id: string): Promise<UserModel | null> {
     return UserModel.findByPk(id, {
-      include: [{
-        model: MemberModel,
-        as: 'member',
-        attributes: ['hasPaid'],
-      }],
+      include: [
+        {
+          model: MemberModel,
+          as: 'member',
+          attributes: ['hasPaid'],
+        },
+      ],
     });
   }
 
@@ -73,17 +85,18 @@ class UserService {
 
   async getByCrsidOrId(query: string): Promise<UserModel | null> {
     const input = query.toLowerCase().trim();
-    const crsid = input.split('@')[0].replace(/[^a-z0-9]/g, '');
+    const token = input.split('@')[0].replace(/[^a-z0-9]/g, '');
+    if (!token) return null;
 
-    if (!crsid) return null;
+    // Users.id is DECIMAL -- only compare against it when the token is numeric,
+    // otherwise Postgres errors on 'invalid input syntax for type numeric'.
+    const where: any = {
+      [Op.or]: [{ email: { [Op.iLike]: `${token}@cam.ac.uk` } }],
+    };
+    if (/^\d+$/.test(token)) where[Op.or].push({ id: token });
 
     return UserModel.findOne({
-      where: {
-        [Op.or]: [
-          { id: crsid },
-          { email: { [Op.iLike]: `${crsid}@cam.ac.uk` } },
-        ],
-      },
+      where,
       attributes: ['id', 'displayName', 'email'],
     });
   }

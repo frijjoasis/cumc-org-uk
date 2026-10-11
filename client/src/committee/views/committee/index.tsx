@@ -78,7 +78,10 @@ const CommitteeManager = () => {
     } catch (err: any) {
       if (err.response?.status === 404) {
         alert(
-          'CRSid not found. Please check the spelling or enter details manually.'
+          'No account found for that CRSid.\n\n' +
+          'The most likely cause is that this person has never signed in to the website. ' +
+          'Ask them to log in once at cumc.org.uk, then re-run the lookup to link their account.\n\n' +
+          'You can still save this row without a linked account, but they will have no committee permissions until it is linked.'
         );
       } else {
         alert('An error occurred during lookup.');
@@ -179,15 +182,20 @@ const CommitteeManager = () => {
   const handleSave = async () => {
     setLoading(true);
     try {
+      const payload = {
+        ...formData,
+        member_id: formData.member_id?.trim() ? formData.member_id : null,
+      };
       if (editingMember) {
-        await axios.put(`/api/committee/members/${editingMember.id}`, formData);
+        await axios.put(`/api/committee/members/${editingMember.id}`, payload);
       } else {
-        await axios.post('/api/committee/members', formData);
+        await axios.post('/api/committee/members', payload);
       }
       setShowDialog(false);
       fetchData();
-    } catch (err) {
-      alert('Save failed.');
+    } catch (err: any) {
+      const serverMsg = err?.response?.data?.error;
+      alert(serverMsg ? `Save failed: ${serverMsg}` : 'Save failed.');
     } finally {
       setLoading(false);
     }
@@ -272,8 +280,18 @@ const CommitteeManager = () => {
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {activeList.map(member => (
-                  <tr key={member.id} className="group hover:bg-zinc-50/50">
+                {activeList.map(member => {
+                  const isUnlinked = !member.member_id;
+                  return (
+                  <tr
+                    key={member.id}
+                    className={
+                      'group ' +
+                      (isUnlinked
+                        ? 'bg-amber-50/60 hover:bg-amber-50'
+                        : 'hover:bg-zinc-50/50')
+                    }
+                  >
                     <td className="px-6 py-4">
                       <div className="font-black uppercase italic text-zinc-900">
                         {member.role}
@@ -283,8 +301,16 @@ const CommitteeManager = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-bold text-zinc-700">
+                      <div className="font-bold text-zinc-700 flex items-center gap-2">
                         {member.person_name}
+                        {isUnlinked && (
+                          <Badge
+                            className="bg-amber-100 text-amber-800 border-amber-200 uppercase text-[9px] font-black"
+                            title="No account linked — this person has no committee permissions. Ask them to sign in, then edit this row to link their account."
+                          >
+                            Unlinked
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-[10px] font-normal text-zinc-400 lowercase">
                         {member.person_email}
@@ -378,7 +404,8 @@ const CommitteeManager = () => {
                       </div>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </CardContent>
@@ -467,10 +494,15 @@ const CommitteeManager = () => {
                     {lookupLoading ? '...' : 'Search'}
                   </Button>
                 </div>
-                {formData.member_id && (
+                {formData.member_id ? (
                   <p className="text-[10px] text-emerald-600 font-bold flex items-center gap-1">
                     <CheckCircle className="h-3 w-3" /> Linked to Account:{' '}
                     {formData.member_id}
+                  </p>
+                ) : (
+                  <p className="text-[10px] text-amber-700 font-bold flex items-center gap-1">
+                    <Info className="h-3 w-3" /> No account linked — this
+                    person will have no committee permissions until linked.
                   </p>
                 )}
               </div>

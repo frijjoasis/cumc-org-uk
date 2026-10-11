@@ -90,9 +90,9 @@ router.post('/members', committeeAuth, async (req: Request, res: Response) => {
   try {
     const member = await committeeService.create(req.body);
     res.json(member);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error adding committee member:', error);
-    res.status(500).json({ error: 'Failed to add committee member' });
+    res.status(500).json({ error: error.message || 'Failed to add committee member' });
   }
 });
 
@@ -111,9 +111,9 @@ router.put(
       }
 
       res.json(member);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating committee member:', error);
-      res.status(500).json({ error: 'Failed to update committee member' });
+      res.status(500).json({ error: error.message || 'Failed to update committee member' });
     }
   }
 );
