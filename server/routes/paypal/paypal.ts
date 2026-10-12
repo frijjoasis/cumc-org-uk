@@ -31,6 +31,7 @@ const PAYPAL_AUTHORIZATION_API = `${PAYPAL_API_BASE}/v2/payments/authorizations/
 
 interface PaymentError {
   err: string;
+  missingFields?: string[];
 }
 
 type PaymentResult<T> = T | PaymentError;
@@ -320,9 +321,12 @@ async function checkMeetEligibility(
   userId: string,
   meetId: number
 ): Promise<PaymentError | { meet: any; paymentRequired: boolean }> {
-  const missing = await userService.isProfileIncomplete(userId);
-  if (missing) {
-    return { err: 'You need to complete your profile to do that!' };
+  const missingFields = await userService.getMissingProfileFields(userId);
+  if (missingFields.length > 0) {
+    return {
+      err: 'You need to complete your profile to do that!',
+      missingFields,
+    };
   }
 
   const meet = await meetService.getById(meetId);

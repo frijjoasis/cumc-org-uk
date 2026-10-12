@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate, Link } from 'react-router-dom';
 import {
   ClipboardCheck,
   User,
@@ -38,7 +38,21 @@ const MeetForm = ({ user }: MeetFormProps) => {
   const [showPayment, setShowPayment] = useState(false);
   const [registrationData, setRegistrationData] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
   const [validated, setValidated] = useState(false);
+
+  const profileFieldLabels: Record<string, string> = {
+    firstName: 'First name',
+    lastName: 'Last name',
+    dob: 'Date of birth',
+    phone: 'Mobile number',
+    emergencyName: 'Emergency contact name',
+    emergencyPhone: 'Emergency contact phone',
+    address1: 'Address',
+    postCode: 'Post code',
+    country: 'Country',
+    college: 'College / department',
+  };
 
   useEffect(() => {
     axios
@@ -73,6 +87,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
       const res = await axios.post('/api/paypal/required', submissionData);
       if (res.data.err) {
         setErr(res.data.err);
+        setMissingFields(res.data.missingFields || []);
         window.scrollTo(0, 0);
       } else if (res.data) {
         // Meet requires payment
@@ -116,7 +131,37 @@ const MeetForm = ({ user }: MeetFormProps) => {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Registration Error</AlertTitle>
           <AlertDescription className="space-y-3">
-            <p>{err}</p>
+            <p>
+              {err}
+              {err.toLowerCase().includes('profile') && (
+                <>
+                  {' '}
+                  <Link
+                    to="/register"
+                    className="underline font-bold hover:text-red-800"
+                  >
+                    Go to your profile
+                  </Link>
+                  .
+                </>
+              )}
+            </p>
+            {missingFields.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-bold uppercase tracking-widest">
+                  Missing fields:
+                </p>
+                <ul className="list-disc list-inside text-sm">
+                  {missingFields.map(field => (
+                    <li key={field}>
+                      <Link to="/register" className="underline hover:text-red-800">
+                        {profileFieldLabels[field] || field}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {err.toLowerCase().includes('profile') && (
               <Button
                 variant="outline"

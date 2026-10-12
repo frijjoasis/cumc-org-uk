@@ -62,14 +62,18 @@ class UserService {
     });
   }
 
-  async isProfileIncomplete(id: string): Promise<boolean> {
+  async getMissingProfileFields(id: string): Promise<string[]> {
     const user = await this.getById(id);
-    if (!user) return true;
+    if (!user) return [...required];
 
-    return !required.every(field => {
+    return required.filter(field => {
       const value = user.get(field as keyof UserModel);
-      return value !== null && value !== undefined && value !== '';
+      return value === null || value === undefined || value === '';
     });
+  }
+
+  async isProfileIncomplete(id: string): Promise<boolean> {
+    return (await this.getMissingProfileFields(id)).length > 0;
   }
 
   async getRequiredFields(): Promise<readonly string[]> {
