@@ -21,10 +21,3 @@ interface CategoryRoute {
 }
 
 export type RouteConfig = PageRoute | CategoryRoute;
-
-// Global window extensions
-declare global {
-  interface Window {
-    paypal?: any; // Marked optional as it loads asynchronously
-  }
-}

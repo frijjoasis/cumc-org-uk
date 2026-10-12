@@ -14,11 +14,15 @@ const FAKE_PAYPAL_SDK = `
   window.paypal = {
     Buttons: function (config) {
       return {
+        isEligible: function () { return true; },
+        close: function () { return Promise.resolve(); },
         render: function (container) {
           const target = typeof container === 'string'
             ? document.querySelector(container)
             : container;
-          if (!target) return;
+          if (!target) return Promise.resolve();
+          // Idempotent: clear anything the library (or a prior render) left.
+          target.innerHTML = '';
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.textContent = 'Pay with PayPal (stub)';
@@ -36,6 +40,7 @@ const FAKE_PAYPAL_SDK = `
             await config.onApprove({ orderID: 'STUB-ORDER-ID' }, {});
           });
           target.appendChild(btn);
+          return Promise.resolve();
         },
       };
     },

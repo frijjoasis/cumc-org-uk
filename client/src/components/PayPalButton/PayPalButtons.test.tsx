@@ -2,11 +2,11 @@
  * Contract tests for PayPalButtons.
  *
  * These tests pin down the observable behaviour at the component boundary:
- *   - the exact payload passed to window.paypal (so any SDK migration preserves it)
+ *   - the exact payload passed to the PayPal SDK via createOrder
  *   - the exact HTTP shape posted to /api/paypal/{intent}
- *   - the UI state transitions (idle -> processing -> success/error)
+ *   - the UI state transitions (loading SDK -> idle -> processing -> success/error)
  *
- * window.paypal is mocked. No network, no real SDK. See docs/paypal-testing.md.
+ * @paypal/react-paypal-js is mocked. No network, no real SDK. See docs/paypal-testing.md.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act, cleanup } from '@testing-library/react';
@@ -15,24 +15,35 @@ import PayPalButtons from './PayPalButtons';
 
 vi.mock('axios');
 
-type ButtonsConfig = {
-  style: Record<string, string>;
-  createOrder: (data: unknown, actions: unknown) => unknown;
-  onApprove: (data: unknown, actions: unknown) => Promise<void>;
-  onError: (err: unknown) => void;
+// Shared mutable state so the mock module and tests see the same thing.
+const paypalState = {
+  reducerState: { isPending: false, isRejected: false, isResolved: true },
+  lastButtonsProps: null as any,
 };
 
-const renderMock = vi.fn();
-
-function getButtonsConfig(): ButtonsConfig {
-  const call = vi.mocked((window as any).paypal.Buttons).mock.calls[0];
-  if (!call) throw new Error('window.paypal.Buttons was not called');
-  return call[0] as ButtonsConfig;
-}
-
-function makeOrderActions() {
-  return { order: { create: vi.fn().mockResolvedValue('ORDER-XYZ') } };
-}
+vi.mock('@paypal/react-paypal-js', () => ({
+  PayPalScriptProvider: ({ children }: { children: React.ReactNode }) =>
+    children,
+  usePayPalScriptReducer: () => [paypalState.reducerState],
+  PayPalButtons: (props: any) => {
+    paypalState.lastButtonsProps = props;
+    return (
+      <button
+        type="button"
+        data-testid="paypal-stub-button"
+        onClick={async () => {
+          const actions = {
+            order: {
+              create: vi.fn().mockResolvedValue('STUB-ORDER-ID'),
+            },
+          };
+          await props.createOrder({}, actions);
+          await props.onApprove({ orderID: 'STUB-ORDER-ID' }, {});
+        }}
+      />
+    );
+  },
+}));
 
 const baseProps = {
   description: 'CUMC Full Membership',
@@ -43,10 +54,12 @@ const baseProps = {
 };
 
 beforeEach(() => {
-  renderMock.mockClear();
-  (window as any).paypal = {
-    Buttons: vi.fn(() => ({ render: renderMock })),
+  paypalState.reducerState = {
+    isPending: false,
+    isRejected: false,
+    isResolved: true,
   };
+  paypalState.lastButtonsProps = null;
   vi.mocked(axios.post).mockReset();
 });
 
@@ -55,39 +68,74 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('PayPalButtons — mount', () => {
-  it('renders the PayPal button into the ref container', () => {
+describe('PayPalButtons — SDK loading state', () => {
+  it('shows a loading indicator while the SDK script is pending', () => {
+    paypalState.reducerState = {
+      isPending: true,
+      isRejected: false,
+      isResolved: false,
+    };
     render(<PayPalButtons {...baseProps} />);
-    expect((window as any).paypal.Buttons).toHaveBeenCalledTimes(1);
-    expect(renderMock).toHaveBeenCalledTimes(1);
-    // render() receives the actual DOM node
-    expect(renderMock.mock.calls[0][0]).toBeInstanceOf(HTMLElement);
+    expect(screen.getByText(/Loading PayPal/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('paypal-stub-button')).not.toBeInTheDocument();
   });
 
+  it('shows a visible error when the SDK fails to load', () => {
+    paypalState.reducerState = {
+      isPending: false,
+      isRejected: true,
+      isResolved: false,
+    };
+    render(<PayPalButtons {...baseProps} />);
+    expect(screen.getByText(/PayPal failed to load/i)).toBeInTheDocument();
+    expect(screen.queryByTestId('paypal-stub-button')).not.toBeInTheDocument();
+  });
+
+  it('renders the pay button once the SDK resolves', () => {
+    render(<PayPalButtons {...baseProps} />);
+    expect(screen.getByTestId('paypal-stub-button')).toBeInTheDocument();
+  });
+});
+
+describe('PayPalButtons — button config', () => {
   it('uses the gold / horizontal / rect / pay style', () => {
     render(<PayPalButtons {...baseProps} />);
-    expect(getButtonsConfig().style).toEqual({
+    expect(paypalState.lastButtonsProps.style).toEqual({
       layout: 'horizontal',
       color: 'gold',
       shape: 'rect',
       label: 'pay',
     });
   });
+
+  it('reruns the button when description / price / intent / payer change', () => {
+    const payer = { email_address: 'test@cam.ac.uk' };
+    render(<PayPalButtons {...baseProps} payer={payer} />);
+    expect(paypalState.lastButtonsProps.forceReRender).toEqual([
+      'CUMC Full Membership',
+      '30.00',
+      'membership',
+      payer,
+    ]);
+  });
 });
 
 describe('PayPalButtons — createOrder payload', () => {
-  it('sends description, price, NO_SHIPPING, and payer', async () => {
+  it('sends intent, description, price, GBP, NO_SHIPPING, and payer', async () => {
     const payer = { email_address: 'test@cam.ac.uk' };
     render(<PayPalButtons {...baseProps} payer={payer} />);
 
-    const actions = makeOrderActions();
-    await getButtonsConfig().createOrder({}, actions);
+    const actions = {
+      order: { create: vi.fn().mockResolvedValue('X') },
+    };
+    await paypalState.lastButtonsProps.createOrder({}, actions);
 
     expect(actions.order.create).toHaveBeenCalledWith({
+      intent: 'AUTHORIZE',
       purchase_units: [
         {
           description: 'CUMC Full Membership',
-          amount: { value: '30.00' },
+          amount: { value: '30.00', currency_code: 'GBP' },
         },
       ],
       application_context: { shipping_preference: 'NO_SHIPPING' },
@@ -98,11 +146,13 @@ describe('PayPalButtons — createOrder payload', () => {
   it('omits payer when prop not provided', async () => {
     render(<PayPalButtons {...baseProps} />);
 
-    const actions = makeOrderActions();
-    await getButtonsConfig().createOrder({}, actions);
+    const actions = {
+      order: { create: vi.fn().mockResolvedValue('X') },
+    };
+    await paypalState.lastButtonsProps.createOrder({}, actions);
 
-    const callArg = actions.order.create.mock.calls[0][0] as Record<string, unknown>;
-    expect(callArg.payer).toBeUndefined();
+    const payload = actions.order.create.mock.calls[0][0];
+    expect(payload.payer).toBeUndefined();
   });
 });
 
@@ -123,7 +173,7 @@ describe('PayPalButtons — onApprove', () => {
 
     const approveData = { orderID: 'ORDER-123' };
     await act(async () => {
-      await getButtonsConfig().onApprove(approveData, {});
+      await paypalState.lastButtonsProps.onApprove(approveData, {});
     });
 
     expect(axios.post).toHaveBeenCalledWith(endpoint, {
@@ -139,7 +189,7 @@ describe('PayPalButtons — onApprove', () => {
     render(<PayPalButtons {...baseProps} onSuccess={onSuccess} />);
 
     await act(async () => {
-      await getButtonsConfig().onApprove({ orderID: 'X' }, {});
+      await paypalState.lastButtonsProps.onApprove({ orderID: 'X' }, {});
     });
 
     expect(screen.getByText(/Payment successful/i)).toBeInTheDocument();
@@ -159,7 +209,7 @@ describe('PayPalButtons — onApprove', () => {
     render(<PayPalButtons {...baseProps} onError={onError} />);
 
     await act(async () => {
-      await getButtonsConfig().onApprove({ orderID: 'X' }, {});
+      await paypalState.lastButtonsProps.onApprove({ orderID: 'X' }, {});
     });
 
     expect(onError).toHaveBeenCalledWith('Price mismatch detected.');
@@ -172,7 +222,7 @@ describe('PayPalButtons — onApprove', () => {
     render(<PayPalButtons {...baseProps} onError={onError} />);
 
     await act(async () => {
-      await getButtonsConfig().onApprove({ orderID: 'X' }, {});
+      await paypalState.lastButtonsProps.onApprove({ orderID: 'X' }, {});
     });
 
     expect(onError).toHaveBeenCalledWith('Backend verification failed.');
@@ -186,7 +236,7 @@ describe('PayPalButtons — PayPal SDK onError', () => {
     render(<PayPalButtons {...baseProps} />);
 
     act(() => {
-      getButtonsConfig().onError(new Error('SDK bang'));
+      paypalState.lastButtonsProps.onError(new Error('SDK bang'));
     });
 
     expect(screen.getByText(/Transaction failed/i)).toBeInTheDocument();

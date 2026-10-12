@@ -75,8 +75,8 @@ const MeetForm = ({ user }: MeetFormProps) => {
 
     setSubmitting(true);
 
-    // Collect custom question answers
-    const answers = meet.questions.map((q: any) => {
+    // Collect custom question answers (meet.questions is nullable).
+    const answers = (meet.questions || []).map((q: any) => {
       const input = document.getElementById(q.id) as HTMLInputElement;
       return { id: q.id, value: input?.value || '' };
     });

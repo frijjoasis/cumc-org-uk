@@ -117,7 +117,7 @@ class PayPalClient {
       );
       return response.data.purchase_units[0].payments.authorizations[0].id;
     } catch (err) {
-      this.logPayPalError('Authorize order', err);
+      this.logPayPalError('Authorize order', { orderID }, err);
       return {
         err: 'An error occurred authorising payment. This may be due to the transaction being declined by your bank. Please contact the webmaster for more information',
       };
@@ -146,7 +146,7 @@ class PayPalClient {
       );
       return response.data.id;
     } catch (err) {
-      this.logPayPalError('Capture authorization', err);
+      this.logPayPalError('Capture authorization', { authID }, err);
 
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;
@@ -191,7 +191,7 @@ class PayPalClient {
       );
       return true;
     } catch (err) {
-      this.logPayPalError('Void authorization', err);
+      this.logPayPalError('Void authorization', { authID }, err);
 
       if (axios.isAxiosError(err)) {
         const status = err.response?.status;
@@ -227,13 +227,37 @@ class PayPalClient {
     }
   }
 
-  private logPayPalError(operation: string, err: any): void {
-    logger.error(`PayPal ${operation} error:`, err);
-    if (axios.isAxiosError(err) && err.response?.data) {
-      logger.error(
-        'PayPal error details:',
-        JSON.stringify(err.response.data, null, 2)
-      );
+  // We deliberately log *every* PayPal failure — including ones that other
+  // branches then treat as success (e.g. void of an already-voided auth).
+  // Payment ops must stay traceable: better one noisy line than a silent miss.
+  // But we log a compact summary, NOT the raw axios error — the raw object
+  // drags in the TLS session, agent pool, and cached cert chain, which makes
+  // the logs unreadable and hides the actual signal.
+  private logPayPalError(
+    operation: string,
+    context: Record<string, string | undefined>,
+    err: unknown
+  ): void {
+    if (axios.isAxiosError(err)) {
+      const data = (err.response?.data ?? {}) as {
+        name?: string;
+        message?: string;
+        debug_id?: string;
+        details?: unknown;
+      };
+      logger.error(`PayPal ${operation} error`, {
+        ...context,
+        status: err.response?.status,
+        paypalName: data.name,
+        paypalMessage: data.message,
+        debugId: data.debug_id,
+        details: data.details,
+      });
+    } else {
+      logger.error(`PayPal ${operation} error (non-axios)`, {
+        ...context,
+        message: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 }

@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import Frame from './dashboard';
 const Admin = lazy(() => import('./committee/index'));
 import '@/assets/css/legallists.css';
@@ -27,27 +28,35 @@ const root = createRoot(container!);
 
 root.render(
   <React.StrictMode>
-    <Router
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
+    <PayPalScriptProvider
+      options={{
+        clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID || '',
+        currency: 'GBP',
+        intent: 'authorize',
       }}
     >
-      <Suspense
-        fallback={
-          <div className="h-screen w-screen flex items-center justify-center font-black italic text-zinc-400 animate-pulse">
-            LOADING CUMC DASHBOARD...
-          </div>
-        }
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
       >
-        <Routes>
-          <Route path="/login" element={<LoginRedirect />} />
-          <Route path="/login/other" element={<AltLoginRedirect />} />
-          <Route path="/logout" element={<LogoutRedirect />} />
-          <Route path="/committee/*" element={<Admin />} />
-          <Route path="/*" element={<Frame />} />
-        </Routes>
-      </Suspense>
-    </Router>
+        <Suspense
+          fallback={
+            <div className="h-screen w-screen flex items-center justify-center font-black italic text-zinc-400 animate-pulse">
+              LOADING CUMC DASHBOARD...
+            </div>
+          }
+        >
+          <Routes>
+            <Route path="/login" element={<LoginRedirect />} />
+            <Route path="/login/other" element={<AltLoginRedirect />} />
+            <Route path="/logout" element={<LogoutRedirect />} />
+            <Route path="/committee/*" element={<Admin />} />
+            <Route path="/*" element={<Frame />} />
+          </Routes>
+        </Suspense>
+      </Router>
+    </PayPalScriptProvider>
   </React.StrictMode>
 );
