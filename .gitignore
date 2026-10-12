@@ -31,3 +31,4 @@ yarn-debug.log*
 yarn-error.log*
 server/access.log
 server/logs/
+client/test-results/.last-run.json
