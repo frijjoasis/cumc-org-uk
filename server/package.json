@@ -7,7 +7,7 @@
     "dev": "tsx watch --env-file=.env app.ts",
     "build": "tsc",
     "start": "node --env-file=.env dist/app.js",
-    "test": "vitest run --exclude 'dist/**'"
+    "test": "NODE_ENV=test vitest run --exclude 'dist/**'"
   },
   "dependencies": {
     "@cumc/shared-types": "*",

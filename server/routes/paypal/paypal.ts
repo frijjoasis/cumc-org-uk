@@ -16,10 +16,12 @@ const router: Router = Router();
 // Constants & Configuration
 // ============================================================================
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const PAYPAL_API_BASE = isDevelopment
-  ? 'https://api.sandbox.paypal.com'
-  : 'https://api.paypal.com';
+// Default to sandbox for safety: any environment that forgets to set
+// NODE_ENV=production fails loudly against sandbox instead of charging real cards.
+const isProduction = process.env.NODE_ENV === 'production';
+const PAYPAL_API_BASE = isProduction
+  ? 'https://api.paypal.com'
+  : 'https://api.sandbox.paypal.com';
 
 const PAYPAL_OAUTH_API = `${PAYPAL_API_BASE}/v1/oauth2/token/`;
 const PAYPAL_ORDER_API = `${PAYPAL_API_BASE}/v2/checkout/orders/`;
@@ -56,15 +58,6 @@ interface SignupData {
 class PayPalClient {
   private accessToken: string | null = null;
   private tokenExpiresAt: number = 0;
-
-  async initialize(): Promise<void> {
-    try {
-      await this.refreshAccessToken();
-      logger.info('PayPal API access token obtained.');
-    } catch (err) {
-      logger.error('PayPal API initialization error: ', err);
-    }
-  }
 
   private async refreshAccessToken(): Promise<void> {
     const params = new URLSearchParams();
@@ -245,9 +238,8 @@ class PayPalClient {
   }
 }
 
-// Initialize PayPal client
+// Token is fetched lazily on first API call via ensureValidToken().
 const paypalClient = new PayPalClient();
-paypalClient.initialize();
 
 // ============================================================================
 // Helper Functions
