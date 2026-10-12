@@ -72,6 +72,9 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
   const signupCount = content.signups?.length || 0;
   const isFull =
     content.maxSignups !== null && signupCount >= content.maxSignups;
+  const alreadySignedUp =
+    !!user &&
+    !!content.signups?.some((s: any) => s.user?.email === user.email);
 
   const startDate = new Date(content.startDate);
   const endDate = new Date(content.endDate);
@@ -134,12 +137,12 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
             </Button>
           ) : (
             <Button
-              asChild={!isFull}
-              disabled={isFull || content.disabled}
+              asChild={!isFull || alreadySignedUp}
+              disabled={(isFull && !alreadySignedUp) || content.disabled}
               size="lg"
               className="h-14 px-8 bg-zinc-900 font-black uppercase italic tracking-widest shadow-xl hover:shadow-primary/20"
             >
-              {isFull ? (
+              {isFull && !alreadySignedUp ? (
                 <span>Trip Full</span>
               ) : (
                 <NavLink
@@ -147,7 +150,11 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
                     user ? `/meets/upcoming/register/${content.id}` : '/login'
                   }
                 >
-                  {user ? 'Sign Up for This Trip' : 'Sign In to Register'}
+                  {!user
+                    ? 'Sign In to Register'
+                    : alreadySignedUp
+                      ? 'Edit Your Signup'
+                      : 'Sign Up for This Trip'}
                 </NavLink>
               )}
             </Button>
