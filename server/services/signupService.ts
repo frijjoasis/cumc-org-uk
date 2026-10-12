@@ -80,8 +80,15 @@ class SignupService {
     });
   }
 
-  async getCountByMeetId(meetID: number): Promise<number> {
-    return await SignupModel.count({ where: { meetID } });
+  async getCountByMeetId(
+    meetID: number,
+    options: { excludeUserID?: string } = {}
+  ): Promise<number> {
+    const where: any = { meetID };
+    if (options.excludeUserID) {
+      where.userID = { [Op.ne]: options.excludeUserID };
+    }
+    return await SignupModel.count({ where });
   }
 }
 

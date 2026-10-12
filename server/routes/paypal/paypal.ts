@@ -333,7 +333,9 @@ async function checkMeetEligibility(
   if (!meet) return { err: 'Database error: Could not find meet' };
   if (meet.disabled) return { err: 'Signups are not open!' };
 
-  const currentSignups = await signupService.getCountByMeetId(meetId);
+  const currentSignups = await signupService.getCountByMeetId(meetId, {
+    excludeUserID: userId,
+  });
   if (meet.maxSignups && currentSignups >= meet.maxSignups) {
     return { err: 'Sorry, this trip is now full!' };
   }
@@ -464,7 +466,9 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
       price: meet.price?.toString() || '0',
       capture: false,
       onSuccess: async authID => {
-        const finalCount = await signupService.getCountByMeetId(meet.id);
+        const finalCount = await signupService.getCountByMeetId(meet.id, {
+          excludeUserID: req.user!.id,
+        });
         if (meet.maxSignups && finalCount >= meet.maxSignups) {
           await paypalClient.voidAuthorization(authID);
           throw new Error('CAPACITY_REACHED');
