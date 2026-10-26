@@ -13,6 +13,9 @@ const {
   canVoidPayment,
   captureSignup,
   voidSignup,
+  needsNewPayment,
+  isFreeMeet,
+  findExistingCapture,
   PaymentStatus,
 } = await import('./committeePayments.js');
 
@@ -116,6 +119,20 @@ describe('captureSignup', () => {
       status: 'CAPTURED',
       amount: '20.00',
     });
+    expect(await capture()).toEqual({
+      result: 'recovered',
+      store: PaymentStatus.CAPTURED_ON_PAYPAL,
+    });
+  });
+
+  it('uses the placeholder when the order has no live capture', async () => {
+    // e.g. the capture was refunded in the PayPal dashboard
+    client.getAuthorization.mockResolvedValue({
+      status: 'CAPTURED',
+      amount: '20.00',
+      orderID: 'ORDER-1',
+    });
+    client.getOrderCaptureID.mockResolvedValue(null);
     expect(await capture()).toEqual({
       result: 'recovered',
       store: PaymentStatus.CAPTURED_ON_PAYPAL,
@@ -235,6 +252,65 @@ describe('voidSignup', () => {
       result: 'failed',
       store: 'CAPTURE-EXISTING',
       issue: 'AUTHORIZATION_ALREADY_CAPTURED',
+    });
+  });
+});
+
+describe('needsNewPayment', () => {
+  it.each([
+    [null, false],
+    ['CAPTURE-123', false],
+    ['Captured on PayPal', false],
+    ['Not Paying', false],
+    ['Void', false],
+    ['Void Failed: INVALID_RESOURCE_ID', false],
+    ['Capture Failed', true],
+    ['Capture Failed: PAYER_CANNOT_PAY', true],
+    ['Expired', true],
+  ])('captureID=%s → %s', (captureID, expected) => {
+    expect(needsNewPayment({ authID: 'AUTH-1', captureID })).toBe(expected);
+  });
+});
+
+describe('isFreeMeet', () => {
+  it.each([
+    [null, true],
+    [0, true],
+    ['0.00', true],
+    [0.001, true],
+    [20, false],
+    ['15.50', false],
+  ])('%s → %s', (price, expected) => {
+    expect(isFreeMeet(price)).toBe(expected);
+  });
+});
+
+describe('findExistingCapture', () => {
+  it.each(['CREATED', 'VOIDED', 'EXPIRED', 'DENIED'])(
+    'finds nothing when the authorization is %s',
+    async status => {
+      client.getAuthorization.mockResolvedValue({ status, amount: '20.00' });
+      expect(await findExistingCapture(client as any, 'AUTH-1')).toBeNull();
+    }
+  );
+
+  it('returns the capture ID when PayPal already captured it', async () => {
+    client.getAuthorization.mockResolvedValue({
+      status: 'CAPTURED',
+      amount: '20.00',
+      orderID: 'ORDER-1',
+    });
+    client.getOrderCaptureID.mockResolvedValue('CAPTURE-EXISTING');
+    expect(await findExistingCapture(client as any, 'AUTH-1')).toBe(
+      'CAPTURE-EXISTING'
+    );
+  });
+
+  it('passes on a PayPal error rather than guessing', async () => {
+    client.getAuthorization.mockResolvedValue({ err: 'x', code: 'TIMEOUT' });
+    expect(await findExistingCapture(client as any, 'AUTH-1')).toEqual({
+      err: 'x',
+      code: 'TIMEOUT',
     });
   });
 });

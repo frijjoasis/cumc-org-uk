@@ -13,8 +13,25 @@ interface UserData {
   displayName: string;
 }
 
+interface RegisterOptions {
+  /**
+   * Called under the row lock when the user is already signed up. Only if it
+   * returns true is the existing signup's payment replaced with this one.
+   */
+  canReplacePayment?: (existing: SignupModel) => boolean;
+}
+
 class SignupService {
-  async register(data: SignupData, user: UserData): Promise<SignupModel> {
+  /**
+   * Creates a signup, or replaces the payment on an existing one when
+   * `canReplacePayment` allows it. Throws ALREADY_SIGNED_UP otherwise, so a
+   * second payment can never overwrite the record of the first.
+   */
+  async register(
+    data: SignupData,
+    user: UserData,
+    options: RegisterOptions = {}
+  ): Promise<{ signup: SignupModel; replacedAuthID: string | null }> {
     return await sequelize.transaction(async t => {
       const meet = await MeetModel.findByPk(data.meetID, {
         transaction: t,
@@ -33,25 +50,50 @@ class SignupService {
         transaction: t,
       });
 
-      if (!existingSignup && meet.maxSignups && count >= meet.maxSignups) {
+      if (existingSignup) {
+        if (!options.canReplacePayment?.(existingSignup)) {
+          throw new Error('ALREADY_SIGNED_UP');
+        }
+        const replacedAuthID = existingSignup.authID;
+        const signup = await existingSignup.update(
+          { authID: data.authID || null, captureID: data.captureID || null },
+          { transaction: t }
+        );
+        return { signup, replacedAuthID };
+      }
+
+      if (meet.maxSignups && count >= meet.maxSignups) {
         throw new Error('MEET_FULL');
       }
 
-      const signupPayload = {
-        answers: data.answers,
-        meetID: data.meetID,
-        userID: user.id,
-        authID: data.authID || null,
-        captureID: data.captureID || null,
-        displayName: user.displayName,
-      };
-
-      if (existingSignup) {
-        return await existingSignup.update(signupPayload, { transaction: t });
-      } else {
-        return await SignupModel.create(signupPayload, { transaction: t });
-      }
+      const signup = await SignupModel.create(
+        {
+          answers: data.answers,
+          meetID: data.meetID,
+          userID: user.id,
+          authID: data.authID || null,
+          captureID: data.captureID || null,
+          displayName: user.displayName,
+        },
+        { transaction: t }
+      );
+      return { signup, replacedAuthID: null };
     });
+  }
+
+  async getForUser(
+    meetID: number,
+    userID: string
+  ): Promise<SignupModel | null> {
+    return SignupModel.findOne({ where: { meetID, userID } });
+  }
+
+  async updateAnswers(id: number, answers: object): Promise<number> {
+    const [affectedCount] = await SignupModel.update(
+      { answers },
+      { where: { id } }
+    );
+    return affectedCount;
   }
 
   async updatePayment(id: number, captureID: string): Promise<number> {

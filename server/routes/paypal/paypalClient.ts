@@ -40,7 +40,8 @@ export interface PaymentError {
 export type PaymentResult<T> = T | PaymentError;
 
 export function isError<T>(result: PaymentResult<T>): result is PaymentError {
-  return (result as PaymentError).err !== undefined;
+  // Results can legitimately be null (e.g. an order with no live capture).
+  return (result as PaymentError | null)?.err !== undefined;
 }
 
 /**

@@ -2,6 +2,7 @@ import {
   isError,
   type PayPalClient,
   type PaymentContext,
+  type PaymentResult,
 } from './paypalClient.js';
 
 /**
@@ -51,6 +52,39 @@ export function canVoidPayment(signup: PaymentRow): boolean {
 /** Rows already settled, reported as "skipped" by bulk capture. */
 export function isSettledForCapture(signup: PaymentRow): boolean {
   return !!signup.captureID && !isCaptureFailed(signup.captureID);
+}
+
+/**
+ * Whether a member may pay again for a signup they already have: only when
+ * the old authorization can no longer be captured. Any other state is a live
+ * or settled payment, and replacing it would lose track of their money.
+ */
+export function needsNewPayment(signup: PaymentRow): boolean {
+  return (
+    isCaptureFailed(signup.captureID) ||
+    signup.captureID === PaymentStatus.EXPIRED
+  );
+}
+
+export function isFreeMeet(price: number | string | null | undefined) {
+  return !price || parseFloat(price.toString()) < 0.01;
+}
+
+/**
+ * A failed capture (e.g. one that timed out) may still have gone through.
+ * Returns the capture ID to record if PayPal says the authorization was
+ * captured, or null if it was not.
+ */
+export async function findExistingCapture(
+  client: PayPalClient,
+  authID: string
+): Promise<PaymentResult<string | null>> {
+  const auth = await client.getAuthorization(authID);
+  if (isError(auth)) return auth;
+  if (auth.status === 'CAPTURED' || auth.status === 'PARTIALLY_CAPTURED') {
+    return resolveCaptureID(client, auth.orderID);
+  }
+  return null;
 }
 
 export type PaymentOutcome =

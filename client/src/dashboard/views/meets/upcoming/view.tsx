@@ -69,18 +69,28 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
       </Alert>
     );
 
-  const signupCount = content.signups?.length || 0;
+  const signupCount = content.signupCount || 0;
   const isFull =
     content.maxSignups !== null && signupCount >= content.maxSignups;
-  const alreadySignedUp =
-    !!user &&
-    !!content.signups?.some((s: any) => s.user?.email === user.email);
+  const alreadySignedUp = !!user && !!content.mySignup;
+  const needsPayment = alreadySignedUp && !!content.mySignup.needsPayment;
 
   const startDate = new Date(content.startDate);
   const endDate = new Date(content.endDate);
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-16 px-4">
+      {needsPayment && (
+        <Alert variant="destructive" className="border-2">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Your payment didn't go through</AlertTitle>
+          <AlertDescription>
+            We couldn't take the payment for your place on this trip. Please
+            renew it to keep your place.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Navigation & Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div className="space-y-4">
@@ -127,7 +137,7 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
         </div>
 
         <div className="flex gap-2">
-          {content.disabled ? (
+          {content.disabled && !needsPayment ? (
             <Button
               disabled
               variant="outline"
@@ -138,7 +148,7 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
           ) : (
             <Button
               asChild={!isFull || alreadySignedUp}
-              disabled={(isFull && !alreadySignedUp) || content.disabled}
+              disabled={isFull && !alreadySignedUp}
               size="lg"
               className="h-14 px-8 bg-zinc-900 font-black uppercase italic tracking-widest shadow-xl hover:shadow-primary/20"
             >
@@ -152,9 +162,11 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
                 >
                   {!user
                     ? 'Sign In to Register'
-                    : alreadySignedUp
-                      ? 'Edit Your Signup'
-                      : 'Sign Up for This Trip'}
+                    : needsPayment
+                      ? 'Renew Payment'
+                      : alreadySignedUp
+                        ? 'Edit Your Signup'
+                        : 'Sign Up for This Trip'}
                 </NavLink>
               )}
             </Button>
@@ -267,11 +279,12 @@ const ViewMeet = ({ user }: ViewMeetProps) => {
                       {user ? (
                         <div className="space-y-1">
                           <p className="text-sm font-black uppercase italic">
-                            {content.user?.firstName} {content.user?.lastName}
+                            {content.organiser?.firstName}{' '}
+                            {content.organiser?.lastName}
                           </p>
                           <p className="text-sm font-mono flex items-center gap-2">
                             <Phone className="h-3 w-3" />{' '}
-                            {content.user?.phone || 'No phone listed'}
+                            {content.organiser?.phone || 'No phone listed'}
                           </p>
                         </div>
                       ) : (

@@ -61,21 +61,22 @@ class MeetService {
     });
   }
 
+  /** For the public meet page. Trim further with toPublicMeet before sending. */
   async getByIdRestricted(id: number): Promise<MeetModel | null> {
     return MeetModel.findByPk(id, {
       include: [
         {
           model: SignupModel,
           as: 'signups',
-          attributes: ['displayName'],
-          include: [{ model: UserModel, as: 'user', attributes: ['email'] }],
+          attributes: ['displayName', 'userID', 'answers', 'authID', 'captureID'],
         },
         {
           model: UserModel,
           as: 'organiserUser',
-          attributes: ['email', 'firstName', 'lastName', 'phone'],
+          attributes: ['firstName', 'lastName', 'phone'],
         },
       ],
+      order: [[{ model: SignupModel, as: 'signups' }, 'createdAt', 'ASC']],
     });
   }
 

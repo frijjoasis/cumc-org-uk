@@ -75,10 +75,15 @@ const MeetForm = ({ user }: MeetFormProps) => {
 
     setSubmitting(true);
 
-    // Collect custom question answers (meet.questions is nullable).
+    // Collect custom question answers (meet.questions is nullable). Checkboxes
+    // are buttons whose value is always "on", so read their checked state.
     const answers = (meet.questions || []).map((q: any) => {
-      const input = document.getElementById(q.id) as HTMLInputElement;
-      return { id: q.id, value: input?.value || '' };
+      const el = document.getElementById(String(q.id));
+      const value =
+        q.type === 'checkbox'
+          ? String(el?.getAttribute('aria-checked') === 'true')
+          : (el as HTMLInputElement | null)?.value || '';
+      return { id: q.id, value };
     });
 
     const submissionData = { answers, meetID: id };
@@ -110,7 +115,24 @@ const MeetForm = ({ user }: MeetFormProps) => {
         LOADING FORM...
       </div>
     );
-  if (!user || meet?.disabled) return <Navigate to="/404" replace />;
+  if (!user) return <Navigate to="/404" replace />;
+  if (!meet)
+    return (
+      <Alert variant="destructive" className="max-w-2xl mx-auto mt-10">
+        <AlertTitle>Error</AlertTitle>
+        <AlertDescription>
+          {err || 'Could not load this trip.'}
+        </AlertDescription>
+      </Alert>
+    );
+
+  const mySignup = meet.mySignup;
+  const renewing = !!mySignup?.needsPayment;
+  // Once signups close, a member may still renew their payment, but not edit.
+  if (meet.disabled && !renewing) return <Navigate to="/404" replace />;
+
+  const previousAnswer = (id: unknown) =>
+    mySignup?.answers?.find((a: any) => a.id === id)?.value;
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
@@ -154,7 +176,10 @@ const MeetForm = ({ user }: MeetFormProps) => {
                 <ul className="list-disc list-inside text-sm">
                   {missingFields.map(field => (
                     <li key={field}>
-                      <Link to="/register" className="underline hover:text-red-800">
+                      <Link
+                        to="/register"
+                        className="underline hover:text-red-800"
+                      >
                         {profileFieldLabels[field] || field}
                       </Link>
                     </li>
@@ -209,81 +234,85 @@ const MeetForm = ({ user }: MeetFormProps) => {
         </Card>
 
         {/* Step 2: Custom Questions */}
-        <Card className="border-zinc-200 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-xl font-black uppercase italic tracking-tighter flex items-center gap-2">
-              <ClipboardCheck className="h-5 w-5 text-primary" /> Required
-              Logistics
-            </CardTitle>
-            <CardDescription className="text-xs">
-              The organizer needs this information to prepare the meet.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {meet.questions?.map((q: any) => (
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-3 py-1">
-                  {q.type === 'checkbox' ? (
-                    <div className="flex items-center justify-between w-full gap-4 py-3 px-4 bg-zinc-50/50 rounded-xl border border-transparent hover:border-zinc-200 transition-all group">
-                      <div className="space-y-1">
+        <fieldset disabled={meet.disabled}>
+          <Card className="border-zinc-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-xl font-black uppercase italic tracking-tighter flex items-center gap-2">
+                <ClipboardCheck className="h-5 w-5 text-primary" /> Required
+                Logistics
+              </CardTitle>
+              <CardDescription className="text-xs">
+                The organizer needs this information to prepare the meet.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {meet.questions?.map((q: any) => (
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-3 py-1">
+                    {q.type === 'checkbox' ? (
+                      <div className="flex items-center justify-between w-full gap-4 py-3 px-4 bg-zinc-50/50 rounded-xl border border-transparent hover:border-zinc-200 transition-all group">
+                        <div className="space-y-1">
+                          <Label
+                            htmlFor={q.id}
+                            className="font-black uppercase italic text-xs tracking-tight cursor-pointer select-none text-zinc-700 group-hover:text-zinc-900 transition-colors"
+                          >
+                            {q.title}
+                            {q.required && (
+                              <span className="ml-1 text-rose-500 font-bold">
+                                *
+                              </span>
+                            )}
+                          </Label>
+                          {q.text && (
+                            <p className="text-[10px] leading-tight text-zinc-500 font-medium italic">
+                              {q.text}
+                            </p>
+                          )}
+                        </div>
+
+                        <Checkbox
+                          id={q.id}
+                          required={q.required}
+                          defaultChecked={previousAnswer(q.id) === 'true'}
+                          className="h-5 w-5 mt-0.5 border-zinc-300 rounded-md transition-transform active:scale-90 data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900"
+                        />
+                      </div>
+                    ) : (
+                      /* Standard Layout for Text Inputs */
+                      <div className="w-full space-y-2">
                         <Label
                           htmlFor={q.id}
-                          className="font-black uppercase italic text-xs tracking-tight cursor-pointer select-none text-zinc-700 group-hover:text-zinc-900 transition-colors"
+                          className="font-black uppercase italic text-xs tracking-tight"
                         >
                           {q.title}
                           {q.required && (
-                            <span className="ml-1 text-rose-500 font-bold">
-                              *
-                            </span>
+                            <span className="ml-1 text-rose-500">*</span>
                           )}
                         </Label>
-                        {q.text && (
-                          <p className="text-[10px] leading-tight text-zinc-500 font-medium italic">
-                            {q.text}
-                          </p>
-                        )}
+                        <Input
+                          id={q.id}
+                          required={q.required}
+                          defaultValue={previousAnswer(q.id) ?? ''}
+                          placeholder={q.required ? 'Required' : 'Optional'}
+                          className={`h-12 border-zinc-200 focus:ring-zinc-900 ${validated && q.required ? 'invalid:border-rose-500' : ''}`}
+                        />
                       </div>
+                    )}
+                  </div>
 
-                      <Checkbox
-                        id={q.id}
-                        required={q.required}
-                        className="h-5 w-5 mt-0.5 border-zinc-300 rounded-md transition-transform active:scale-90 data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900"
-                      />
-                    </div>
-                  ) : (
-                    /* Standard Layout for Text Inputs */
-                    <div className="w-full space-y-2">
-                      <Label
-                        htmlFor={q.id}
-                        className="font-black uppercase italic text-xs tracking-tight"
-                      >
-                        {q.title}
-                        {q.required && (
-                          <span className="ml-1 text-rose-500">*</span>
-                        )}
-                      </Label>
-                      <Input
-                        id={q.id}
-                        required={q.required}
-                        placeholder={q.required ? 'Required' : 'Optional'}
-                        className={`h-12 border-zinc-200 focus:ring-zinc-900 ${validated && q.required ? 'invalid:border-rose-500' : ''}`}
-                      />
-                    </div>
+                  {/* Display the 'text' / small-print if it exists */}
+                  {q.text && (
+                    <p
+                      className={`text-[10px] font-medium text-zinc-500 italic ${q.type === 'checkbox' ? 'pl-8' : ''}`}
+                    >
+                      {q.text}
+                    </p>
                   )}
                 </div>
-
-                {/* Display the 'text' / small-print if it exists */}
-                {q.text && (
-                  <p
-                    className={`text-[10px] font-medium text-zinc-500 italic ${q.type === 'checkbox' ? 'pl-8' : ''}`}
-                  >
-                    {q.text}
-                  </p>
-                )}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </fieldset>
 
         {/* Step 3: Legal & Consent */}
         <div className="p-6 bg-zinc-900 rounded-2xl text-white space-y-4">
@@ -322,7 +351,11 @@ const MeetForm = ({ user }: MeetFormProps) => {
                 <Loader2 className="h-6 w-6 animate-spin" />
               ) : (
                 <>
-                  Complete Registration{' '}
+                  {renewing
+                    ? 'Continue to Payment'
+                    : mySignup
+                      ? 'Save Changes'
+                      : 'Complete Registration'}{' '}
                   <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </>
               )}
@@ -335,6 +368,12 @@ const MeetForm = ({ user }: MeetFormProps) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-8 text-center space-y-6">
+                {renewing && (
+                  <p className="text-sm text-zinc-600">
+                    Your previous payment couldn't be taken. Pay again to keep
+                    your place; the old hold on your account will be released.
+                  </p>
+                )}
                 <div className="space-y-1">
                   <p className="text-[10px] font-black uppercase text-zinc-400">
                     Total Due

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { meetService, signupService } from '../../services/index.js';
 import { logger } from '../../logger.js';
 import { committeeAuth, userAuth } from '../middleware.js';
+import { isFreeMeet, needsNewPayment } from '../paypal/committeePayments.js';
 
 const router: Router = Router();
 
@@ -20,11 +21,47 @@ router.get('/all', committeeAuth, async function (req: Request, res: Response) {
   res.json(all);
 });
 
+/**
+ * What the public meet page may see. Logged-out visitors get the meet itself
+ * and a signup count. Signed-in users also get who is going (names only), the
+ * organiser's contact details, and their own signup.
+ */
+export function toPublicMeet(meet: any, viewerID: string | null) {
+  const {
+    signups = [],
+    organiserUser,
+    organiser: _organiserID,
+    ...details
+  } = meet.toJSON();
+  const base = { ...details, signupCount: signups.length };
+  if (!viewerID) return base;
+
+  const mine = signups.find((s: any) => s.userID === viewerID);
+  return {
+    ...base,
+    signups: signups.map((s: any) => ({ displayName: s.displayName })),
+    organiser: organiserUser
+      ? {
+          firstName: organiserUser.firstName,
+          lastName: organiserUser.lastName,
+          phone: organiserUser.phone,
+        }
+      : null,
+    mySignup: mine
+      ? {
+          answers: mine.answers,
+          needsPayment: !isFreeMeet(meet.price) && needsNewPayment(mine),
+        }
+      : null,
+  };
+}
+
 router.post('/view', async function (req: Request, res: Response) {
   try {
     const meet = await meetService.getByIdRestricted(req.body.id);
     if (meet) {
-      res.json(meet);
+      const viewerID = req.isAuthenticated() ? req.user.id.toString() : null;
+      res.json(toPublicMeet(meet, viewerID));
     } else {
       res.json({ err: 'Database error: Could not find meet' });
     }

@@ -19,11 +19,15 @@ import {
   canCapturePayment,
   canVoidPayment,
   captureSignup,
+  findExistingCapture,
+  isFreeMeet,
   isSettledForCapture,
+  needsNewPayment,
   PaymentStatus,
   voidSignup,
   type PaymentOutcome,
 } from './committeePayments.js';
+import type { SignupModel } from '../../database/database.js';
 
 const router: Router = Router();
 
@@ -33,12 +37,6 @@ interface PaymentWorkflow {
   capture: boolean;
   ctx: PaymentContext;
   onSuccess: (captureID: string) => Promise<void>;
-}
-
-interface SignupData {
-  meetID: number;
-  answers: object;
-  [key: string]: any;
 }
 
 // Token is fetched lazily on first API call.
@@ -128,37 +126,85 @@ async function executePaymentWorkflow(
   return null;
 }
 
+/**
+ * Saves a new signup, or the renewed payment on an existing one. The signup
+ * is committed before anything else here, so nothing after it may throw:
+ * executePaymentWorkflow would void the authorization the signup now holds.
+ */
 async function handleMeetSignup(
-  userId: string,
-  displayName: string,
-  meetId: number,
-  signupData: SignupData,
+  user: { id: string; displayName: string },
+  meet: any,
+  answers: object,
   authID?: string
 ): Promise<void> {
-  await signupService.register(
+  const { signup, replacedAuthID } = await signupService.register(
     {
-      ...signupData,
+      meetID: meet.id,
+      answers,
       authID,
       captureID: authID ? undefined : PaymentStatus.NOT_PAYING,
     },
-    {
-      id: userId.toString(),
-      displayName,
-    }
+    user,
+    { canReplacePayment: needsNewPayment }
   );
 
-  const meet = await meetService.getById(meetId);
-  if (meet && meet.signupControl !== 'Everyone') {
-    await memberService.upsert({
-      id: userId,
-      hasFree: false,
+  if (meet.signupControl !== 'Everyone') {
+    try {
+      await memberService.upsert({ id: user.id, hasFree: false });
+    } catch (err) {
+      logger.error('Signup saved but could not use up free meet', {
+        userID: user.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  if (replacedAuthID) {
+    await releaseReplacedAuthorization(replacedAuthID, user.id, signup.id);
+  }
+}
+
+/**
+ * The member paid again because their old authorization could not be
+ * captured. Release the old hold so they are not left with two.
+ */
+async function releaseReplacedAuthorization(
+  authID: string,
+  userID: string,
+  signupID: number
+): Promise<void> {
+  try {
+    const outcome = await voidSignup(paypalClient, authID, {
+      intent: 'register',
+      userID,
+      performedBy: userID,
+      signupID,
+    });
+    if (outcome.result === 'failed') {
+      logger.error(
+        'CRITICAL: member renewed payment but the old authorization could not be released',
+        { authID, userID, signupID, issue: outcome.issue, store: outcome.store }
+      );
+    }
+  } catch (err) {
+    logger.error('CRITICAL: error releasing replaced authorization', {
+      authID,
+      userID,
+      signupID,
+      error: err instanceof Error ? err.message : String(err),
     });
   }
 }
 
+/**
+ * New signups must pass capacity and membership checks. A member who is
+ * already signed up skips both: they only owe money again if their old
+ * payment could not be taken, and may renew it even once signups close.
+ */
 async function checkMeetEligibility(
   userId: string,
-  meetId: number
+  meetId: number,
+  existing: SignupModel | null
 ): Promise<PaymentError | { meet: any; paymentRequired: boolean }> {
   const missingFields = await userService.getMissingProfileFields(userId);
   if (missingFields.length > 0) {
@@ -170,11 +216,19 @@ async function checkMeetEligibility(
 
   const meet = await meetService.getById(meetId);
   if (!meet) return { err: 'Database error: Could not find meet' };
+
+  if (existing) {
+    const paymentRequired =
+      !isFreeMeet(meet.price) && needsNewPayment(existing);
+    if (meet.disabled && !paymentRequired) {
+      return { err: 'Signups are closed, so you can no longer edit yours.' };
+    }
+    return { meet, paymentRequired };
+  }
+
   if (meet.disabled) return { err: 'Signups are not open!' };
 
-  const currentSignups = await signupService.getCountByMeetId(meetId, {
-    excludeUserID: userId,
-  });
+  const currentSignups = await signupService.getCountByMeetId(meetId);
   if (meet.maxSignups && currentSignups >= meet.maxSignups) {
     return { err: 'Sorry, this trip is now full!' };
   }
@@ -190,7 +244,7 @@ async function isPaymentNeeded(
   meet: any
 ): Promise<boolean | PaymentError> {
   const member = await memberService.getById(userId);
-  const isFree = !meet.price || parseFloat(meet.price.toString()) < 0.01;
+  const isFree = isFreeMeet(meet.price);
 
   if (member?.hasPaid) {
     // Current member - always allowed to sign up
@@ -370,17 +424,91 @@ router.post('/britrock', async (req: Request, res: Response) => {
   }
 });
 
-router.post('/register', userAuth, async (req: Request, res: Response) => {
+const signupUser = (req: Request) => ({
+  id: req.user!.id.toString(),
+  displayName: (req.user as any).displayName || '',
+});
+
+/**
+ * POST /required: the signup form was submitted. Saves the signup (or the
+ * edited answers on an existing one) and replies `true` if the member needs
+ * to pay before their place is confirmed.
+ */
+export async function handleSignupForm(req: Request, res: Response) {
   try {
-    const eligibility = await checkMeetEligibility(
-      req.user!.id,
-      req.body.form.meetID
-    );
+    const user = signupUser(req);
+    const meetID = Number(req.body.meetID);
+    const existing = await signupService.getForUser(meetID, user.id);
+
+    const eligibility = await checkMeetEligibility(user.id, meetID, existing);
+    if (isError(eligibility)) return res.json(eligibility);
+    const { meet, paymentRequired } = eligibility;
+
+    if (existing) {
+      if (!meet.disabled) {
+        await signupService.updateAnswers(existing.id, req.body.answers);
+      }
+      if (
+        paymentRequired &&
+        existing.authID &&
+        existing.captureID !== PaymentStatus.EXPIRED
+      ) {
+        const captured = await findExistingCapture(
+          paypalClient,
+          existing.authID
+        );
+        if (isError(captured)) {
+          logger.error('Could not check old authorization before renewal', {
+            signupID: existing.id,
+            authID: existing.authID,
+            code: captured.code,
+          });
+          return res.json({
+            err: "We couldn't check your previous payment with PayPal. Please try again in a few minutes.",
+          });
+        }
+        if (captured) {
+          await signupService.updatePayment(existing.id, captured);
+          return res.json(false);
+        }
+      }
+      return res.json(paymentRequired);
+    }
+
+    if (paymentRequired) return res.json(true);
+
+    await handleMeetSignup(user, meet, req.body.answers);
+    res.json(false);
+  } catch (err: any) {
+    if (err.message === 'MEET_FULL') {
+      return res.json({ err: 'Sorry, this trip is now full!' });
+    }
+    if (err.message === 'ALREADY_SIGNED_UP') {
+      return res.json({ err: 'You are already signed up to this trip.' });
+    }
+    logger.error('Payment required check error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+}
+
+/**
+ * POST /register: the member approved a PayPal payment for a new signup, or
+ * to renew one whose old payment could not be taken.
+ */
+export async function handleSignupPayment(req: Request, res: Response) {
+  try {
+    const user = signupUser(req);
+    const meetID = Number(req.body.form.meetID);
+    const existing = await signupService.getForUser(meetID, user.id);
+
+    const eligibility = await checkMeetEligibility(user.id, meetID, existing);
     if (isError(eligibility)) return res.json(eligibility);
 
     if (!eligibility.paymentRequired) {
       return res.json({
-        err: 'You are not eligible to sign up to this meet! Please contact the webmaster.',
+        err: existing
+          ? "You've already paid for this trip, so you haven't been charged again."
+          : 'You are not eligible to sign up to this meet! Please contact the webmaster.',
       });
     }
 
@@ -392,19 +520,14 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
       capture: false,
       ctx: {
         intent: 'register',
-        userID: req.user!.id,
-        performedBy: req.user!.id,
+        userID: user.id,
+        performedBy: user.id,
       },
-      // signupService.register re-checks capacity under a row lock and throws
-      // MEET_FULL; executePaymentWorkflow then voids the authorization.
+      // signupService.register re-checks capacity and any existing payment
+      // under a row lock and throws; executePaymentWorkflow then voids the
+      // new authorization.
       onSuccess: async authID => {
-        await handleMeetSignup(
-          req.user!.id,
-          (req.user as any).displayName || '',
-          meet.id,
-          req.body.form,
-          authID
-        );
+        await handleMeetSignup(user, meet, req.body.form.answers, authID);
       },
     });
 
@@ -417,39 +540,10 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
     logger.error('Meet registration error: ', err);
     res.json({ err: 'Database error: Please contact the webmaster' });
   }
-});
+}
 
-router.post('/required', userAuth, async (req: Request, res: Response) => {
-  try {
-    const eligibility = await checkMeetEligibility(
-      req.user!.id,
-      req.body.meetID
-    );
-
-    if (isError(eligibility)) {
-      return res.json(eligibility);
-    }
-
-    if (eligibility.paymentRequired) {
-      return res.json(eligibility.paymentRequired);
-    }
-
-    await handleMeetSignup(
-      req.user!.id,
-      (req.user as any).displayName || '',
-      eligibility.meet.id,
-      req.body
-    );
-
-    res.json(false);
-  } catch (err: any) {
-    if (err.message === 'MEET_FULL') {
-      return res.json({ err: 'Sorry, this trip is now full!' });
-    }
-    logger.error('Payment required check error: ', err);
-    res.json({ err: 'Database error: Please contact the webmaster' });
-  }
-});
+router.post('/register', userAuth, handleSignupPayment);
+router.post('/required', userAuth, handleSignupForm);
 
 router.post('/capture', committeeAuth, async (req: Request, res: Response) => {
   try {
