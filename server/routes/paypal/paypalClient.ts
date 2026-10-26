@@ -21,6 +21,11 @@ const PAYPAL_OAUTH_API = `${PAYPAL_API_BASE}/v1/oauth2/token/`;
 const PAYPAL_ORDER_API = `${PAYPAL_API_BASE}/v2/checkout/orders/`;
 const PAYPAL_AUTHORIZATION_API = `${PAYPAL_API_BASE}/v2/payments/authorizations/`;
 
+// Without a timeout a hung PayPal call hangs the request with it. A timed-out
+// capture may still have gone through; that's safe because committee retries
+// check the authorization's state at PayPal before capturing again.
+const PAYPAL_TIMEOUT_MS = 15_000;
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -79,10 +84,13 @@ export function parsePayPalError(err: unknown): PayPalErrorInfo {
       details?: { issue?: string; description?: string }[];
     };
     const detail = data.details?.[0];
+    const timedOut =
+      !err.response &&
+      (err.code === 'ECONNABORTED' || err.code === 'ETIMEDOUT');
     return {
       httpStatus: err.response?.status,
       name: data.name,
-      issue: detail?.issue ?? data.name,
+      issue: detail?.issue ?? data.name ?? (timedOut ? 'TIMEOUT' : undefined),
       description: detail?.description ?? data.message,
       debugId: data.debug_id,
     };
@@ -123,6 +131,7 @@ export class PayPalClient {
     params.append('grant_type', 'client_credentials');
 
     const response = await axios.post(PAYPAL_OAUTH_API, params, {
+      timeout: PAYPAL_TIMEOUT_MS,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       auth: {
         username: process.env.PAYPAL_ID || '',
@@ -134,15 +143,16 @@ export class PayPalClient {
     this.tokenExpiresAt = Date.now() + (response.data.expires_in - 300) * 1000;
   }
 
-  private async authHeaders(
-    requestId?: string
-  ): Promise<Record<string, string>> {
+  private async requestConfig(requestId?: string) {
     if (!this.accessToken || Date.now() >= this.tokenExpiresAt) {
       await this.refreshAccessToken();
     }
     return {
-      Authorization: `Bearer ${this.accessToken}`,
-      ...(requestId ? { 'PayPal-Request-Id': requestId } : {}),
+      timeout: PAYPAL_TIMEOUT_MS,
+      headers: {
+        Authorization: `Bearer ${this.accessToken}`,
+        ...(requestId ? { 'PayPal-Request-Id': requestId } : {}),
+      },
     };
   }
 
@@ -151,9 +161,7 @@ export class PayPalClient {
     expectedPrice: string
   ): Promise<PaymentResult<true>> {
     try {
-      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, {
-        headers: await this.authHeaders(),
-      });
+      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, await this.requestConfig());
 
       const actualPrice = parseFloat(data.purchase_units[0].amount.value);
       const expected = parseFloat(expectedPrice);
@@ -176,11 +184,9 @@ export class PayPalClient {
       const response = await axios.post(
         `${PAYPAL_ORDER_API}${orderID}/authorize`,
         {},
-        {
-          // Idempotency: an order can only be authorised once, so the
-          // orderID identifies the attempt. A retry replays the prior result.
-          headers: await this.authHeaders(`authorize-${orderID}`),
-        }
+        // Idempotency: an order can only be authorised once, so the
+        // orderID identifies the attempt. A retry replays the prior result.
+        await this.requestConfig(`authorize-${orderID}`)
       );
       const authID: string =
         response.data.purchase_units[0].payments.authorizations[0].id;
@@ -229,7 +235,7 @@ export class PayPalClient {
           // releases any uncaptured remainder back to the payer.
           final_capture: true,
         },
-        { headers: await this.authHeaders(requestId) }
+        await this.requestConfig(requestId)
       );
       const captureID: string = response.data.id;
       await this.record(ctx, {
@@ -275,10 +281,8 @@ export class PayPalClient {
       await axios.post(
         `${PAYPAL_AUTHORIZATION_API}${authID}/void`,
         {},
-        {
-          // Idempotency: voiding is final, so every attempt means the same thing.
-          headers: await this.authHeaders(`void-${authID}`),
-        }
+        // Idempotency: voiding is final, so every attempt means the same thing.
+        await this.requestConfig(`void-${authID}`)
       );
       await this.record(ctx, {
         operation: 'void',
@@ -308,9 +312,7 @@ export class PayPalClient {
     authID: string
   ): Promise<PaymentResult<AuthorizationInfo>> {
     try {
-      const { data } = await axios.get(`${PAYPAL_AUTHORIZATION_API}${authID}`, {
-        headers: await this.authHeaders(),
-      });
+      const { data } = await axios.get(`${PAYPAL_AUTHORIZATION_API}${authID}`, await this.requestConfig());
       return {
         status: data.status,
         amount: data.amount?.value,
@@ -328,9 +330,7 @@ export class PayPalClient {
     orderID: string
   ): Promise<PaymentResult<string | null>> {
     try {
-      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, {
-        headers: await this.authHeaders(),
-      });
+      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, await this.requestConfig());
       const captures: { id: string; status?: string }[] = (
         data.purchase_units ?? []
       ).flatMap(
