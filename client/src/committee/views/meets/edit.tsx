@@ -34,31 +34,36 @@ const EditMeet = () => {
     price: 0,
   });
 
-  const [activeTab, setActiveTab] = useState('details');
-  const [newID, setNewID] = useState<string | undefined>(id);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!!id);
-
   const isClone = location.pathname.includes('/clone');
   const isNewPath = location.pathname.includes('/new');
   const isNew = isNewPath || isClone;
 
-  const hasBeenSaved = !!newID && (id !== undefined || !isClone);
+  const [activeTab, setActiveTab] = useState('details');
+  // When cloning, the URL id belongs to the source meet, so the copy has no id until saved
+  const [newID, setNewID] = useState<string | undefined>(
+    isClone ? undefined : id
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(!!id);
+
+  const hasBeenSaved = !!newID;
 
   useEffect(() => {
-    if (id && !isNew) {
+    if (id) {
       axios
         .get(`/api/meets/signups/${id}`)
         .then(res => {
           if (res.data.err) {
             setError(res.data.err);
           } else {
-            const data = res.data;
+            const { signups, signupCount, createdAt, updatedAt, ...data } =
+              res.data;
             const startDate = new Date(data.startDate);
             const endDate = new Date(data.endDate);
 
             setContent({
               ...data,
+              ...(isClone ? {} : { signups, signupCount }),
               startTime: startDate.toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -71,15 +76,15 @@ const EditMeet = () => {
               }),
               startDate: startDate.toISOString().split('T')[0],
               endDate: endDate.toISOString().split('T')[0],
-              id: data.id,
+              id: isClone ? undefined : data.id,
             });
-            setNewID(data.id.toString());
+            if (!isClone) setNewID(data.id.toString());
           }
         })
         .catch(() => setError('Could not load meet data'))
         .finally(() => setLoading(false));
     }
-  }, [id, isNew]);
+  }, [id, isClone]);
 
   const handleTabChange = (value: string) => {
     if (value === 'questions' && !hasBeenSaved) {

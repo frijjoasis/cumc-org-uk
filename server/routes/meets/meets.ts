@@ -34,11 +34,13 @@ router.post('/view', async function (req: Request, res: Response) {
   }
 });
 
-const handleEditOrCreate = async (req: Request, res: Response) => {
+export const handleEditOrCreate = async (req: Request, res: Response) => {
   try {
-    const meetId = req.params.id ? parseInt(req.params.id) : req.body.id;
-
-    const meetData = { ...req.body, id: meetId };
+    // Only trust the id from the URL, so /new can never overwrite an existing meet
+    const { id: _bodyId, ...body } = req.body;
+    const meetData = req.params.id
+      ? { ...body, id: parseInt(req.params.id) }
+      : body;
 
     const [meet] = await meetService.upsert(meetData, req.user!.id.toString());
 
