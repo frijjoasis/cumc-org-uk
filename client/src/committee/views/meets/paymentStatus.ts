@@ -77,8 +77,7 @@ const ISSUES: Record<string, IssueDescription> = {
   },
   AUTHORIZATION_DENIED: {
     label: 'Denied',
-    action:
-      'PayPal denied this authorisation. Ask them to pay another way.',
+    action: 'PayPal denied this authorisation. Ask them to pay another way.',
     retryable: false,
   },
   AUTHORIZATION_VOIDED: {
@@ -103,6 +102,12 @@ const ISSUES: Record<string, IssueDescription> = {
     action:
       "PayPal doesn't recognise this authorisation for the club's account. Check the PayPal dashboard before retrying.",
     retryable: false,
+  },
+  TIMEOUT: {
+    label: "PayPal didn't reply",
+    action:
+      'PayPal took too long to answer, so it may or may not have gone through. Retrying is safe: the site checks PayPal first.',
+    retryable: true,
   },
   DB_WRITE_FAILED: {
     label: 'Not saved',

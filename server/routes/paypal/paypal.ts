@@ -94,9 +94,35 @@ async function executePaymentWorkflow(
       throw err;
     }
   } else {
-    // No capture yet — if onSuccess fails, no money has moved. The
-    // authorisation will auto-expire; we don't need to void here.
-    await workflow.onSuccess(authResult);
+    try {
+      await workflow.onSuccess(authResult);
+    } catch (err) {
+      // No money has moved yet, but the authorisation holds the member's
+      // funds for up to 29 days. Release it rather than leave it dangling.
+      const voided = await paypalClient.voidAuthorization(
+        authResult,
+        workflow.ctx
+      );
+      const meetFull = err instanceof Error && err.message === 'MEET_FULL';
+      logger[meetFull && !isError(voided) ? 'warn' : 'error'](
+        isError(voided)
+          ? 'CRITICAL: signup failed after authorization and the void failed'
+          : 'Signup failed after authorization; authorization voided',
+        {
+          authID: authResult,
+          ctx: workflow.ctx,
+          error: err instanceof Error ? err.message : String(err),
+        }
+      );
+      const released = isError(voided)
+        ? 'Please contact the webmaster so they can release the hold on your payment.'
+        : 'The hold on your payment has been released, so you have not been charged.';
+      return {
+        err: meetFull
+          ? `Trip filled up while you were paying! ${released}`
+          : `We couldn't save your signup. ${released}`,
+      };
+    }
   }
 
   return null;
@@ -369,18 +395,9 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
         userID: req.user!.id,
         performedBy: req.user!.id,
       },
+      // signupService.register re-checks capacity under a row lock and throws
+      // MEET_FULL; executePaymentWorkflow then voids the authorization.
       onSuccess: async authID => {
-        const finalCount = await signupService.getCountByMeetId(meet.id, {
-          excludeUserID: req.user!.id,
-        });
-        if (meet.maxSignups && finalCount >= meet.maxSignups) {
-          await paypalClient.voidAuthorization(authID, {
-            intent: 'register',
-            userID: req.user!.id,
-            performedBy: req.user!.id,
-          });
-          throw new Error('CAPACITY_REACHED');
-        }
         await handleMeetSignup(
           req.user!.id,
           (req.user as any).displayName || '',
@@ -397,11 +414,6 @@ router.post('/register', userAuth, async (req: Request, res: Response) => {
 
     res.json(true);
   } catch (err: any) {
-    if (err.message === 'CAPACITY_REACHED') {
-      return res.json({
-        err: 'Trip filled up while you were paying! Your transaction has been voided.',
-      });
-    }
     logger.error('Meet registration error: ', err);
     res.json({ err: 'Database error: Please contact the webmaster' });
   }
@@ -431,6 +443,9 @@ router.post('/required', userAuth, async (req: Request, res: Response) => {
 
     res.json(false);
   } catch (err: any) {
+    if (err.message === 'MEET_FULL') {
+      return res.json({ err: 'Sorry, this trip is now full!' });
+    }
     logger.error('Payment required check error: ', err);
     res.json({ err: 'Database error: Please contact the webmaster' });
   }
@@ -514,4 +529,5 @@ router.post('/void', committeeAuth, async (req: Request, res: Response) => {
   }
 });
 
+export { executePaymentWorkflow };
 export default router;

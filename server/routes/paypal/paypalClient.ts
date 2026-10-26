@@ -161,7 +161,10 @@ export class PayPalClient {
     expectedPrice: string
   ): Promise<PaymentResult<true>> {
     try {
-      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, await this.requestConfig());
+      const { data } = await axios.get(
+        `${PAYPAL_ORDER_API}${orderID}`,
+        await this.requestConfig()
+      );
 
       const actualPrice = parseFloat(data.purchase_units[0].amount.value);
       const expected = parseFloat(expectedPrice);
@@ -247,7 +250,11 @@ export class PayPalClient {
       });
       return captureID;
     } catch (err) {
-      const info = this.logPayPalError('Capture authorization', { authID }, err);
+      const info = this.logPayPalError(
+        'Capture authorization',
+        { authID },
+        err
+      );
       await this.record(ctx, {
         operation: 'capture',
         status: 'failure',
@@ -257,7 +264,8 @@ export class PayPalClient {
       });
 
       const messages: Record<string, string> = {
-        AUTHORIZATION_ALREADY_CAPTURED: 'This payment has already been captured.',
+        AUTHORIZATION_ALREADY_CAPTURED:
+          'This payment has already been captured.',
         AUTHORIZATION_VOIDED: 'Cannot capture a voided payment.',
         AUTHORIZATION_EXPIRED: 'Payment authorization has expired.',
       };
@@ -312,7 +320,10 @@ export class PayPalClient {
     authID: string
   ): Promise<PaymentResult<AuthorizationInfo>> {
     try {
-      const { data } = await axios.get(`${PAYPAL_AUTHORIZATION_API}${authID}`, await this.requestConfig());
+      const { data } = await axios.get(
+        `${PAYPAL_AUTHORIZATION_API}${authID}`,
+        await this.requestConfig()
+      );
       return {
         status: data.status,
         amount: data.amount?.value,
@@ -330,7 +341,10 @@ export class PayPalClient {
     orderID: string
   ): Promise<PaymentResult<string | null>> {
     try {
-      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, await this.requestConfig());
+      const { data } = await axios.get(
+        `${PAYPAL_ORDER_API}${orderID}`,
+        await this.requestConfig()
+      );
       const captures: { id: string; status?: string }[] = (
         data.purchase_units ?? []
       ).flatMap(

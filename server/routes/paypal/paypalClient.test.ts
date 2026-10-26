@@ -78,6 +78,14 @@ describe('parsePayPalError', () => {
     ).toBe('INTERNAL_SERVER_ERROR');
   });
 
+  it('reports TIMEOUT when PayPal never replied', () => {
+    expect(
+      parsePayPalError(
+        new AxiosError('timeout of 15000ms exceeded', 'ECONNABORTED')
+      ).issue
+    ).toBe('TIMEOUT');
+  });
+
   it('has no issue for non-PayPal errors', () => {
     expect(parsePayPalError(new Error('socket hang up'))).toEqual({
       description: 'socket hang up',
@@ -103,6 +111,7 @@ describe('captureAuthorization', () => {
       amount: { value: '20.00', currency_code: 'GBP' },
       final_capture: true,
     });
+    expect(config?.timeout).toBe(15_000);
     expect(config?.headers).toMatchObject({
       Authorization: 'Bearer TOKEN',
       'PayPal-Request-Id': 'key-1',
@@ -145,9 +154,7 @@ describe('authorizeOrder', () => {
 
 describe('voidAuthorization', () => {
   it('returns the 404 issue rather than pretending it worked', async () => {
-    failNextPost(
-      paypalError(404, 'RESOURCE_NOT_FOUND', 'INVALID_RESOURCE_ID')
-    );
+    failNextPost(paypalError(404, 'RESOURCE_NOT_FOUND', 'INVALID_RESOURCE_ID'));
     expect(await client.voidAuthorization('AUTH-1', ctx)).toMatchObject({
       code: 'INVALID_RESOURCE_ID',
     });

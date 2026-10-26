@@ -32,7 +32,9 @@ describe('getPaymentState', () => {
   });
 
   it('is unpaid with no authorization', () => {
-    expect(getPaymentState({ authID: undefined, captureID: undefined })).toEqual({
+    expect(
+      getPaymentState({ authID: undefined, captureID: undefined })
+    ).toEqual({
       kind: 'unpaid',
     });
   });

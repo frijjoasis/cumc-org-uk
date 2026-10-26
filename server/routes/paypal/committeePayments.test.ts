@@ -138,11 +138,14 @@ describe('captureSignup', () => {
     ['VOIDED', 'Void', 'AUTHORIZATION_VOIDED'],
     ['EXPIRED', 'Expired', 'AUTHORIZATION_EXPIRED'],
     ['DENIED', 'Capture Failed: AUTHORIZATION_DENIED', 'AUTHORIZATION_DENIED'],
-  ])('does not attempt capture when status is %s', async (status, store, issue) => {
-    client.getAuthorization.mockResolvedValue({ status, amount: '20.00' });
-    expect(await capture()).toEqual({ result: 'failed', store, issue });
-    expect(client.captureAuthorization).not.toHaveBeenCalled();
-  });
+  ])(
+    'does not attempt capture when status is %s',
+    async (status, store, issue) => {
+      client.getAuthorization.mockResolvedValue({ status, amount: '20.00' });
+      expect(await capture()).toEqual({ result: 'failed', store, issue });
+      expect(client.captureAuthorization).not.toHaveBeenCalled();
+    }
+  );
 
   it('treats a past expiration time as expired', async () => {
     client.getAuthorization.mockResolvedValue({
