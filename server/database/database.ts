@@ -11,6 +11,7 @@ import * as SignupModule from './models/signup.js';
 import * as BritRockModule from './models/britrock.js';
 import * as CommitteeModule from './models/committee.js';
 import * as CommitteeRoleModule from './models/committeeRole.js';
+import * as PaymentEventModule from './models/paymentEvent.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,6 +44,7 @@ const modules: ModelModule[] = [
   BritRockModule,
   CommitteeModule,
   CommitteeRoleModule,
+  PaymentEventModule,
 ];
 
 async function init(): Promise<void> {

@@ -3,6 +3,7 @@ import { CommitteeModel } from './committee.js';
 import { CommitteeRoleModel } from './committeeRole.js';
 import { MeetModel } from './meet.js';
 import { MemberModel } from './member.js';
+import { PaymentEventModel } from './paymentEvent.js';
 import { SignupModel } from './signup.js';
 import { UserModel } from './user.js';
 
@@ -12,6 +13,7 @@ export {
   CommitteeRoleModel,
   MeetModel,
   MemberModel,
+  PaymentEventModel,
   SignupModel,
   UserModel,
 };

@@ -49,28 +49,48 @@ const MeetView = () => {
 
     if (!window.confirm(confirmMsg)) return;
 
-    try {
-      const payload = signup ? { id, authID: signup.authID } : { id };
-      const response = await axios.post(`/api/paypal/${url}`, payload);
+    // Server processes a bounded batch per call (BATCH_SIZE on the server).
+    // We loop until done:true so bulk operations stay well under reverse-proxy
+    // timeouts. The per-row DB writes make this safe to resume if a batch fails.
+    const totals = { captured: 0, voided: 0, failed: 0, skipped: 0 };
+    const allErrors: string[] = [];
+    const payload = signup ? { id, authID: signup.authID } : { id };
+    const MAX_BATCHES = 50;
 
-      if (!signup && response.data.success) {
-        const { captured, voided, failed, skipped, errors } = response.data;
+    try {
+      for (let i = 0; i < MAX_BATCHES; i++) {
+        const response = await axios.post(`/api/paypal/${url}`, payload);
+        if (response.data.err) {
+          alert(`Error: ${response.data.err}`);
+          break;
+        }
+        totals.captured += response.data.captured || 0;
+        totals.voided += response.data.voided || 0;
+        totals.failed += response.data.failed || 0;
+        totals.skipped += response.data.skipped || 0;
+        if (response.data.errors) allErrors.push(...response.data.errors);
+        if (response.data.done || signup) break;
+      }
+
+      if (!signup) {
         let msg = `Operation complete:\n`;
-        if (captured) msg += `✓ Captured: ${captured}\n`;
-        if (voided) msg += `✓ Voided: ${voided}\n`;
-        if (failed) msg += `✗ Failed: ${failed}\n`;
-        if (skipped) msg += `- Skipped: ${skipped}\n`;
-        if (errors && errors.length > 0) {
-          msg += `\nErrors:\n${errors.slice(0, 5).join('\n')}`;
-          if (errors.length > 5) msg += `\n... and ${errors.length - 5} more`;
+        if (totals.captured) msg += `✓ Captured: ${totals.captured}\n`;
+        if (totals.voided) msg += `✓ Voided: ${totals.voided}\n`;
+        if (totals.failed) msg += `✗ Failed: ${totals.failed}\n`;
+        if (totals.skipped) msg += `- Skipped: ${totals.skipped}\n`;
+        if (allErrors.length > 0) {
+          msg += `\nErrors:\n${allErrors.slice(0, 5).join('\n')}`;
+          if (allErrors.length > 5)
+            msg += `\n... and ${allErrors.length - 5} more`;
         }
         alert(msg);
       }
 
-      fetchData(); // Refresh the table
+      fetchData();
     } catch (err) {
       console.error('Payment action error:', err);
       alert('Payment action failed. Check console for details.');
+      fetchData();
     }
   };
 

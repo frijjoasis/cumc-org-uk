@@ -5,3 +5,4 @@ export { signupService } from './signupService.js';
 export { britRockService } from './britRockService.js';
 export { committeeRoleService } from './committeeRoleService.js';
 export { committeeService } from './committeeService.js';
+export { paymentEventService } from './paymentEventService.js';
