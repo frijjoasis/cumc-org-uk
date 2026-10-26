@@ -11,7 +11,6 @@ import {
   CreditCard,
   XCircle,
   Edit3,
-  Car,
 } from 'lucide-react';
 import { CSVLink } from 'react-csv';
 
@@ -28,6 +27,7 @@ import {
   getPaymentState,
   type PaymentState,
 } from './paymentStatus';
+import { findAnswer, formatAnswer } from '@/lib/meetAnswers';
 
 interface BatchFailure {
   signupID: number;
@@ -188,14 +188,22 @@ const MeetView = () => {
     }
   };
 
-  const deleteSignup = async (signupId: number) => {
-    if (!window.confirm('Delete this signup? This cannot be undone.')) return;
+  const deleteSignup = async (signup: SignupData) => {
+    const releasesHold = canVoid(getPaymentState(signup));
+    const confirmMsg = releasesHold
+      ? `Delete this signup? Their payment hold will be released first. This cannot be undone.`
+      : 'Delete this signup? This cannot be undone.';
+    if (!window.confirm(confirmMsg)) return;
     try {
-      await axios.post(`/api/meets/deleteSignup`, { id: signupId });
-      fetchData();
+      const res = await axios.post(`/api/meets/deleteSignup`, {
+        id: signup.id,
+      });
+      if (res.data?.err) alert(`Error: ${res.data.err}`);
     } catch (err) {
       console.error(err);
+      alert('Delete failed. Refresh to see the latest status.');
     }
+    fetchData();
   };
 
   const getCSVData = () => {
@@ -214,16 +222,9 @@ const MeetView = () => {
         s.authID || '-',
       ];
 
-      const answers = (data.questions || []).map(q => {
-        const ans = s.answers?.find(
-          (a: { id: any; questionID: any }) =>
-            a.id === q.id || a.questionID === q.id
-        );
-        if (!ans) return '-';
-        if (ans.value === true || ans.value === 'true') return 'Yes';
-        if (ans.value === false || ans.value === 'false') return 'No';
-        return ans.value;
-      });
+      const answers = (data.questions || []).map(q =>
+        formatAnswer(q, findAnswer(s.answers, q)?.value)
+      );
 
       return [...basicInfo, ...answers];
     });
@@ -312,23 +313,11 @@ const MeetView = () => {
                     <td className="px-6 py-4">
                       <PaymentBadge state={getPaymentState(s)} />
                     </td>
-                    {questions.map(q => {
-                      const ans = s.answers?.find(
-                        (a: { id: any; questionID: any }) =>
-                          a.id === q.id || a.questionID === q.id
-                      );
-                      const displayValue =
-                        ans?.value === true || ans?.value === 'true'
-                          ? 'Yes'
-                          : ans?.value === false || ans?.value === 'false'
-                            ? 'No'
-                            : ans?.value || '-';
-                      return (
-                        <td key={q.id} className="px-6 py-4 text-zinc-600">
-                          {displayValue}
-                        </td>
-                      );
-                    })}
+                    {questions.map(q => (
+                      <td key={q.id} className="px-6 py-4 text-zinc-600">
+                        {formatAnswer(q, findAnswer(s.answers, q)?.value)}
+                      </td>
+                    ))}
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-1">
                         {canCapture(getPaymentState(s)) && (
@@ -365,7 +354,7 @@ const MeetView = () => {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-rose-600"
-                          onClick={() => deleteSignup(s.id)}
+                          onClick={() => deleteSignup(s)}
                           title="Delete signup"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -380,16 +369,7 @@ const MeetView = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Button
-          variant="outline"
-          className="gap-2 py-6 border-zinc-200"
-          asChild
-        >
-          <Link to={`/committee/meets/reimburse/${id}`}>
-            <Car className="h-4 w-4" /> Reimburse Drivers
-          </Link>
-        </Button>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Button
           variant="outline"
           className="gap-2 py-6 border-zinc-200 text-rose-600 hover:bg-rose-50"

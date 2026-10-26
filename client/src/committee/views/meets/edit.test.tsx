@@ -156,6 +156,74 @@ describe('EditMeet — edit', () => {
   });
 });
 
+describe('EditMeet — questions and details', () => {
+  it('does not send questions when updating details', async () => {
+    renderAt('/committee/meets/edit/7');
+    await userEvent.click(
+      await screen.findByRole('button', { name: /Update Details/i })
+    );
+
+    await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(axios.post).mock.calls[0][1]).not.toHaveProperty(
+      'questions'
+    );
+  });
+
+  it('keeps saved questions after the details are saved', async () => {
+    renderAt('/committee/meets/edit/7');
+    await userEvent.click(
+      await screen.findByRole('tab', { name: /Signup Questions/i })
+    );
+    await userEvent.click(
+      await screen.findByRole('button', { name: /Remove/i })
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: /Save Changes/i })
+    );
+    await waitFor(() =>
+      expect(axios.post).toHaveBeenCalledWith('/api/meets/edit/7/questions', {
+        questions: [],
+      })
+    );
+
+    // Like the server: questions sent with the details are stored,
+    // otherwise the ones saved above are kept.
+    vi.mocked(axios.post).mockImplementation(async (_url, body: any) => ({
+      data: { ...body, questions: body.questions ?? [] },
+    }));
+    await userEvent.click(screen.getByRole('tab', { name: /Logistics/i }));
+    await userEvent.click(
+      await screen.findByRole('button', { name: /Update Details/i })
+    );
+
+    expect(
+      await screen.findByText(/No questions defined/i)
+    ).toBeInTheDocument();
+  });
+
+  it('shows the saved questions when returning to the tab', async () => {
+    renderAt('/committee/meets/edit/7');
+    await userEvent.click(
+      await screen.findByRole('tab', { name: /Signup Questions/i })
+    );
+    await userEvent.click(
+      await screen.findByRole('button', { name: /Remove/i })
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: /Save Changes/i })
+    );
+    await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(1));
+
+    await userEvent.click(screen.getByRole('tab', { name: /Logistics/i }));
+    await userEvent.click(
+      screen.getByRole('tab', { name: /Signup Questions/i })
+    );
+    expect(
+      await screen.findByText(/No questions defined/i)
+    ).toBeInTheDocument();
+  });
+});
+
 describe('EditMeet — new', () => {
   it('shows a blank form without fetching anything', async () => {
     renderAt('/committee/meets/new');

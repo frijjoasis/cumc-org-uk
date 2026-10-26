@@ -131,6 +131,20 @@ describe('MeetForm — editing a signup', () => {
     expect(screen.getByLabelText('Dietary needs')).toHaveValue('Vegan');
   });
 
+  it('pre-fills old "on" checkbox answers only where the box must have been ticked', async () => {
+    meet.questions = [
+      { id: 1, title: 'Have a rope?', type: 'checkbox', required: true },
+      { id: 3, title: 'Have a rack?', type: 'checkbox', required: false },
+    ];
+    meet.mySignup.answers = [
+      { id: 1, value: 'on' },
+      { id: 3, value: 'on' },
+    ];
+    renderForm();
+    expect(await screen.findByLabelText(/Have a rope\?/)).toBeChecked();
+    expect(screen.getByLabelText(/Have a rack\?/)).not.toBeChecked();
+  });
+
   it('saves without asking for payment', async () => {
     renderForm();
     await submit(/Save Changes/i);

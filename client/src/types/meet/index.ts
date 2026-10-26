@@ -13,7 +13,8 @@ export interface MeetContent {
 }
 
 export interface Question {
-  id: number;
+  /** Older meets have numeric IDs; new questions get UUIDs. */
+  id: number | string;
   title: string;
   required?: boolean;
   text?: string;

@@ -23,6 +23,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
 import { User as UserModel } from '@cumc/shared-types';
+import { findAnswer, wasTicked } from '@/lib/meetAnswers';
 
 interface MeetFormProps {
   user: UserModel;
@@ -131,8 +132,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
   // Once signups close, a member may still renew their payment, but not edit.
   if (meet.disabled && !renewing) return <Navigate to="/404" replace />;
 
-  const previousAnswer = (id: unknown) =>
-    mySignup?.answers?.find((a: any) => a.id === id)?.value;
+  const previousAnswer = (q: any) => findAnswer(mySignup?.answers, q)?.value;
 
   return (
     <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
@@ -273,7 +273,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
                         <Checkbox
                           id={q.id}
                           required={q.required}
-                          defaultChecked={previousAnswer(q.id) === 'true'}
+                          defaultChecked={!!wasTicked(q, previousAnswer(q))}
                           className="h-5 w-5 mt-0.5 border-zinc-300 rounded-md transition-transform active:scale-90 data-[state=checked]:bg-zinc-900 data-[state=checked]:border-zinc-900"
                         />
                       </div>
@@ -292,7 +292,7 @@ const MeetForm = ({ user }: MeetFormProps) => {
                         <Input
                           id={q.id}
                           required={q.required}
-                          defaultValue={previousAnswer(q.id) ?? ''}
+                          defaultValue={(previousAnswer(q) as string) ?? ''}
                           placeholder={q.required ? 'Required' : 'Optional'}
                           className={`h-12 border-zinc-200 focus:ring-zinc-900 ${validated && q.required ? 'invalid:border-rose-500' : ''}`}
                         />

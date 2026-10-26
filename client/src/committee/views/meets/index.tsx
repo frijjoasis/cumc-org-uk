@@ -121,7 +121,7 @@ const MeetManager = () => {
                 {loading ? (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-6 py-12 text-center text-zinc-400"
                     >
                       Loading meets...
@@ -228,7 +228,7 @@ const MeetManager = () => {
                 ) : (
                   <tr>
                     <td
-                      colSpan={5}
+                      colSpan={6}
                       className="px-6 py-12 text-center text-zinc-400 italic"
                     >
                       No meets found in this section.

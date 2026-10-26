@@ -81,6 +81,10 @@ class SignupService {
     });
   }
 
+  async getById(id: number): Promise<SignupModel | null> {
+    return SignupModel.findByPk(id);
+  }
+
   async getForUser(
     meetID: number,
     userID: string

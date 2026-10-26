@@ -1,10 +1,26 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const meetService = vi.hoisted(() => ({ upsert: vi.fn() }));
+const signupService = vi.hoisted(() => ({
+  getById: vi.fn(),
+  delete: vi.fn(),
+  updatePayment: vi.fn(),
+}));
+const paypal = vi.hoisted(() => ({
+  voidAuthorization: vi.fn(),
+  getAuthorization: vi.fn(),
+  getOrderCaptureID: vi.fn(),
+}));
 
 vi.mock('../../services/index.js', () => ({
   meetService,
-  signupService: {},
+  signupService,
+}));
+vi.mock('../paypal/paypalClient.js', async importOriginal => ({
+  ...(await importOriginal<typeof import('../paypal/paypalClient.js')>()),
+  PayPalClient: vi.fn(function () {
+    return paypal;
+  }),
 }));
 vi.mock('../middleware.js', () => ({
   committeeAuth: vi.fn(),
@@ -14,7 +30,9 @@ vi.mock('../../logger.js', () => ({
   logger: { error: vi.fn(), warn: vi.fn(), info: vi.fn() },
 }));
 
-const { handleEditOrCreate, toPublicMeet } = await import('./meets.js');
+const { handleEditOrCreate, handleDeleteSignup, toPublicMeet } = await import(
+  './meets.js'
+);
 
 const meetBody = {
   title: 'Peak District',
@@ -158,5 +176,84 @@ describe('toPublicMeet', () => {
       needsPayment: false,
     });
     expect((toPublicMeet(meet, 'u3') as any).mySignup).toBeNull();
+  });
+});
+
+describe('handleDeleteSignup', () => {
+  const remove = async () => {
+    const res = fakeRes();
+    await handleDeleteSignup(
+      { body: { id: 3 }, user: { id: 'committee-1' } } as any,
+      res
+    );
+    return res.json.mock.calls[0][0];
+  };
+  const signup = (authID: string | null, captureID: string | null) => ({
+    id: 3,
+    userID: 'u1',
+    authID,
+    captureID,
+  });
+
+  it('releases a held payment before deleting', async () => {
+    signupService.getById.mockResolvedValue(signup('AUTH-1', null));
+    paypal.voidAuthorization.mockResolvedValue(true);
+
+    expect(await remove()).toBe(true);
+    expect(paypal.voidAuthorization).toHaveBeenCalledWith(
+      'AUTH-1',
+      expect.objectContaining({ signupID: 3, performedBy: 'committee-1' })
+    );
+    expect(signupService.delete).toHaveBeenCalledWith(3);
+  });
+
+  it('keeps the signup and records why if the hold cannot be released', async () => {
+    signupService.getById.mockResolvedValue(signup('AUTH-1', null));
+    paypal.voidAuthorization.mockResolvedValue({
+      err: 'x',
+      code: 'INVALID_RESOURCE_ID',
+    });
+
+    expect((await remove()).err).toMatch(/not deleted/);
+    expect(signupService.delete).not.toHaveBeenCalled();
+    expect(signupService.updatePayment).toHaveBeenCalledWith(
+      3,
+      'Void Failed: INVALID_RESOURCE_ID'
+    );
+  });
+
+  it('records the capture and keeps the signup if the money was already taken', async () => {
+    signupService.getById.mockResolvedValue(signup('AUTH-1', null));
+    paypal.voidAuthorization.mockResolvedValue({
+      err: 'x',
+      code: 'AUTHORIZATION_ALREADY_CAPTURED',
+    });
+    paypal.getAuthorization.mockResolvedValue({
+      status: 'CAPTURED',
+      orderID: 'ORDER-1',
+    });
+    paypal.getOrderCaptureID.mockResolvedValue('CAPTURE-1');
+
+    expect((await remove()).err).toBeDefined();
+    expect(signupService.updatePayment).toHaveBeenCalledWith(3, 'CAPTURE-1');
+    expect(signupService.delete).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['captured', 'AUTH-1', 'CAPTURE-1'],
+    ['free', null, 'Not Paying'],
+    ['voided', 'AUTH-1', 'Void'],
+    ['expired', 'AUTH-1', 'Expired'],
+  ])('deletes a %s signup without calling PayPal', async (_, a, c) => {
+    signupService.getById.mockResolvedValue(signup(a, c));
+    expect(await remove()).toBe(true);
+    expect(paypal.voidAuthorization).not.toHaveBeenCalled();
+    expect(signupService.delete).toHaveBeenCalledWith(3);
+  });
+
+  it('treats an already deleted signup as done', async () => {
+    signupService.getById.mockResolvedValue(null);
+    expect(await remove()).toBe(true);
+    expect(signupService.delete).not.toHaveBeenCalled();
   });
 });

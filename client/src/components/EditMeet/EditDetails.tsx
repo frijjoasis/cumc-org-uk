@@ -55,7 +55,11 @@ const EditDetails = ({ content, id, pathname, onSubmit }: EditDetailsProps) => {
 
     try {
       const endpoint = id ? `/api/meets/edit/${id}` : '/api/meets/new';
-      const response = await axios.post(endpoint, formData);
+      // Questions are saved from their own tab. Sending them with an update
+      // would overwrite any saved since this form loaded. A new meet (or a
+      // clone) still needs them.
+      const { questions, ...details } = formData;
+      const response = await axios.post(endpoint, id ? details : formData);
 
       if (response.data) {
         onSubmit(response.data);

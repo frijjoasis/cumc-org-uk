@@ -215,6 +215,9 @@ const EditMeet = () => {
                 id={newID}
                 pathname={location.pathname}
                 newID={newID}
+                onSaved={questions =>
+                  setContent(prev => ({ ...prev, questions }))
+                }
               />
             </TabsContent>
           </CardContent>

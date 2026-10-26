@@ -28,14 +28,24 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+// Answers are stored against question IDs, so an ID must never repeat within
+// a meet, even after a question is removed and another added.
+const newQuestionID = () => crypto.randomUUID();
+
 interface EditQuestionsProps {
   content: MeetContent;
   id?: string;
   newID?: string;
   pathname?: string;
+  onSaved?: (questions: Question[]) => void;
 }
 
-const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
+const EditQuestions = ({
+  content,
+  id,
+  newID,
+  onSaved,
+}: EditQuestionsProps) => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>(
@@ -64,6 +74,7 @@ const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
         questions,
       });
       setSaveStatus('success');
+      onSaved?.(questions);
       setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (err) {
       console.error('Failed to save questions:', err);
@@ -76,7 +87,7 @@ const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
   const applyTemplate = (category: keyof typeof defaults) => {
     const template = defaults[category].map(q => ({
       ...q,
-      id: Date.now() + Math.floor(Math.random() * 1000), // Ensure unique string IDs
+      id: newQuestionID(),
       type: (q as any).type ?? 'text',
     }));
     setQuestions([...questions, ...template]);
@@ -84,7 +95,7 @@ const EditQuestions = ({ content, id, newID }: EditQuestionsProps) => {
 
   const addQuestion = (type: 'text' | 'checkbox' = 'text') => {
     const newQ: Question = {
-      id: Date.now(),
+      id: newQuestionID(),
       title: '',
       help: '',
       text: '',

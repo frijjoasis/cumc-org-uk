@@ -22,10 +22,14 @@ class MeetService {
     ] as const;
   }
 
+  /** Meets that haven't finished yet, including ones under way today. */
   async getAllUpcoming(): Promise<MeetModel[]> {
+    // Dates are stored as midnight UTC, so compare against the start of today.
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
     return MeetModel.findAll({
       where: {
-        startDate: { [Op.gte]: new Date() },
+        endDate: { [Op.gte]: today },
         hidden: false,
       },
       attributes: {

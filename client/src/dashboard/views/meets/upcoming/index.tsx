@@ -100,11 +100,9 @@ const UpcomingMeets = ({ user }: { user: User }) => {
                         </Badge>
                       ) : (
                         <Badge className="bg-emerald-500 text-white uppercase text-[9px] font-black animate-pulse">
-                          Open (
                           {meet.maxSignups
-                            ? `${meet.maxSignups - signupCount} left`
+                            ? `Open (${meet.maxSignups - signupCount} left)`
                             : 'Open'}
-                          )
                         </Badge>
                       )}
                     </div>

@@ -2,9 +2,16 @@ import { Router, Request, Response } from 'express';
 import { meetService, signupService } from '../../services/index.js';
 import { logger } from '../../logger.js';
 import { committeeAuth, userAuth } from '../middleware.js';
-import { isFreeMeet, needsNewPayment } from '../paypal/committeePayments.js';
+import {
+  canVoidPayment,
+  isFreeMeet,
+  needsNewPayment,
+  voidSignup,
+} from '../paypal/committeePayments.js';
+import { PayPalClient } from '../paypal/paypalClient.js';
 
 const router: Router = Router();
+const paypalClient = new PayPalClient();
 
 router.get('/upcoming', async function (req: Request, res: Response) {
   try {
@@ -130,19 +137,40 @@ router.post(
   }
 );
 
-router.post(
-  '/deleteSignup',
-  committeeAuth,
-  async function (req: Request, res: Response) {
-    try {
-      await signupService.delete(req.body.id);
-      res.json(true);
-    } catch (err: any) {
-      logger.error('Database error: ', err);
-      res.json({ err: 'Database error: Please contact the webmaster' });
+/**
+ * Deleting a signup also deletes its authorization ID, after which nobody
+ * can release the member's held money. Void any hold first, and keep the
+ * signup (recording what PayPal said) if that fails.
+ */
+export async function handleDeleteSignup(req: Request, res: Response) {
+  try {
+    const signup = await signupService.getById(req.body.id);
+    if (!signup) return res.json(true);
+
+    if (canVoidPayment(signup)) {
+      const outcome = await voidSignup(paypalClient, signup.authID!, {
+        intent: 'register',
+        userID: signup.userID?.toString(),
+        performedBy: req.user!.id,
+        signupID: signup.id,
+      });
+      if (outcome.result === 'failed') {
+        await signupService.updatePayment(signup.id, outcome.store);
+        return res.json({
+          err: "Couldn't release this member's payment hold, so the signup was not deleted. See the Payment column for what PayPal said.",
+        });
+      }
     }
+
+    await signupService.delete(signup.id);
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
   }
-);
+}
+
+router.post('/deleteSignup', committeeAuth, handleDeleteSignup);
 
 router.post(
   '/historyOther',
