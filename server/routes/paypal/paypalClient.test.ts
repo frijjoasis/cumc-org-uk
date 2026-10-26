@@ -197,6 +197,26 @@ describe('lookups', () => {
     expect(await client.getOrderCaptureID('ORDER-9')).toBe('CAP-OK');
   });
 
+  it('getOrderCaptureID ignores declined capture attempts', async () => {
+    // Shape seen in production for an authorization whose captures failed
+    // with PAYER_CANNOT_PAY.
+    vi.mocked(axios.get).mockResolvedValue({
+      data: {
+        purchase_units: [
+          {
+            payments: {
+              captures: [
+                { id: '48K08956UC3281816', status: 'DECLINED' },
+                { id: '5XV91256P71645746', status: 'DECLINED' },
+              ],
+            },
+          },
+        ],
+      },
+    });
+    expect(await client.getOrderCaptureID('ORDER-9')).toBeNull();
+  });
+
   it('getOrderCaptureID returns null when nothing was captured', async () => {
     vi.mocked(axios.get).mockResolvedValue({
       data: { purchase_units: [{ payments: {} }] },

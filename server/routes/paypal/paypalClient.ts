@@ -351,10 +351,12 @@ export class PayPalClient {
         (unit: { payments?: { captures?: { id: string }[] } }) =>
           unit.payments?.captures ?? []
       );
+      // Failed capture attempts (e.g. PAYER_CANNOT_PAY) stay on the order as
+      // DECLINED captures, so only a completed or pending one counts.
       const live = captures.find(
         c => c.status === 'COMPLETED' || c.status === 'PENDING'
       );
-      return (live ?? captures[0])?.id ?? null;
+      return live?.id ?? null;
     } catch (err) {
       const info = this.logPayPalError('Get order', { orderID }, err);
       return { err: 'Could not look up order.', code: info.issue };
