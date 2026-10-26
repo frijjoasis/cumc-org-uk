@@ -20,6 +20,98 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertTitle } from '@/components/ui/alert';
 import { MeetContent, SignupData } from '@/types/meet';
+import {
+  canCapture,
+  canVoid,
+  describeIssue,
+  describeState,
+  getPaymentState,
+  type PaymentState,
+} from './paymentStatus';
+
+interface BatchFailure {
+  signupID: number;
+  name: string;
+  issue: string;
+}
+
+function summarise(
+  action: 'capture' | 'void',
+  totals: { done: number; recovered: number; failed: number; skipped: number },
+  failures: BatchFailure[],
+  notes: string[],
+  isBulk: boolean
+): string | null {
+  const lines: string[] = [];
+  if (isBulk) {
+    if (totals.done)
+      lines.push(`✓ ${action === 'capture' ? 'Captured' : 'Voided'}: ${totals.done}`);
+    if (totals.recovered)
+      lines.push(`✓ Already captured on PayPal (record fixed): ${totals.recovered}`);
+    if (totals.failed) lines.push(`✗ Failed: ${totals.failed}`);
+    if (totals.skipped) lines.push(`- Skipped: ${totals.skipped}`);
+  } else if (totals.recovered) {
+    lines.push(
+      'This payment had already been captured on PayPal. The record has been updated.'
+    );
+  }
+  if (failures.length > 0) {
+    lines.push('');
+    for (const f of failures.slice(0, 10)) {
+      const d = describeIssue(f.issue);
+      lines.push(`✗ ${f.name}: ${d.label}. ${d.action}`);
+    }
+    if (failures.length > 10)
+      lines.push(`... and ${failures.length - 10} more (see the Payment column)`);
+  }
+  if (notes.length > 0) lines.push('', 'Notes:', ...notes);
+
+  if (!isBulk) return lines.length > 0 ? lines.join('\n') : null;
+  return `Operation complete:\n${lines.length > 0 ? lines.join('\n') : 'Nothing to do.'}`;
+}
+
+const PaymentBadge = ({ state }: { state: PaymentState }) => {
+  switch (state.kind) {
+    case 'void':
+    case 'expired':
+      return (
+        <Badge className="bg-zinc-500 text-white border-none">
+          {describeState(state)}
+        </Badge>
+      );
+    case 'captureFailed':
+    case 'voidFailed': {
+      const issue = describeIssue(state.issue);
+      return (
+        <div className="space-y-1 max-w-56" title={issue.action}>
+          <Badge
+            className={`${state.kind === 'captureFailed' ? 'bg-rose-500' : 'bg-zinc-500'} text-white border-none`}
+          >
+            {state.kind === 'captureFailed' ? 'Capture Failed' : 'Void Failed'}
+          </Badge>
+          <div className="text-[11px] font-bold text-rose-700">{issue.label}</div>
+          <div className="text-[10px] leading-snug text-zinc-500">
+            {issue.action}
+          </div>
+        </div>
+      );
+    }
+    case 'free':
+      return (
+        <Badge className="bg-blue-500 text-white border-none">Free Entry</Badge>
+      );
+    case 'captured':
+      return (
+        <Badge className="bg-emerald-500 text-white border-none">Captured</Badge>
+      );
+    case 'authorized':
+      return (
+        <Badge className="bg-amber-500 text-white border-none">Authorized</Badge>
+      );
+    case 'unpaid':
+      return <Badge variant="secondary">Unpaid</Badge>;
+  }
+};
 
 const MeetView = () => {
   const { id } = useParams();
@@ -50,46 +142,48 @@ const MeetView = () => {
     if (!window.confirm(confirmMsg)) return;
 
     // Server processes a bounded batch per call (BATCH_SIZE on the server).
-    // We loop until done:true so bulk operations stay well under reverse-proxy
-    // timeouts. The per-row DB writes make this safe to resume if a batch fails.
-    const totals = { captured: 0, voided: 0, failed: 0, skipped: 0 };
-    const allErrors: string[] = [];
-    const payload = signup ? { id, authID: signup.authID } : { id };
+    // We loop until done:true, sending back the rows already attempted so a
+    // row that fails isn't retried by every batch. attemptID identifies this
+    // click to PayPal, so a new click is a genuinely new capture attempt.
+    const totals = { done: 0, recovered: 0, failed: 0, skipped: 0 };
+    const failures: BatchFailure[] = [];
+    const notes: string[] = [];
+    const excludeIDs: number[] = [];
+    const attemptID = crypto.randomUUID();
     const MAX_BATCHES = 50;
 
     try {
       for (let i = 0; i < MAX_BATCHES; i++) {
-        const response = await axios.post(`/api/paypal/${url}`, payload);
-        if (response.data.err) {
-          alert(`Error: ${response.data.err}`);
+        const response = await axios.post(`/api/paypal/${url}`, {
+          id,
+          authID: signup?.authID,
+          attemptID,
+          excludeIDs,
+        });
+        const data = response.data;
+        if (data.err) {
+          alert(`Error: ${data.err}`);
           break;
         }
-        totals.captured += response.data.captured || 0;
-        totals.voided += response.data.voided || 0;
-        totals.failed += response.data.failed || 0;
-        totals.skipped += response.data.skipped || 0;
-        if (response.data.errors) allErrors.push(...response.data.errors);
-        if (response.data.done || signup) break;
+        totals.done += (url === 'capture' ? data.captured : data.voided) || 0;
+        totals.recovered += data.recovered || 0;
+        totals.failed += data.failed || 0;
+        totals.skipped = data.skipped || 0;
+        failures.push(...(data.failures || []));
+        notes.push(...(data.notes || []));
+        excludeIDs.push(...(data.processedIDs || []));
+        if (data.done || signup) break;
       }
 
-      if (!signup) {
-        let msg = `Operation complete:\n`;
-        if (totals.captured) msg += `✓ Captured: ${totals.captured}\n`;
-        if (totals.voided) msg += `✓ Voided: ${totals.voided}\n`;
-        if (totals.failed) msg += `✗ Failed: ${totals.failed}\n`;
-        if (totals.skipped) msg += `- Skipped: ${totals.skipped}\n`;
-        if (allErrors.length > 0) {
-          msg += `\nErrors:\n${allErrors.slice(0, 5).join('\n')}`;
-          if (allErrors.length > 5)
-            msg += `\n... and ${allErrors.length - 5} more`;
-        }
-        alert(msg);
-      }
-
+      const msg = summarise(action, totals, failures, notes, !signup);
+      if (msg) alert(msg);
       fetchData();
     } catch (err) {
       console.error('Payment action error:', err);
-      alert('Payment action failed. Check console for details.');
+      alert(
+        'Payment action failed before the server replied. Some payments may ' +
+          'have gone through: refresh to see the latest status before retrying.'
+      );
       fetchData();
     }
   };
@@ -111,21 +205,12 @@ const MeetView = () => {
     const questionTitles = (data.questions || []).map(q => q.title);
 
     const rows = data.signups.map(s => {
-      const getPaymentStatus = () => {
-        if (s.captureID === 'Void' || s.captureID === 'Void Failed')
-          return s.captureID;
-        if (s.captureID === 'Capture Failed') return 'Capture Failed';
-        if (s.captureID === 'Not Paying') return 'Free Entry';
-        if (s.captureID) return 'Captured';
-        if (s.authID) return 'Authorized';
-        return 'Unpaid';
-      };
 
       const basicInfo = [
         `${s.user?.firstName} ${s.user?.lastName}`,
         s.user?.email,
         new Date(s.createdAt).toISOString(),
-        getPaymentStatus(),
+        describeState(getPaymentState(s)),
         s.authID || '-',
       ];
 
@@ -225,30 +310,7 @@ const MeetView = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {s.captureID === 'Void' ||
-                      s.captureID === 'Void Failed' ? (
-                        <Badge className="bg-zinc-500 text-white border-none">
-                          {s.captureID}
-                        </Badge>
-                      ) : s.captureID === 'Capture Failed' ? (
-                        <Badge className="bg-rose-500 text-white border-none">
-                          Capture Failed
-                        </Badge>
-                      ) : s.captureID === 'Not Paying' ? (
-                        <Badge className="bg-blue-500 text-white border-none">
-                          Free Entry
-                        </Badge>
-                      ) : s.captureID ? (
-                        <Badge className="bg-emerald-500 text-white border-none">
-                          Captured
-                        </Badge>
-                      ) : s.authID ? (
-                        <Badge className="bg-amber-500 text-white border-none">
-                          Authorized
-                        </Badge>
-                      ) : (
-                        <Badge variant="secondary">Unpaid</Badge>
-                      )}
+                      <PaymentBadge state={getPaymentState(s)} />
                     </td>
                     {questions.map(q => {
                       const ans = s.answers?.find(
@@ -269,41 +331,36 @@ const MeetView = () => {
                     })}
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-1">
-                        {s.authID &&
-                          (!s.captureID ||
-                            s.captureID === 'Capture Failed') && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-emerald-600"
-                              onClick={() => handlePaypalAction('capture', s)}
-                              title={
-                                s.captureID === 'Capture Failed'
-                                  ? 'Retry capture'
-                                  : 'Capture payment'
-                              }
-                            >
-                              <CreditCard className="h-4 w-4" />
-                            </Button>
-                          )}
-                        {s.authID &&
-                          (!s.captureID ||
-                            s.captureID === 'Void Failed' ||
-                            s.captureID === 'Capture Failed') && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-amber-600"
-                              onClick={() => handlePaypalAction('void', s)}
-                              title={
-                                s.captureID === 'Void Failed'
-                                  ? 'Retry void'
-                                  : 'Void payment'
-                              }
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </Button>
-                          )}
+                        {canCapture(getPaymentState(s)) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-emerald-600"
+                            onClick={() => handlePaypalAction('capture', s)}
+                            title={
+                              getPaymentState(s).kind === 'captureFailed'
+                                ? 'Retry capture'
+                                : 'Capture payment'
+                            }
+                          >
+                            <CreditCard className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {canVoid(getPaymentState(s)) && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-amber-600"
+                            onClick={() => handlePaypalAction('void', s)}
+                            title={
+                              getPaymentState(s).kind === 'voidFailed'
+                                ? 'Retry void'
+                                : 'Void payment'
+                            }
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon"

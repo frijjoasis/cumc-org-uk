@@ -212,8 +212,26 @@ describe('PayPalButtons — onApprove', () => {
       await paypalState.lastButtonsProps.onApprove({ orderID: 'X' }, {});
     });
 
-    expect(onError).toHaveBeenCalledWith('Price mismatch detected.');
-    expect(screen.getByText(/Transaction failed/i)).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith('Price mismatch detected.', undefined);
+    expect(screen.getByText(/Payment not completed/i)).toBeInTheDocument();
+  });
+
+  it('shows a declined message and passes the PayPal code when the bank declines', async () => {
+    vi.mocked(axios.post).mockResolvedValue({
+      data: { err: 'Your bank declined.', code: 'INSTRUMENT_DECLINED' },
+    });
+    const onError = vi.fn();
+    render(<PayPalButtons {...baseProps} onError={onError} />);
+
+    await act(async () => {
+      await paypalState.lastButtonsProps.onApprove({ orderID: 'X' }, {});
+    });
+
+    expect(onError).toHaveBeenCalledWith(
+      'Your bank declined.',
+      'INSTRUMENT_DECLINED'
+    );
+    expect(screen.getByText(/Payment declined/i)).toBeInTheDocument();
   });
 
   it('calls onError and shows error state when the request throws', async () => {
@@ -225,8 +243,11 @@ describe('PayPalButtons — onApprove', () => {
       await paypalState.lastButtonsProps.onApprove({ orderID: 'X' }, {});
     });
 
-    expect(onError).toHaveBeenCalledWith('Backend verification failed.');
-    expect(screen.getByText(/Transaction failed/i)).toBeInTheDocument();
+    expect(onError).toHaveBeenCalledWith(
+      expect.stringMatching(/couldn't confirm your payment/i)
+    );
+    // A dropped request may still have been charged: never invite a retry.
+    expect(screen.getByText(/don't pay again/i)).toBeInTheDocument();
   });
 });
 
@@ -239,7 +260,7 @@ describe('PayPalButtons — PayPal SDK onError', () => {
       paypalState.lastButtonsProps.onError(new Error('SDK bang'));
     });
 
-    expect(screen.getByText(/Transaction failed/i)).toBeInTheDocument();
+    expect(screen.getByText(/PayPal ran into a problem/i)).toBeInTheDocument();
     errSpy.mockRestore();
   });
 });

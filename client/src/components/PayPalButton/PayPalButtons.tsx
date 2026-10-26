@@ -14,8 +14,38 @@ interface PayPalButtonsProps {
   intent: 'membership' | 'register' | 'britrock';
   form?: unknown;
   onSuccess: () => void;
-  onError: (error: string) => void;
+  /** `code` is PayPal's issue code when PayPal declined, e.g. INSTRUMENT_DECLINED. */
+  onError: (error: string, code?: string) => void;
 }
+
+type ErrorKind = 'declined' | 'rejected' | 'unconfirmed' | 'paypal';
+
+// PayPal issue codes meaning the payer's bank or account said no.
+const DECLINE_CODES = new Set([
+  'INSTRUMENT_DECLINED',
+  'PAYER_CANNOT_PAY',
+  'PAYER_ACCOUNT_LOCKED_OR_CLOSED',
+  'TRANSACTION_REFUSED',
+]);
+
+const ERROR_MESSAGES: Record<ErrorKind, { title: string; body: string }> = {
+  declined: {
+    title: 'Payment declined',
+    body: 'Try again with a different card, or pay from your PayPal balance.',
+  },
+  rejected: {
+    title: 'Payment not completed',
+    body: 'See the message at the top of the page for why.',
+  },
+  unconfirmed: {
+    title: "We couldn't confirm your payment",
+    body: 'It may still have gone through, so please don\'t pay again. Refresh the page to check, or contact the webmaster.',
+  },
+  paypal: {
+    title: 'PayPal ran into a problem',
+    body: 'The payment was not completed. Please try again.',
+  },
+};
 
 const PayPalButtons = ({
   description,
@@ -30,6 +60,12 @@ const PayPalButtons = ({
   const [status, setStatus] = useState<
     'idle' | 'processing' | 'success' | 'error'
   >('idle');
+  const [errorKind, setErrorKind] = useState<ErrorKind>('rejected');
+
+  const fail = (kind: ErrorKind) => {
+    setErrorKind(kind);
+    setStatus('error');
+  };
 
   if (isRejected) {
     return (
@@ -82,7 +118,8 @@ const PayPalButtons = ({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            Transaction failed. Please check your balance and try again.
+            <strong>{ERROR_MESSAGES[errorKind].title}.</strong>{' '}
+            {ERROR_MESSAGES[errorKind].body}
           </AlertDescription>
         </Alert>
       )}
@@ -115,20 +152,25 @@ const PayPalButtons = ({
               form,
             });
             if (response.data.err) {
-              onError(response.data.err);
-              setStatus('error');
+              const { err, code } = response.data;
+              onError(err, code);
+              fail(DECLINE_CODES.has(code) ? 'declined' : 'rejected');
             } else {
               setStatus('success');
               setTimeout(() => onSuccess(), 2000);
             }
           } catch {
-            onError('Backend verification failed.');
-            setStatus('error');
+            // The request may have died after PayPal took the money, so don't
+            // invite a second payment.
+            onError(
+              "We couldn't confirm your payment with our server. Please don't pay again until you've checked."
+            );
+            fail('unconfirmed');
           }
         }}
         onError={err => {
           console.error('PayPal Script Error:', err);
-          setStatus('error');
+          fail('paypal');
         }}
       />
     </div>

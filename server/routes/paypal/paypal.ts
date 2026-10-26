@@ -6,39 +6,26 @@ import {
   signupService,
   meetService,
   britRockService,
-  paymentEventService,
 } from '../../services/index.js';
-import type { PaymentIntent } from '../../services/paymentEventService.js';
 import { logger } from '../../logger.js';
-import axios, { AxiosError } from 'axios';
+import { randomUUID } from 'node:crypto';
+import {
+  PayPalClient,
+  isError,
+  type PaymentContext,
+  type PaymentError,
+} from './paypalClient.js';
+import {
+  canCapturePayment,
+  canVoidPayment,
+  captureSignup,
+  isSettledForCapture,
+  PaymentStatus,
+  voidSignup,
+  type PaymentOutcome,
+} from './committeePayments.js';
 
 const router: Router = Router();
-
-// ============================================================================
-// Constants & Configuration
-// ============================================================================
-
-// Default to sandbox for safety: any environment that forgets to set
-// NODE_ENV=production fails loudly against sandbox instead of charging real cards.
-const isProduction = process.env.NODE_ENV === 'production';
-const PAYPAL_API_BASE = isProduction
-  ? 'https://api.paypal.com'
-  : 'https://api.sandbox.paypal.com';
-
-const PAYPAL_OAUTH_API = `${PAYPAL_API_BASE}/v1/oauth2/token/`;
-const PAYPAL_ORDER_API = `${PAYPAL_API_BASE}/v2/checkout/orders/`;
-const PAYPAL_AUTHORIZATION_API = `${PAYPAL_API_BASE}/v2/payments/authorizations/`;
-
-// ============================================================================
-// Types
-// ============================================================================
-
-interface PaymentError {
-  err: string;
-  missingFields?: string[];
-}
-
-type PaymentResult<T> = T | PaymentError;
 
 interface PaymentWorkflow {
   orderID: string;
@@ -54,358 +41,12 @@ interface SignupData {
   [key: string]: any;
 }
 
-/**
- * Context attached to every PayPal operation so we can emit a traceable
- * PaymentEvent row. `intent` is the business-level operation; the rest
- * identifies who/what the operation is for.
- */
-interface PaymentContext {
-  intent: PaymentIntent;
-  userID?: string;
-  performedBy?: string;
-  signupID?: number;
-}
-
-function extractPayPalErrorDetails(err: unknown): {
-  errorCode?: string;
-  errorMessage?: string;
-  debugId?: string;
-} {
-  if (axios.isAxiosError(err)) {
-    const data = (err.response?.data ?? {}) as {
-      name?: string;
-      message?: string;
-      debug_id?: string;
-    };
-    return {
-      errorCode: data.name,
-      errorMessage: data.message,
-      debugId: data.debug_id,
-    };
-  }
-  return {
-    errorMessage: err instanceof Error ? err.message : String(err),
-  };
-}
-
-// ============================================================================
-// PayPal Client
-// ============================================================================
-
-class PayPalClient {
-  private accessToken: string | null = null;
-  private tokenExpiresAt: number = 0;
-
-  private async refreshAccessToken(): Promise<void> {
-    const params = new URLSearchParams();
-    params.append('grant_type', 'client_credentials');
-
-    const response = await axios.post(PAYPAL_OAUTH_API, params, {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      auth: {
-        username: process.env.PAYPAL_ID || '',
-        password: process.env.PAYPAL_SECRET || '',
-      },
-    });
-
-    this.accessToken = response.data.access_token;
-    this.tokenExpiresAt = Date.now() + (response.data.expires_in - 300) * 1000;
-  }
-
-  private async ensureValidToken(): Promise<void> {
-    if (!this.accessToken || Date.now() >= this.tokenExpiresAt) {
-      await this.refreshAccessToken();
-    }
-  }
-
-  async verifyOrder(
-    orderID: string,
-    expectedPrice: string
-  ): Promise<PaymentResult<true>> {
-    try {
-      await this.ensureValidToken();
-      const { data } = await axios.get(`${PAYPAL_ORDER_API}${orderID}`, {
-        headers: { Authorization: `Bearer ${this.accessToken}` },
-      });
-
-      const actualPrice = parseFloat(data.purchase_units[0].amount.value);
-      const expected = parseFloat(expectedPrice);
-
-      if (Math.abs(actualPrice - expected) < 0.01) {
-        return true;
-      }
-      return { err: 'Price mismatch detected.' };
-    } catch (err) {
-      return { err: 'Payment verification failed.' };
-    }
-  }
-
-  async authorizeOrder(
-    orderID: string,
-    ctx?: PaymentContext
-  ): Promise<PaymentResult<string>> {
-    try {
-      await this.ensureValidToken();
-      const response = await axios.post(
-        `${PAYPAL_ORDER_API}${orderID}/authorize`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-            // Idempotency: PayPal guarantees the same orderID can only
-            // produce one successful authorization. A retry with the same
-            // key replays the prior response rather than double-authorising.
-            'PayPal-Request-Id': `authorize-${orderID}`,
-          },
-        }
-      );
-      const authID: string =
-        response.data.purchase_units[0].payments.authorizations[0].id;
-      if (ctx) {
-        await paymentEventService.record({
-          operation: 'authorize',
-          status: 'success',
-          intent: ctx.intent,
-          userID: ctx.userID,
-          performedBy: ctx.performedBy,
-          signupID: ctx.signupID,
-          paypalReference: authID,
-        });
-      }
-      return authID;
-    } catch (err) {
-      this.logPayPalError('Authorize order', { orderID }, err);
-      if (ctx) {
-        await paymentEventService.record({
-          operation: 'authorize',
-          status: 'failure',
-          intent: ctx.intent,
-          userID: ctx.userID,
-          performedBy: ctx.performedBy,
-          signupID: ctx.signupID,
-          paypalReference: orderID,
-          ...extractPayPalErrorDetails(err),
-        });
-      }
-      return {
-        err: 'An error occurred authorising payment. This may be due to the transaction being declined by your bank. Please contact the webmaster for more information',
-      };
-    }
-  }
-
-  async captureAuthorization(
-    authID: string,
-    price: string,
-    ctx?: PaymentContext
-  ): Promise<PaymentResult<string>> {
-    try {
-      await this.ensureValidToken();
-      const response = await axios.post(
-        `${PAYPAL_AUTHORIZATION_API}${authID}/capture`,
-        {
-          amount: {
-            value: price,
-            currency_code: 'GBP',
-          },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-            // Idempotency: a double-clicked Capture button or a retry after
-            // a 5xx replays the prior response rather than double-charging.
-            'PayPal-Request-Id': `capture-${authID}`,
-          },
-        }
-      );
-      const captureID: string = response.data.id;
-      if (ctx) {
-        await paymentEventService.record({
-          operation: 'capture',
-          status: 'success',
-          intent: ctx.intent,
-          userID: ctx.userID,
-          performedBy: ctx.performedBy,
-          signupID: ctx.signupID,
-          paypalReference: captureID,
-          amount: parseFloat(price),
-          metadata: { authID },
-        });
-      }
-      return captureID;
-    } catch (err) {
-      this.logPayPalError('Capture authorization', { authID }, err);
-      const details = extractPayPalErrorDetails(err);
-      if (ctx) {
-        await paymentEventService.record({
-          operation: 'capture',
-          status: 'failure',
-          intent: ctx.intent,
-          userID: ctx.userID,
-          performedBy: ctx.performedBy,
-          signupID: ctx.signupID,
-          paypalReference: authID,
-          amount: parseFloat(price),
-          ...details,
-        });
-      }
-
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status;
-        const errorName = err.response?.data?.name;
-
-        // Authorization already captured
-        if (status === 422 && errorName === 'AUTHORIZATION_ALREADY_CAPTURED') {
-          logger.warn(`Authorization ${authID} was already captured`);
-          return { err: 'This payment has already been captured.' };
-        }
-
-        // Authorization voided
-        if (status === 422 && errorName === 'AUTHORIZATION_VOIDED') {
-          logger.warn(`Authorization ${authID} was voided`);
-          return { err: 'Cannot capture a voided payment.' };
-        }
-
-        // Authorization expired
-        if (status === 422 && errorName === 'AUTHORIZATION_EXPIRED') {
-          logger.warn(`Authorization ${authID} has expired`);
-          return { err: 'Payment authorization has expired.' };
-        }
-      }
-
-      return {
-        err: 'An error occurred capturing payment. You may have been charged. Please contact the webmaster',
-      };
-    }
-  }
-
-  async voidAuthorization(
-    authID: string,
-    ctx?: PaymentContext
-  ): Promise<PaymentResult<true>> {
-    try {
-      await this.ensureValidToken();
-      await axios.post(
-        `${PAYPAL_AUTHORIZATION_API}${authID}/void`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-            // Idempotency: void-all retries, or committee re-clicking Void,
-            // produce the same response rather than attempting to void twice.
-            'PayPal-Request-Id': `void-${authID}`,
-          },
-        }
-      );
-      if (ctx) {
-        await paymentEventService.record({
-          operation: 'void',
-          status: 'success',
-          intent: ctx.intent,
-          userID: ctx.userID,
-          performedBy: ctx.performedBy,
-          signupID: ctx.signupID,
-          paypalReference: authID,
-        });
-      }
-      return true;
-    } catch (err) {
-      this.logPayPalError('Void authorization', { authID }, err);
-      const details = extractPayPalErrorDetails(err);
-      // Record the raw outcome. The branches below *interpret* some
-      // failures as success for the caller, but the audit log keeps the
-      // actual PayPal response so disputes can be reconstructed.
-      if (ctx) {
-        await paymentEventService.record({
-          operation: 'void',
-          status: 'failure',
-          intent: ctx.intent,
-          userID: ctx.userID,
-          performedBy: ctx.performedBy,
-          signupID: ctx.signupID,
-          paypalReference: authID,
-          ...details,
-        });
-      }
-
-      if (axios.isAxiosError(err)) {
-        const status = err.response?.status;
-        const errorName = err.response?.data?.name;
-
-        // Authorization not found (404) or already voided/captured (422)
-        if (status === 404) {
-          logger.warn(
-            `Authorization ${authID} not found - may already be voided`
-          );
-          return true;
-        }
-
-        if (status === 422 && errorName === 'AUTHORIZATION_VOIDED') {
-          logger.warn(`Authorization ${authID} already voided`);
-          return true;
-        }
-
-        if (status === 422 && errorName === 'AUTHORIZATION_ALREADY_CAPTURED') {
-          logger.error(`Cannot void ${authID} - already captured`);
-          return { err: 'Cannot void - payment already captured' };
-        }
-
-        if (status === 422 && errorName === 'AUTHORIZATION_EXPIRED') {
-          logger.warn(`Authorization ${authID} expired - treating as voided`);
-          return true; // Expired auth can't be captured, effectively voided
-        }
-      }
-
-      return {
-        err: 'An error occurred voiding payment. Please contact the webmaster',
-      };
-    }
-  }
-
-  // We deliberately log *every* PayPal failure — including ones that other
-  // branches then treat as success (e.g. void of an already-voided auth).
-  // Payment ops must stay traceable: better one noisy line than a silent miss.
-  // But we log a compact summary, NOT the raw axios error — the raw object
-  // drags in the TLS session, agent pool, and cached cert chain, which makes
-  // the logs unreadable and hides the actual signal.
-  private logPayPalError(
-    operation: string,
-    context: Record<string, string | undefined>,
-    err: unknown
-  ): void {
-    if (axios.isAxiosError(err)) {
-      const data = (err.response?.data ?? {}) as {
-        name?: string;
-        message?: string;
-        debug_id?: string;
-        details?: unknown;
-      };
-      logger.error(`PayPal ${operation} error`, {
-        ...context,
-        status: err.response?.status,
-        paypalName: data.name,
-        paypalMessage: data.message,
-        debugId: data.debug_id,
-        details: data.details,
-      });
-    } else {
-      logger.error(`PayPal ${operation} error (non-axios)`, {
-        ...context,
-        message: err instanceof Error ? err.message : String(err),
-      });
-    }
-  }
-}
-
-// Token is fetched lazily on first API call via ensureValidToken().
+// Token is fetched lazily on first API call.
 const paypalClient = new PayPalClient();
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
-
-function isError<T>(result: PaymentResult<T>): result is PaymentError {
-  return (result as PaymentError).err !== undefined;
-}
 
 async function executePaymentWorkflow(
   workflow: PaymentWorkflow
@@ -430,7 +71,9 @@ async function executePaymentWorkflow(
     const captureResult = await paypalClient.captureAuthorization(
       authResult,
       workflow.price,
-      workflow.ctx
+      workflow.ctx,
+      // The authorization was created just above, so it identifies the attempt.
+      `capture-${authResult}`
     );
     if (isError(captureResult)) {
       return captureResult;
@@ -470,7 +113,7 @@ async function handleMeetSignup(
     {
       ...signupData,
       authID,
-      captureID: authID ? undefined : 'Not Paying',
+      captureID: authID ? undefined : PaymentStatus.NOT_PAYING,
     },
     {
       id: userId.toString(),
@@ -519,7 +162,7 @@ async function checkMeetEligibility(
 async function isPaymentNeeded(
   userId: string,
   meet: any
-): Promise<PaymentResult<boolean>> {
+): Promise<boolean | PaymentError> {
   const member = await memberService.getById(userId);
   const isFree = !meet.price || parseFloat(meet.price.toString()) < 0.01;
 
@@ -544,34 +187,107 @@ async function isPaymentNeeded(
   return { err: 'You need to pay for membership to do that!' };
 }
 
-function canVoidPayment(signup: any): boolean {
-  if (!signup.authID) return false;
-
-  // Can void if no captureID, or if previous void/capture failed
-  return (
-    !signup.captureID ||
-    signup.captureID === 'Void Failed' ||
-    signup.captureID === 'Capture Failed'
-  );
-}
-
-function canCapturePayment(signup: any): boolean {
-  if (!signup.authID) return false;
-
-  // Can capture if not already captured/voided
-  return !signup.captureID || signup.captureID === 'Capture Failed';
-}
-
 // ============================================================================
 // Route Handlers
 // ============================================================================
 
 // Capture-all / void-all split work into batches so each HTTP call stays
-// well under reverse-proxy timeouts (Heroku's is 30s). The client loops
-// until `done: true` is returned. The per-row DB write done inside the
-// loop (captureID = 'Void' | 'Capture Failed' | real id) makes the whole
-// thing resumable for free — subsequent batches skip already-processed rows.
+// well under reverse-proxy timeouts. The client loops until `done: true`,
+// sending back the IDs it has already attempted (`excludeIDs`) so that rows
+// which failed earlier in the same click are not retried by every batch.
 const BATCH_SIZE = 10;
+
+interface BatchRequest {
+  /** One per committee click; part of the capture idempotency key. */
+  attemptID: string;
+  excludeIDs: Set<number>;
+  targetAuthID?: string;
+}
+
+function parseBatchRequest(body: any): BatchRequest {
+  const attemptID =
+    typeof body.attemptID === 'string' &&
+    /^[A-Za-z0-9-]{1,64}$/.test(body.attemptID)
+      ? body.attemptID
+      : randomUUID();
+  const excludeIDs = new Set<number>(
+    Array.isArray(body.excludeIDs)
+      ? body.excludeIDs.map(Number).filter(Number.isInteger)
+      : []
+  );
+  return { attemptID, excludeIDs, targetAuthID: body.authID };
+}
+
+async function runCommitteeBatch(
+  signups: any[],
+  batch: BatchRequest,
+  eligible: (signup: any) => boolean,
+  process: (signup: any) => Promise<PaymentOutcome>
+) {
+  const counts = { done: 0, recovered: 0, failed: 0 };
+  const failures: { signupID: number; name: string; issue: string }[] = [];
+  const notes: string[] = [];
+  const processedIDs: number[] = [];
+  let remaining = 0;
+
+  // Sequential to avoid overwhelming PayPal.
+  for (const signup of signups) {
+    if (
+      !eligible(signup) ||
+      (batch.targetAuthID && batch.targetAuthID !== signup.authID) ||
+      batch.excludeIDs.has(signup.id)
+    ) {
+      continue;
+    }
+    if (processedIDs.length >= BATCH_SIZE) {
+      remaining++;
+      continue;
+    }
+    processedIDs.push(signup.id);
+    const name = signup.user?.firstName ?? `Signup ${signup.id}`;
+
+    const outcome = await process(signup);
+    try {
+      await signupService.updatePayment(signup.id, outcome.store);
+    } catch (dbErr) {
+      // If money moved, the capture row is in PaymentEvents — recovery is
+      // possible by looking up this signupID in that table.
+      logger.error('CRITICAL: PayPal operation finished but Signup update failed', {
+        signupID: signup.id,
+        authID: signup.authID,
+        outcome,
+        error: dbErr instanceof Error ? dbErr.message : String(dbErr),
+      });
+      counts.failed++;
+      failures.push({
+        signupID: signup.id,
+        name,
+        issue: outcome.result === 'failed' ? outcome.issue : 'DB_WRITE_FAILED',
+      });
+      continue;
+    }
+
+    counts[outcome.result]++;
+    if (outcome.result === 'failed') {
+      failures.push({ signupID: signup.id, name, issue: outcome.issue });
+      logger.error(`Failed PayPal operation on ${signup.authID}: ${outcome.issue}`);
+    } else {
+      logger.info(`PayPal ${outcome.result} for ${signup.authID} → ${outcome.store}`);
+      if (outcome.result === 'done' && outcome.note) {
+        notes.push(`${name}: ${outcome.note}`);
+      }
+    }
+  }
+
+  return {
+    ...counts,
+    remaining,
+    done: remaining === 0,
+    processedIDs,
+    failures,
+    notes,
+  };
+}
 
 router.post('/membership', userAuth, async (req: Request, res: Response) => {
   try {
@@ -726,95 +442,32 @@ router.post('/capture', committeeAuth, async (req: Request, res: Response) => {
     if (!meet) return res.status(404).json({ err: 'Meet not found' });
 
     const signups = meet.signups || [];
-    const targetAuthID = req.body.authID;
     const price = meet.price?.toString() || '0';
+    const batch = parseBatchRequest(req.body);
 
-    let successCount = 0;
-    let failCount = 0;
-    let skippedCount = 0;
-    let remainingCount = 0;
-    const errors: string[] = [];
-
-    // Sequential to avoid overwhelming PayPal.
-    // Processes up to BATCH_SIZE eligible rows per request; the client
-    // keeps calling until `done: true` is returned.
-    for (const signup of signups) {
-      const shouldCapture =
-        canCapturePayment(signup) &&
-        (!targetAuthID || targetAuthID === signup.authID);
-
-      if (!shouldCapture) {
-        if (signup.captureID && signup.captureID !== 'Capture Failed') {
-          skippedCount++;
-        }
-        continue;
-      }
-
-      if (successCount + failCount >= BATCH_SIZE) {
-        remainingCount++;
-        continue;
-      }
-
-      {
-        const result = await paypalClient.captureAuthorization(
-          signup.authID!,
-          price,
-          {
+    const result = await runCommitteeBatch(
+      signups,
+      batch,
+      canCapturePayment,
+      signup =>
+        captureSignup(paypalClient, signup.authID, price, {
+          attemptID: batch.attemptID,
+          ctx: {
             intent: 'register',
             userID: signup.userID?.toString(),
             performedBy: req.user!.id,
             signupID: signup.id,
-          }
-        );
+          },
+        })
+    );
 
-        if (isError(result)) {
-          failCount++;
-          try {
-            await signupService.updatePayment(signup.id, 'Capture Failed');
-          } catch (dbErr) {
-            logger.error('DB write failed after capture failure', {
-              signupID: signup.id,
-              authID: signup.authID,
-              error: dbErr instanceof Error ? dbErr.message : String(dbErr),
-            });
-          }
-          errors.push(`${signup.user?.firstName}: ${result.err}`);
-          logger.error(`Failed to capture ${signup.authID}: ${result.err}`);
-        } else {
-          try {
-            await signupService.updatePayment(signup.id, result);
-            successCount++;
-            logger.info(`Successfully captured ${signup.authID} → ${result}`);
-          } catch (dbErr) {
-            // Money moved but we couldn't save the captureID to Signups.
-            // The capture row is in PaymentEvents — recovery is possible
-            // by looking up this signupID in that table.
-            failCount++;
-            errors.push(
-              `${signup.user?.firstName}: captured but failed to save (see logs; captureID ${result})`
-            );
-            logger.error(
-              'CRITICAL: capture succeeded but Signup update failed',
-              {
-                signupID: signup.id,
-                authID: signup.authID,
-                captureID: result,
-                error: dbErr instanceof Error ? dbErr.message : String(dbErr),
-              }
-            );
-          }
-        }
-      }
-    }
-
+    const { done: captured, ...rest } = result;
     res.json({
       success: true,
-      captured: successCount,
-      failed: failCount,
-      skipped: skippedCount,
-      remaining: remainingCount,
-      done: remainingCount === 0,
-      errors: errors.length > 0 ? errors : undefined,
+      captured,
+      skipped: signups.filter(isSettledForCapture).length,
+      ...rest,
+      done: result.remaining === 0,
     });
   } catch (err) {
     logger.error('Capture payments error:', err);
@@ -830,79 +483,30 @@ router.post('/void', committeeAuth, async (req: Request, res: Response) => {
     }
 
     const signups = (meet as any).signups || [];
-    const targetAuthID = req.body.authID;
+    const batch = parseBatchRequest(req.body);
 
-    let successCount = 0;
-    let failCount = 0;
-    let skippedCount = 0;
-    let remainingCount = 0;
-    const errors: string[] = [];
+    const result = await runCommitteeBatch(
+      signups,
+      batch,
+      canVoidPayment,
+      signup =>
+        voidSignup(paypalClient, signup.authID, {
+          intent: 'register',
+          userID: signup.userID?.toString(),
+          performedBy: req.user!.id,
+          signupID: signup.id,
+        })
+    );
 
-    for (const signup of signups) {
-      const shouldVoid =
-        canVoidPayment(signup) &&
-        (!targetAuthID || targetAuthID === signup.authID);
-
-      if (!shouldVoid) {
-        if (signup.captureID === 'Void') skippedCount++;
-        continue;
-      }
-
-      if (successCount + failCount >= BATCH_SIZE) {
-        remainingCount++;
-        continue;
-      }
-
-      const result = await paypalClient.voidAuthorization(signup.authID!, {
-        intent: 'register',
-        userID: signup.userID?.toString(),
-        performedBy: req.user!.id,
-        signupID: signup.id,
-      });
-
-      if (isError(result)) {
-        failCount++;
-        try {
-          await signupService.updatePayment(signup.id, 'Void Failed');
-        } catch (dbErr) {
-          logger.error('DB write failed after void failure', {
-            signupID: signup.id,
-            authID: signup.authID,
-            error: dbErr instanceof Error ? dbErr.message : String(dbErr),
-          });
-        }
-        errors.push(`${signup.user?.firstName}: ${result.err}`);
-        logger.error(`Failed to void ${signup.authID}: ${result.err}`);
-      } else {
-        try {
-          await signupService.updatePayment(signup.id, 'Void');
-          successCount++;
-          logger.info(`Successfully voided ${signup.authID}`);
-        } catch (dbErr) {
-          failCount++;
-          errors.push(
-            `${signup.user?.firstName}: voided at PayPal but DB mark failed (see logs)`
-          );
-          logger.error(
-            'CRITICAL: void succeeded at PayPal but Signup update failed',
-            {
-              signupID: signup.id,
-              authID: signup.authID,
-              error: dbErr instanceof Error ? dbErr.message : String(dbErr),
-            }
-          );
-        }
-      }
-    }
-
+    const { done: voided, ...rest } = result;
     res.json({
       success: true,
-      voided: successCount,
-      failed: failCount,
-      skipped: skippedCount,
-      remaining: remainingCount,
-      done: remainingCount === 0,
-      errors: errors.length > 0 ? errors : undefined,
+      voided,
+      skipped: signups.filter(
+        (s: any) => s.captureID === PaymentStatus.VOID
+      ).length,
+      ...rest,
+      done: result.remaining === 0,
     });
   } catch (err: any) {
     logger.error('Void payments error:', err);
