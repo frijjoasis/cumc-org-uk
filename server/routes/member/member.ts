@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { memberService } from '../../services/index.js';
 import { logger } from '../../logger.js';
-import { userAuth, rootAuth } from '../middleware.js';
+import { userAuth, committeeAuth, rootAuth } from '../middleware.js';
 
 const router: Router = Router();
 
@@ -44,6 +44,52 @@ router.get('/reset', rootAuth, async function (req: Request, res: Response) {
       .json({ err: 'Database error: Please contact the webmaster' });
   }
 });
+
+export async function handleListWaivers(req: Request, res: Response) {
+  try {
+    const users = await memberService.listUsedWaivers();
+    res.json(users);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res
+      .status(500)
+      .json({ err: 'Database error: Please contact the webmaster' });
+  }
+}
+
+router.get('/waivers', committeeAuth, handleListWaivers);
+
+export async function handleResetWaiver(req: Request, res: Response) {
+  const id = String(req.body?.id ?? '');
+  if (!/^\d+$/.test(id)) {
+    return res.status(400).json({ err: 'Invalid member ID' });
+  }
+
+  try {
+    const member = await memberService.getById(id);
+    if (member?.hasPaid) {
+      return res
+        .status(400)
+        .json({ err: 'Paid members do not need a meet waiver' });
+    }
+    if (!member || member.hasFree) {
+      return res
+        .status(400)
+        .json({ err: 'This user has not used their meet waiver' });
+    }
+
+    await memberService.resetWaiver(id);
+    logger.info('Meet waiver reset', { memberID: id, performedBy: req.user!.id });
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res
+      .status(500)
+      .json({ err: 'Database error: Please contact the webmaster' });
+  }
+}
+
+router.post('/waivers/reset', committeeAuth, handleResetWaiver);
 
 router.post('/update', rootAuth, async function (req: Request, res: Response) {
   try {

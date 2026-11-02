@@ -7,6 +7,7 @@ import RolesManager from './views/roles';
 
 import Members from './views/members';
 import ViewMember from './views/members/view';
+import Waivers from './views/waivers';
 
 import MeetManager from './views/meets/';
 import EditMeet from './views/meets/edit';
@@ -83,6 +84,13 @@ const routes: RouteConfig[] = [
     name: 'Member Details',
     hide: true,
     Component: ViewMember,
+    layout: '/committee',
+  },
+  {
+    path: '/waivers',
+    name: 'Meet Waivers',
+    icon: 'pe-7s-ticket',
+    Component: Waivers,
     layout: '/committee',
   },
   {

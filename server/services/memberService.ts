@@ -93,6 +93,31 @@ class MemberService {
     return affectedCount;
   }
 
+  // Users with no meet waiver left: non-members who used it, plus paid
+  // members (who never need one) so committee can still find them
+  async listUsedWaivers(): Promise<UserModel[]> {
+    return UserModel.findAll({
+      attributes: ['id', 'firstName', 'lastName', 'displayName', 'email', 'college'],
+      include: [{
+        model: MemberModel,
+        as: 'member',
+        attributes: ['hasPaid'],
+        where: { [Op.or]: [{ hasFree: false }, { hasPaid: true }] },
+      }],
+      order: [['displayName', 'ASC']],
+    });
+  }
+
+  // Never touches paid members, so a waiver can't be banked for after a
+  // membership reset
+  async resetWaiver(id: string): Promise<number> {
+    const [affectedCount] = await MemberModel.update(
+      { hasFree: true },
+      { where: { id, hasPaid: false } }
+    );
+    return affectedCount;
+  }
+
   async upsert(data: {
     id: string;
     hasPaid?: boolean;
