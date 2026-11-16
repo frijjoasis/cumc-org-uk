@@ -50,7 +50,7 @@ const EMPTY_FORM: EventForm = {
   description: '',
   location: '',
   startsAt: '',
-  price: '',
+  price: '12.00',
   capacity: '',
   memberMeetID: '',
   refundNote: '',

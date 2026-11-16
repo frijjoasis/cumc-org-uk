@@ -80,6 +80,13 @@ describe('BritRock committee page — no event yet', () => {
     expect(screen.queryByText('Guest Tickets')).toBeNull();
   });
 
+  it('starts the guest price at £12', async () => {
+    render(<BritRockManager />);
+    expect(
+      ((await screen.findByLabelText(/guest price/i)) as HTMLInputElement).value
+    ).toBe('12.00');
+  });
+
   it('creates the event as entered', async () => {
     render(<BritRockManager />);
     await screen.findByText('New BritRock Event');
@@ -87,6 +94,7 @@ describe('BritRock committee page — no event yet', () => {
     await userEvent.type(screen.getByLabelText('Title'), 'Brit Rock 2027');
     await userEvent.type(screen.getByLabelText('Location'), 'Divinity School');
     await userEvent.type(screen.getByLabelText(/date & time/i), '2027-11-16T19:30');
+    await userEvent.clear(screen.getByLabelText(/guest price/i));
     await userEvent.type(screen.getByLabelText(/guest price/i), '13');
     await userEvent.selectOptions(screen.getByLabelText(/member signup meet/i), '352');
     await userEvent.click(screen.getByRole('button', { name: /create event/i }));
