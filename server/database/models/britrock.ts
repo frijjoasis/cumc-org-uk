@@ -8,6 +8,10 @@ import {
   CreationOptional,
 } from 'sequelize';
 
+/**
+ * A guest ticket for a BritRock event. Tickets sold before events were
+ * configurable (up to 2025) are left in the old "BritRock" table.
+ */
 class BritRockModel
   extends Model<
     InferAttributes<BritRockModel>,
@@ -16,9 +20,11 @@ class BritRockModel
   implements BritRock
 {
   declare id: CreationOptional<number>;
+  declare eventID: number;
   declare name: string;
   declare email: string;
   declare ticket: string;
+  declare captureID: string | null;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -33,6 +39,10 @@ function define(sequelize: Sequelize): typeof BritRockModel {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
+      eventID: {
+        allowNull: false,
+        type: DataTypes.INTEGER,
+      },
       name: {
         allowNull: false,
         type: DataTypes.STRING,
@@ -45,14 +55,16 @@ function define(sequelize: Sequelize): typeof BritRockModel {
         allowNull: false,
         type: DataTypes.STRING,
       },
+      captureID: DataTypes.STRING,
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
     },
     {
       sequelize,
-      tableName: 'BritRock',
+      tableName: 'BritRockTickets',
       modelName: 'britrock',
       timestamps: true,
+      indexes: [{ unique: true, fields: ['eventID', 'ticket'] }],
     }
   );
 

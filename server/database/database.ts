@@ -9,6 +9,7 @@ import * as MemberModule from './models/member.js';
 import * as MeetModule from './models/meet.js';
 import * as SignupModule from './models/signup.js';
 import * as BritRockModule from './models/britrock.js';
+import * as BritRockEventModule from './models/britrockEvent.js';
 import * as CommitteeModule from './models/committee.js';
 import * as CommitteeRoleModule from './models/committeeRole.js';
 import * as PaymentEventModule from './models/paymentEvent.js';
@@ -42,6 +43,7 @@ const modules: ModelModule[] = [
   MeetModule,
   SignupModule,
   BritRockModule,
+  BritRockEventModule,
   CommitteeModule,
   CommitteeRoleModule,
   PaymentEventModule,
