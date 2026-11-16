@@ -218,7 +218,7 @@ const Register = ({ user }: { user: User }) => {
                 </div>
 
                 {/* Address */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                   <div className="md:col-span-1 space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
                       Address
@@ -226,6 +226,17 @@ const Register = ({ user }: { user: User }) => {
                     <Input
                       name="address1"
                       defaultValue={form.address1}
+                      required
+                      className="h-12"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">
+                      Town / City
+                    </Label>
+                    <Input
+                      name="city"
+                      defaultValue={form.city}
                       required
                       className="h-12"
                     />

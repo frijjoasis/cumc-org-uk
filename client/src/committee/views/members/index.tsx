@@ -8,7 +8,9 @@ import {
   XCircle,
   ExternalLink,
   Users,
+  Download,
 } from 'lucide-react';
+import { CSVLink } from 'react-csv';
 
 import {
   Card,
@@ -19,7 +21,9 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { UserWithProfile } from '@cumc/shared-types';
+import { paidMemberRows } from '@/lib/memberExport';
 
 const Members = () => {
   const [members, setMembers] = useState<UserWithProfile[]>([]);
@@ -56,19 +60,35 @@ const Members = () => {
     <div className="p-6 space-y-6">
       <Card className="border-zinc-200 shadow-sm">
         <CardHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Users className="h-5 w-5 text-primary" />
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-black tracking-tight uppercase italic">
+                  Member Directory
+                </CardTitle>
+                <CardDescription className="text-zinc-500 font-medium">
+                  Manage and view all registered users. Use the search to filter
+                  by name, college, or membership status.
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-2xl font-black tracking-tight uppercase italic">
-                Member Directory
-              </CardTitle>
-              <CardDescription className="text-zinc-500 font-medium">
-                Manage and view all registered users. Use the search to filter
-                by name, college, or membership status.
-              </CardDescription>
-            </div>
+            {/* Always every paid member, regardless of the search filter */}
+            <CSVLink
+              data={paidMemberRows(members)}
+              filename={`paid-members-${new Date().toISOString().slice(0, 10)}.csv`}
+              className="no-underline"
+            >
+              <Button
+                variant="outline"
+                className="gap-2 border-zinc-300"
+                disabled={loading}
+              >
+                <Download className="h-4 w-4" /> Export Paid Members
+              </Button>
+            </CSVLink>
           </div>
         </CardHeader>
 
