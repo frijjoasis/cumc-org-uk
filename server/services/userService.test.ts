@@ -18,6 +18,7 @@ vi.mock('../database/database.js', () => {
       college: { allowNull: true },
       address1: { allowNull: true },
       postCode: { allowNull: true },
+      city: { allowNull: true },
       country: { allowNull: true },
       id: { allowNull: false },
     }),
@@ -25,7 +26,7 @@ vi.mock('../database/database.js', () => {
   const mockMemberModel = {};
   const required = [
     'firstName', 'lastName', 'dob', 'phone', 'emergencyName', 'emergencyPhone',
-    'address1', 'postCode', 'country', 'college',
+    'address1', 'postCode', 'city', 'country', 'college',
   ] as const;
   return { UserModel: mockUserModel, MemberModel: mockMemberModel, required };
 });
@@ -45,6 +46,7 @@ const makeUser = (overrides: Record<string, string | null> = {}) => {
     college: 'Queens',
     address1: '1 Test St',
     postCode: 'CB1 1AA',
+    city: 'Cambridge',
     country: 'UK',
   };
   const data = { ...defaults, ...overrides };
@@ -81,6 +83,11 @@ describe('userService.isProfileIncomplete', () => {
 
   it('returns true when postCode is missing', async () => {
     vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({ postCode: '' }) as any);
+    expect(await userService.isProfileIncomplete('123')).toBe(true);
+  });
+
+  it('returns true when city is missing', async () => {
+    vi.mocked(UserModel.findByPk).mockResolvedValue(makeUser({ city: '' }) as any);
     expect(await userService.isProfileIncomplete('123')).toBe(true);
   });
 

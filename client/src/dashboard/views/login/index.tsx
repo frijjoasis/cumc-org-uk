@@ -38,6 +38,7 @@ const FIELD_LABELS: Record<string, string> = {
   emergencyPhone: 'Emergency contact phone',
   address1: 'Address',
   postCode: 'Post code',
+  city: 'Town / City',
   country: 'Country',
   college: 'College / Dept',
 };

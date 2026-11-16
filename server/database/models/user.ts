@@ -133,6 +133,7 @@ const required = [
   'emergencyPhone',
   'address1',
   'postCode',
+  'city',
   'country',
   'college',
 ] as const;
