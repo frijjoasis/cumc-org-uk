@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import type { UserWithProfile } from '@cumc/shared-types';
-import { membershipType, paidMemberRows, PAID_MEMBER_HEADERS } from './memberExport';
+import {
+  formatDob,
+  membershipType,
+  paidMemberRows,
+  PAID_MEMBER_HEADERS,
+} from './memberExport';
 
 const user = (overrides: Partial<UserWithProfile>): UserWithProfile =>
   ({
@@ -9,6 +14,8 @@ const user = (overrides: Partial<UserWithProfile>): UserWithProfile =>
     displayName: 'A',
     firstName: 'Alex',
     lastName: 'Honnold',
+    phone: '07700 900123',
+    dob: '2001-05-30',
     address1: '1 Trinity Street',
     city: 'Cambridge',
     postCode: 'CB2 1TQ',
@@ -56,6 +63,8 @@ describe('paidMemberRows', () => {
       'Alex',
       'Honnold',
       'a@cam.ac.uk',
+      '07700 900123',
+      '30/05/2001',
       '1 Trinity Street',
       'Cambridge',
       'CB2 1TQ',
@@ -65,9 +74,16 @@ describe('paidMemberRows', () => {
 
   it('leaves missing fields blank', () => {
     const [, row] = paidMemberRows([
-      user({ firstName: null, address1: null, city: null, postCode: null }),
+      user({
+        firstName: null,
+        phone: null,
+        dob: null,
+        address1: null,
+        city: null,
+        postCode: null,
+      }),
     ]);
-    expect(row).toEqual(['', 'Honnold', 'a@cam.ac.uk', '', '', '', 'Student']);
+    expect(row).toEqual(['', 'Honnold', 'a@cam.ac.uk', '', '', '', '', '', 'Student']);
   });
 
   it('sorts by surname then forename', () => {
@@ -81,5 +97,17 @@ describe('paidMemberRows', () => {
       'Ann Smith',
       'Bea Smith',
     ]);
+  });
+});
+
+describe('formatDob', () => {
+  it.each([
+    ['2001-05-30', '30/05/2001'],
+    ['30/05/2001', '30/05/2001'],
+    ['', ''],
+    [null, ''],
+    [undefined, ''],
+  ])('%o → %o', (dob, expected) => {
+    expect(formatDob(dob)).toBe(expected);
   });
 });
