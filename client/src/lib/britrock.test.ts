@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   formatPrice,
   formatShowtime,
+  linkableMeets,
+  memberMeetFor,
   newTicketCode,
   showBritRockInSidebar,
   toLocalInput,
@@ -56,5 +58,63 @@ describe('showBritRockInSidebar', () => {
     [{ status: 'draft', showInSidebar: true }, false],
   ] as const)('%o → %s', (event, expected) => {
     expect(showBritRockInSidebar(event)).toBe(expected);
+  });
+});
+
+describe('linkableMeets', () => {
+  const meet = (id: number, startDate: string, endDate = startDate, hidden = false) => ({
+    id,
+    title: `Meet ${id}`,
+    startDate: `${startDate}T00:00:00.000Z`,
+    endDate: `${endDate}T00:00:00.000Z`,
+    hidden,
+  });
+  const now = new Date('2026-11-16T15:00:00Z');
+
+  it('keeps meets that have not ended, hidden ones included, soonest first', () => {
+    const result = linkableMeets(
+      [
+        meet(3, '2026-12-01'),
+        meet(1, '2026-11-01'),
+        meet(2, '2026-11-17', '2026-11-17', true),
+        meet(4, '2026-11-16'),
+      ],
+      now
+    );
+    expect(result.map(m => m.id)).toEqual([4, 2, 3]);
+  });
+
+  it('keeps a multi-day meet that is still running', () => {
+    expect(linkableMeets([meet(5, '2026-11-14', '2026-11-18')], now)).toHaveLength(1);
+  });
+});
+
+describe('memberMeetFor', () => {
+  it('makes a members-only meet on the screening day', () => {
+    expect(
+      memberMeetFor(
+        {
+          description: 'Three films.',
+          location: 'Divinity School',
+          startsAt: '2026-11-17T19:30',
+        },
+        'Brit Rock (members)',
+        8
+      )
+    ).toEqual({
+      title: 'Brit Rock (members)',
+      subtitle: 'Member tickets',
+      desc: 'Three films.',
+      location: 'Divinity School',
+      startDate: '2026-11-17',
+      endDate: '2026-11-17',
+      type: 'Social',
+      signupControl: 'Members',
+      disabled: false,
+      hidden: false,
+      questions: [],
+      price: 8,
+      maxSignups: null,
+    });
   });
 });

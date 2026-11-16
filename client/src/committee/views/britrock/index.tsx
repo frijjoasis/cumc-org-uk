@@ -9,6 +9,8 @@ import {
   ExternalLink,
   CalendarPlus,
   TriangleAlert,
+  Users,
+  Plus,
   CheckCircle2,
 } from 'lucide-react';
 
@@ -27,12 +29,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { BritRock, BritRockEvent, BritRockStatus } from '@cumc/shared-types';
-import { formatPrice, toLocalInput } from '@/lib/britrock';
-
-interface UpcomingMeet {
-  id: number;
-  title: string;
-}
+import {
+  formatPrice,
+  linkableMeets,
+  memberMeetFor,
+  toLocalInput,
+  type LinkableMeet,
+} from '@/lib/britrock';
 
 type EventForm = Record<
   | 'title'
@@ -92,7 +95,12 @@ const selectClass =
 const BritRockManager = () => {
   const [event, setEvent] = useState<BritRockEvent | null>(null);
   const [tickets, setTickets] = useState<BritRock[]>([]);
-  const [meets, setMeets] = useState<UpcomingMeet[]>([]);
+  const [meets, setMeets] = useState<LinkableMeet[]>([]);
+  // The inline "create members' meet" panel
+  const [newMeet, setNewMeet] = useState<{ title: string; price: string } | null>(
+    null
+  );
+  const [creatingMeet, setCreatingMeet] = useState(false);
   const [form, setForm] = useState<EventForm>(EMPTY_FORM);
   // True while setting up a new event rather than editing the current one
   const [creating, setCreating] = useState(false);
@@ -119,8 +127,8 @@ const BritRockManager = () => {
   useEffect(() => {
     load();
     axios
-      .get('/api/meets/upcoming')
-      .then(res => setMeets(res.data))
+      .get('/api/meets/all')
+      .then(res => setMeets(linkableMeets(res.data)))
       .catch(() => setMeets([]));
   }, []);
 
@@ -176,6 +184,46 @@ const BritRockManager = () => {
     setForm(toForm(event!));
     setCreating(false);
   };
+
+  const openNewMeet = () =>
+    setNewMeet({
+      title: `${form.title.trim() || 'Brit Rock'} (members)`,
+      price: '',
+    });
+
+  const handleCreateMeet = async () => {
+    if (!newMeet) return;
+    setCreatingMeet(true);
+    try {
+      const res = await axios.post(
+        '/api/meets/new',
+        memberMeetFor(form, newMeet.title.trim(), Number(newMeet.price))
+      );
+      if (res.data?.err) throw new Error(res.data.err);
+      const meet: LinkableMeet = res.data;
+      setMeets(prev => linkableMeets([...prev, meet]));
+      setForm(prev => ({ ...prev, memberMeetID: meet.id.toString() }));
+      setNewMeet(null);
+      setStatus({
+        err: null,
+        success: `Created "${meet.title}" and picked it as the members' meet. Save the event to link it.`,
+      });
+    } catch (err: any) {
+      setStatus({
+        err:
+          err.response?.data?.err ||
+          err.message ||
+          "Failed to create the members' meet.",
+        success: null,
+      });
+    } finally {
+      setCreatingMeet(false);
+    }
+  };
+
+  const canCreateMeet = !!form.startsAt && !!form.location.trim();
+  const newMeetReady =
+    !!newMeet && !!newMeet.title.trim() && Number(newMeet.price) > 0;
 
   const searchStr = filter.trim().toLowerCase();
   const filteredTickets = tickets.filter(
@@ -348,7 +396,7 @@ const BritRockManager = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="price" className={fieldLabel}>
                   Guest price (£)
@@ -379,10 +427,24 @@ const BritRockManager = () => {
                   onChange={handleChange}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="memberMeetID" className={fieldLabel}>
-                  Member signup meet
-                </Label>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-zinc-200 p-4">
+              <div className="flex items-start gap-3">
+                <Users className="h-5 w-5 text-zinc-400 mt-0.5 shrink-0" />
+                <div>
+                  <Label htmlFor="memberMeetID" className={fieldLabel}>
+                    Members' meet
+                  </Label>
+                  <p className="text-sm text-zinc-500 mt-1">
+                    Members don't buy guest tickets. They sign up, at the member
+                    price, through a members-only meet. Create one here or in
+                    Meets, then pick it so the Brit Rock page links to it.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col md:flex-row gap-2">
                 <select
                   id="memberMeetID"
                   name="memberMeetID"
@@ -390,8 +452,8 @@ const BritRockManager = () => {
                   value={form.memberMeetID}
                   onChange={handleChange}
                 >
-                  <option value="">None</option>
-                  {/* Keep a saved meet selectable once it's no longer upcoming */}
+                  <option value="">None - members only see the guest price</option>
+                  {/* Keep a saved meet selectable once it's over */}
                   {form.memberMeetID &&
                     !meets.some(m => m.id.toString() === form.memberMeetID) && (
                       <option value={form.memberMeetID}>
@@ -401,10 +463,102 @@ const BritRockManager = () => {
                   {meets.map(m => (
                     <option key={m.id} value={m.id}>
                       {m.title}
+                      {m.hidden ? ' (hidden)' : ''}
                     </option>
                   ))}
                 </select>
+                {form.memberMeetID ? (
+                  <Button variant="outline" className="gap-2 shrink-0" asChild>
+                    <a
+                      href={`/committee/meets/edit/${form.memberMeetID}`}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <ExternalLink className="h-4 w-4" /> Edit meet
+                    </a>
+                  </Button>
+                ) : (
+                  !newMeet && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="gap-2 shrink-0"
+                      onClick={openNewMeet}
+                    >
+                      <Plus className="h-4 w-4" /> Create members' meet
+                    </Button>
+                  )
+                )}
               </div>
+
+              {!form.memberMeetID && form.status === 'open' && !newMeet && (
+                <p className="text-xs font-bold text-amber-700">
+                  Tickets are on sale with no members' meet, so members will
+                  only see the guest price.
+                </p>
+              )}
+
+              {newMeet && (
+                <div className="space-y-4 rounded-md bg-zinc-50 border border-zinc-200 p-4">
+                  <p className="text-sm text-zinc-600">
+                    Makes a members-only social meet on the screening day, using
+                    the location and programme above. You can add signup
+                    questions or a cap later from Meets.
+                  </p>
+                  {!canCreateMeet && (
+                    <p className="text-xs font-bold text-amber-700">
+                      Fill in the date and location above first.
+                    </p>
+                  )}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-2 space-y-2">
+                      <Label htmlFor="newMeetTitle" className={fieldLabel}>
+                        Meet title
+                      </Label>
+                      <Input
+                        id="newMeetTitle"
+                        value={newMeet.title}
+                        onChange={e =>
+                          setNewMeet({ ...newMeet, title: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newMeetPrice" className={fieldLabel}>
+                        Member price (£)
+                      </Label>
+                      <Input
+                        id="newMeetPrice"
+                        type="number"
+                        min="0.01"
+                        step="0.01"
+                        value={newMeet.price}
+                        onChange={e =>
+                          setNewMeet({ ...newMeet, price: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setNewMeet(null)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      className="gap-2 bg-zinc-900"
+                      disabled={!canCreateMeet || !newMeetReady || creatingMeet}
+                      onClick={handleCreateMeet}
+                    >
+                      <Plus className="h-4 w-4" />
+                      {creatingMeet ? 'Creating...' : 'Create meet'}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

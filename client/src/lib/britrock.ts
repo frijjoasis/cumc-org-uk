@@ -44,3 +44,51 @@ export function showBritRockInSidebar(
 ): boolean {
   return !!event && event.status !== 'draft' && event.showInSidebar;
 }
+
+export interface LinkableMeet {
+  id: number;
+  title: string;
+  startDate: string;
+  endDate: string;
+  hidden: boolean;
+}
+
+/**
+ * Meets committee can link as the members' signup: anything not yet over,
+ * including hidden ones. Meet dates are stored as midnight UTC.
+ */
+export function linkableMeets(
+  meets: LinkableMeet[],
+  now = new Date()
+): LinkableMeet[] {
+  const today = new Date(now);
+  today.setUTCHours(0, 0, 0, 0);
+  return meets
+    .filter(m => new Date(m.endDate) >= today)
+    .sort((a, b) => a.startDate.localeCompare(b.startDate));
+}
+
+/** A members-only social meet on the screening day, for /api/meets/new. */
+export function memberMeetFor(
+  event: { description: string; location: string; startsAt: string },
+  title: string,
+  price: number
+) {
+  // startsAt is a datetime-local value; meets only keep the date
+  const day = event.startsAt.slice(0, 10);
+  return {
+    title,
+    subtitle: 'Member tickets',
+    desc: event.description,
+    location: event.location,
+    startDate: day,
+    endDate: day,
+    type: 'Social',
+    signupControl: 'Members',
+    disabled: false,
+    hidden: false,
+    questions: [],
+    price,
+    maxSignups: null,
+  };
+}
