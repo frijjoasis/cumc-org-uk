@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { formatPrice, formatShowtime, toLocalInput } from './britrock';
+import {
+  formatPrice,
+  formatShowtime,
+  newTicketCode,
+  toLocalInput,
+} from './britrock';
 
 describe('toLocalInput', () => {
   it('formats a date for a datetime-local input', () => {
@@ -17,9 +22,9 @@ describe('toLocalInput', () => {
 });
 
 describe('formatShowtime', () => {
-  it('shows the day, date and time', () => {
+  it('shows the date and time', () => {
     expect(formatShowtime(new Date(2026, 10, 17, 19, 30))).toBe(
-      'Tue 17 Nov 2026 @ 7:30pm'
+      '17 Nov 2026 @ 7:30pm'
     );
   });
 });
@@ -30,5 +35,13 @@ describe('formatPrice', () => {
     [8.5, '£8.50'],
   ])('%d → %s', (price, expected) => {
     expect(formatPrice(price)).toBe(expected);
+  });
+});
+
+describe('newTicketCode', () => {
+  it('makes a 123-456 style code', () => {
+    for (let i = 0; i < 50; i++) {
+      expect(newTicketCode()).toMatch(/^[1-9]\d{2}-[1-9]\d{2}$/);
+    }
   });
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import {
   Ticket,
@@ -9,6 +9,8 @@ import {
   CheckCircle2,
   AlertTriangle,
   EyeOff,
+  Users,
+  ArrowRight,
 } from 'lucide-react';
 import {
   Card,
@@ -20,9 +22,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
 import { PublicBritRockEvent } from '@cumc/shared-types';
-import { formatPrice, formatShowtime } from '@/lib/britrock';
+import { formatPrice, formatShowtime, newTicketCode } from '@/lib/britrock';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Below this, the checkout shows how many seats are left
@@ -34,6 +37,9 @@ const BritRock = () => {
   const [formData, setFormData] = useState({ name: '', email: '' });
   const [ticket, setTicket] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  // Goes in the PayPal description so it's on the buyer's receipt. The server
+  // keeps it unless it's already taken, and replies with the code it used.
+  const ticketId = useMemo(newTicketCode, []);
 
   useEffect(() => {
     axios
@@ -68,7 +74,7 @@ const BritRock = () => {
           <CardContent className="p-8 space-y-6 text-center">
             <div className="space-y-1">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-400">
-                Your Ticket ID
+                Your Digital Ticket ID
               </p>
               <p className="text-5xl font-black font-mono text-zinc-900">
                 #{ticket}
@@ -76,9 +82,11 @@ const BritRock = () => {
             </div>
             <div className="h-px bg-zinc-100 w-full" />
             <p className="text-zinc-600 font-medium leading-relaxed">
-              Please take a screenshot of this ID and show it, or give your
-              name, at the {event.location} entrance on{' '}
-              {formatShowtime(event.startsAt)}.
+              Please take a screenshot of this ID.
+              {ticket === ticketId &&
+                ' It has been sent to your PayPal email address.'}{' '}
+              Present this ID at the {event.location.split(',')[0]} entrance
+              for admission.
             </p>
             {event.refundNote && (
               <Alert className="bg-amber-50 border-amber-200 text-amber-800 text-left">
@@ -150,9 +158,9 @@ const BritRock = () => {
     return (
       <PayPalButtons
         price={price}
-        description={`${event.title} - guest ticket`}
+        description={`Brit Rock Ticket - ID ${ticketId}`}
         intent="britrock"
-        form={formData}
+        form={{ ...formData, ticket: ticketId }}
         onSuccess={result => setTicket(result?.ticket ?? null)}
         onError={e => setErr(e)}
       />
@@ -180,7 +188,7 @@ const BritRock = () => {
 
       {/* Hero Header */}
       <div className="text-center space-y-4">
-        <Badge className="bg-primary text-zinc-900 font-black italic tracking-widest uppercase py-1 px-4">
+        <Badge className="bg-primary text-primary-foreground font-black italic tracking-widest uppercase py-1 px-4">
           {event.title}
         </Badge>
         <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter leading-none">
@@ -230,19 +238,28 @@ const BritRock = () => {
               </div>
 
               {event.memberMeetID && (
-                <Alert className="bg-zinc-900 border-none text-white">
-                  <Info className="h-4 w-4 text-primary" />
-                  <AlertDescription className="text-[10px] font-bold uppercase tracking-tight">
-                    Members: Sign in and register{' '}
-                    <a
-                      href={`/meets/upcoming/view/${event.memberMeetID}`}
-                      className="text-primary underline"
-                    >
-                      here
-                    </a>{' '}
-                    for member pricing.
-                  </AlertDescription>
-                </Alert>
+                <div className="bg-zinc-900 text-white rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <Users className="h-5 w-5 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-sm font-black uppercase italic tracking-tight">
+                        CUMC Member?
+                      </p>
+                      <p className="text-xs text-zinc-300 font-medium">
+                        Sign in and register through the meet for member
+                        pricing.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    asChild
+                    className="bg-white text-zinc-900 hover:bg-zinc-200 font-black uppercase tracking-widest text-xs shrink-0"
+                  >
+                    <a href={`/meets/upcoming/view/${event.memberMeetID}`}>
+                      Member tickets <ArrowRight className="h-4 w-4" />
+                    </a>
+                  </Button>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -250,8 +267,8 @@ const BritRock = () => {
 
         {/* Right: Checkout */}
         <div className="lg:col-span-2">
-          <Card className="border-2 border-zinc-900 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] rounded-none">
-            <CardHeader className="bg-zinc-900 text-white pb-6">
+          <Card className="border-2 border-zinc-900 shadow-[10px_10px_0px_0px_rgba(0,0,0,1)] rounded-none pt-0 gap-0">
+            <CardHeader className="bg-zinc-900 text-white py-6">
               <CardTitle className="text-xs font-black uppercase tracking-widest italic flex items-center gap-2">
                 <Ticket className="h-4 w-4" /> Guest Ticket
               </CardTitle>
@@ -308,12 +325,6 @@ const BritRock = () => {
                 </div>
 
                 {checkout()}
-
-                {event.refundNote && (
-                  <p className="text-[10px] font-medium text-zinc-400">
-                    {event.refundNote}
-                  </p>
-                )}
               </div>
             </CardContent>
           </Card>

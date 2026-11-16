@@ -39,6 +39,23 @@ describe('britRockService.createTicket', () => {
     expect(ticket.ticket).toMatch(/^\d{3}-\d{3}$/);
   });
 
+  it('uses the suggested code when it is free', async () => {
+    vi.mocked(BritRockModel.create).mockImplementation(
+      async (values: any) => values
+    );
+    const ticket = await britRockService.createTicket(data, '418-207');
+    expect(ticket.ticket).toBe('418-207');
+  });
+
+  it('draws a new code when the suggested one is taken', async () => {
+    vi.mocked(BritRockModel.create)
+      .mockRejectedValueOnce(clash())
+      .mockImplementation(async (values: any) => values);
+    const ticket = await britRockService.createTicket(data, '418-207');
+    expect(ticket.ticket).not.toBe('418-207');
+    expect(ticket.ticket).toMatch(/^\d{3}-\d{3}$/);
+  });
+
   it('draws a new code when one is already taken', async () => {
     vi.mocked(BritRockModel.create)
       .mockRejectedValueOnce(clash())

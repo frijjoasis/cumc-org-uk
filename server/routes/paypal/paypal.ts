@@ -28,7 +28,11 @@ import {
   type PaymentOutcome,
 } from './committeePayments.js';
 import type { SignupModel } from '../../database/database.js';
-import { isInvalid, parseTicketBuyer } from '../britrock/validate.js';
+import {
+  isInvalid,
+  parseTicketBuyer,
+  parseTicketCode,
+} from '../britrock/validate.js';
 
 const router: Router = Router();
 
@@ -403,8 +407,9 @@ router.post('/membership', userAuth, async (req: Request, res: Response) => {
 });
 
 /**
- * Guest ticket for the current BritRock event. The event sets the price, and
- * the ticket code is made here so a buyer can't choose or overwrite one.
+ * Guest ticket for the current BritRock event. The event sets the price. The
+ * page's suggested ticket code is used if it's free, otherwise a new one is
+ * made, and the reply says which.
  */
 export async function handleBritRockPayment(req: Request, res: Response) {
   try {
@@ -432,11 +437,10 @@ export async function handleBritRockPayment(req: Request, res: Response) {
       capture: true,
       ctx: { intent: 'britrock' },
       onSuccess: async captureID => {
-        ({ ticket } = await britRockService.createTicket({
-          eventID: event.id,
-          ...buyer,
-          captureID,
-        }));
+        ({ ticket } = await britRockService.createTicket(
+          { eventID: event.id, ...buyer, captureID },
+          parseTicketCode(req.body.form)
+        ));
       },
     });
 

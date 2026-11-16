@@ -76,26 +76,39 @@ describe('handleBritRockPayment (/britrock)', () => {
   it('charges the event price and returns the new ticket code', async () => {
     const res = await pay();
     expect(client.verifyOrder).toHaveBeenCalledWith('ORDER-1', '12.00');
-    expect(britRockService.createTicket).toHaveBeenCalledWith({
+    expect(britRockService.createTicket).toHaveBeenCalledWith(
+      {
+        eventID: 3,
+        name: 'Lynn Hill',
+        email: 'lynn@example.com',
+        captureID: 'CAP-1',
+      },
+      undefined
+    );
+    expect(res.json).toHaveBeenCalledWith({ ticket: '123-456' });
+  });
+
+  it("keeps the page's suggested ticket code", async () => {
+    await pay({ data: { orderID: 'ORDER-1' }, form: { ...form, ticket: '418-207' } });
+    expect(britRockService.createTicket).toHaveBeenCalledWith(
+      expect.anything(),
+      '418-207'
+    );
+  });
+
+  it('ignores a malformed code, and any id or event the browser sends', async () => {
+    await pay({
+      data: { orderID: 'ORDER-1' },
+      form: { ...form, id: 1, ticket: '999-999; DROP', eventID: 1 },
+    });
+    const [saved, suggested] = britRockService.createTicket.mock.calls[0];
+    expect(saved).toEqual({
       eventID: 3,
       name: 'Lynn Hill',
       email: 'lynn@example.com',
       captureID: 'CAP-1',
     });
-    expect(res.json).toHaveBeenCalledWith({ ticket: '123-456' });
-  });
-
-  it('ignores any ticket code or id the browser sends', async () => {
-    await pay({
-      data: { orderID: 'ORDER-1' },
-      form: { ...form, id: 1, ticket: '999-999', eventID: 1 },
-    });
-    expect(britRockService.createTicket).toHaveBeenCalledWith(
-      expect.objectContaining({ eventID: 3 })
-    );
-    const [saved] = britRockService.createTicket.mock.calls[0];
-    expect(saved).not.toHaveProperty('ticket');
-    expect(saved).not.toHaveProperty('id');
+    expect(suggested).toBeUndefined();
   });
 
   it('rejects a payment for a different amount', async () => {

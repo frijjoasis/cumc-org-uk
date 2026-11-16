@@ -16,12 +16,16 @@ vi.mock('@/components/PayPalButton/PayPalButtons', () => ({
     <button
       data-testid="paypal"
       data-price={props.price}
-      onClick={() => props.onSuccess({ ticket: '123-456' })}
+      data-description={props.description}
+      onClick={() => props.onSuccess({ ticket: replyTicket ?? props.form.ticket })}
     >
       {JSON.stringify(props.form)}
     </button>
   ),
 }));
+
+// The ticket code the server replies with; by default, the page's suggestion
+let replyTicket: string | null = null;
 
 const event = {
   id: 3,
@@ -48,7 +52,10 @@ const fillDetails = async () => {
   await userEvent.type(screen.getByLabelText(/attendee name/i), 'Lynn Hill');
 };
 
-beforeEach(() => vi.mocked(axios.get).mockReset());
+beforeEach(() => {
+  vi.mocked(axios.get).mockReset();
+  replyTicket = null;
+});
 afterEach(cleanup);
 
 describe('BritRock page', () => {
@@ -65,7 +72,7 @@ describe('BritRock page', () => {
     expect(screen.getByText('Divinity School')).toBeTruthy();
     expect(screen.getByText('£12.00')).toBeTruthy();
     expect(
-      screen.getByRole('link', { name: 'here' }).getAttribute('href')
+      screen.getByRole('link', { name: /member tickets/i }).getAttribute('href')
     ).toBe('/meets/upcoming/view/352');
   });
 
@@ -77,19 +84,40 @@ describe('BritRock page', () => {
     await fillDetails();
     const paypal = screen.getByTestId('paypal');
     expect(paypal.dataset.price).toBe('12.00');
-    expect(JSON.parse(paypal.textContent!)).toEqual({
+    const form = JSON.parse(paypal.textContent!);
+    expect(form).toEqual({
       name: 'Lynn Hill',
       email: 'lynn@example.com',
+      ticket: expect.stringMatching(/^\d{3}-\d{3}$/),
     });
+    expect(paypal.dataset.description).toBe(`Brit Rock Ticket - ID ${form.ticket}`);
   });
 
-  it('shows the ticket code from the server after payment', async () => {
+  it('confirms the booking with the same wording as 2025', async () => {
+    renderPage();
+    await screen.findByText('Brit Rock Film Tour 2026');
+    await fillDetails();
+    const { ticket } = JSON.parse(screen.getByTestId('paypal').textContent!);
+    await userEvent.click(screen.getByTestId('paypal'));
+
+    expect(await screen.findByText(`#${ticket}`)).toBeTruthy();
+    expect(screen.getByText('Your Digital Ticket ID')).toBeTruthy();
+    expect(
+      screen.getByText(
+        'Please take a screenshot of this ID. It has been sent to your PayPal email address. Present this ID at the Divinity School entrance for admission.'
+      )
+    ).toBeTruthy();
+    expect(screen.getByText('No refunds after 15 November.')).toBeTruthy();
+  });
+
+  it("doesn't claim PayPal has the code when the server picked another", async () => {
+    replyTicket = '999-111';
     renderPage();
     await screen.findByText('Brit Rock Film Tour 2026');
     await fillDetails();
     await userEvent.click(screen.getByTestId('paypal'));
-    expect(await screen.findByText('#123-456')).toBeTruthy();
-    expect(screen.getByText('No refunds after 15 November.')).toBeTruthy();
+    expect(await screen.findByText('#999-111')).toBeTruthy();
+    expect(screen.queryByText(/sent to your PayPal email/)).toBeNull();
   });
 
   it('warns when few tickets are left', async () => {

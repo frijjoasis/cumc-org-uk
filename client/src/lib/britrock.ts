@@ -10,17 +10,14 @@ export function toLocalInput(date: Date | string | null | undefined): string {
   )}:${pad(d.getMinutes())}`;
 }
 
-/** e.g. "Tue 17 Nov 2026 @ 7:30pm" */
+/** e.g. "17 Nov 2026 @ 7:30pm" */
 export function formatShowtime(date: Date | string): string {
   const d = new Date(date);
-  const day = d
-    .toLocaleDateString('en-GB', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    })
-    .replace(',', '');
+  const day = d.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
   const time = d
     .toLocaleTimeString('en-GB', {
       hour: 'numeric',
@@ -32,3 +29,9 @@ export function formatShowtime(date: Date | string): string {
 }
 
 export const formatPrice = (price: number) => `£${price.toFixed(2)}`;
+
+/** e.g. "123-456". The server makes its own if this one is taken. */
+export function newTicketCode(): string {
+  const part = () => Math.floor(Math.random() * 900) + 100;
+  return `${part()}-${part()}`;
+}

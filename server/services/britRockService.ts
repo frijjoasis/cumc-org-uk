@@ -49,14 +49,14 @@ class BritRockService {
     return BritRockModel.count({ where: { eventID } });
   }
 
-  // The unique (eventID, ticket) index catches the rare clash between two
-  // buyers drawing the same code, so just draw again
-  async createTicket(data: TicketData): Promise<BritRock> {
+  // Tries the buyer's suggested code first. The unique (eventID, ticket)
+  // index catches a code that's already taken, so then draw a new one.
+  async createTicket(data: TicketData, suggested?: string): Promise<BritRock> {
     for (let attempt = 1; ; attempt++) {
       try {
         return await BritRockModel.create({
           ...data,
-          ticket: generateTicketCode(),
+          ticket: attempt === 1 && suggested ? suggested : generateTicketCode(),
         });
       } catch (err) {
         if (!(err instanceof UniqueConstraintError) || attempt >= TICKET_ATTEMPTS) {

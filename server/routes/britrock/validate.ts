@@ -5,6 +5,7 @@ type Invalid = { err: string };
 
 const STATUSES: BritRockStatus[] = ['draft', 'open', 'closed'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TICKET_CODE = /^[1-9]\d{2}-[1-9]\d{2}$/;
 
 export const isInvalid = (r: object): r is Invalid => 'err' in r;
 
@@ -65,4 +66,14 @@ export function parseTicketBuyer(
   if (!name) return { err: 'Please enter the attendee name.' };
   if (!EMAIL.test(email)) return { err: 'Please enter a valid email address.' };
   return { name, email };
+}
+
+/**
+ * The page puts a suggested code in the PayPal description so it appears on
+ * the buyer's receipt. Only a well-formed code is kept.
+ */
+export function parseTicketCode(form: any): string | undefined {
+  return typeof form?.ticket === 'string' && TICKET_CODE.test(form.ticket)
+    ? form.ticket
+    : undefined;
 }

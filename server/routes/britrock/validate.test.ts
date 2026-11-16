@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { isInvalid, parseEventInput, parseTicketBuyer } from './validate.js';
+import {
+  isInvalid,
+  parseEventInput,
+  parseTicketBuyer,
+  parseTicketCode,
+} from './validate.js';
 
 const valid = {
   title: 'Brit Rock Film Tour 2026',
@@ -97,5 +102,22 @@ describe('parseTicketBuyer', () => {
     const buyer = parseTicketBuyer(form);
     expect(isInvalid(buyer)).toBe(true);
     expect((buyer as { err: string }).err).toMatch(message);
+  });
+});
+
+describe('parseTicketCode', () => {
+  it('keeps a well-formed code', () => {
+    expect(parseTicketCode({ ticket: '418-207' })).toBe('418-207');
+  });
+
+  it.each([
+    [{ ticket: '418207' }],
+    [{ ticket: '012-345' }],
+    [{ ticket: '418-207 ' }],
+    [{ ticket: 418207 }],
+    [{}],
+    [undefined],
+  ])('drops %o', form => {
+    expect(parseTicketCode(form)).toBeUndefined();
   });
 });

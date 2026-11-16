@@ -271,7 +271,7 @@ const BritRockManager = () => {
                 <Input
                   id="title"
                   name="title"
-                  placeholder="Brit Rock Film Tour 2026"
+                  placeholder="2026 Film Tour"
                   value={form.title}
                   onChange={handleChange}
                   required
