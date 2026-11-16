@@ -68,7 +68,11 @@ class UserService {
 
     return required.filter(field => {
       const value = user.get(field as keyof UserModel);
-      return value === null || value === undefined || value === '';
+      return (
+        value === null ||
+        value === undefined ||
+        (typeof value === 'string' && value.trim() === '')
+      );
     });
   }
 

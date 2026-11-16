@@ -11,6 +11,7 @@ test.describe('Membership payment journey', () => {
       'GET /api/user/': { user: FAKE_USER },
       'GET /api/member/committee': { isCommittee: false },
       'GET /api/user/info': FAKE_USER,
+      'GET /api/user/missing': { missingFields: [] },
       'GET /api/member/': { member: { hasPaid: false, hasFree: true } },
       'GET /api/about/easter/': '30.00',
     });
@@ -22,11 +23,33 @@ test.describe('Membership payment journey', () => {
     await expect(page.getByTestId('paypal-stub-button')).toBeVisible();
   });
 
+  test('asks for a complete profile instead of showing the pay button', async ({ page }) => {
+    await stubApi(page, {
+      'GET /api/user/': { user: FAKE_USER },
+      'GET /api/member/committee': { isCommittee: false },
+      'GET /api/user/info': FAKE_USER,
+      'GET /api/user/missing': { missingFields: ['dob', 'address1'] },
+      'GET /api/member/': { member: { hasPaid: false, hasFree: true } },
+      'GET /api/about/easter/': '30.00',
+    });
+
+    await page.goto('/register');
+    await page.getByRole('tab', { name: /membership/i }).click();
+
+    await expect(page.getByText('Date of birth')).toBeVisible();
+    await expect(page.getByText('Address', { exact: true })).toBeVisible();
+    await expect(page.getByTestId('paypal-stub-button')).toHaveCount(0);
+
+    await page.getByRole('button', { name: /complete your profile/i }).click();
+    await expect(page.getByText(/Personal Details/i)).toBeVisible();
+  });
+
   test('does NOT show the pay button when already a paid member', async ({ page }) => {
     await stubApi(page, {
       'GET /api/user/': { user: FAKE_USER },
       'GET /api/member/committee': { isCommittee: false },
       'GET /api/user/info': FAKE_USER,
+      'GET /api/user/missing': { missingFields: [] },
       'GET /api/member/': { member: { hasPaid: true, hasFree: false } },
       'GET /api/about/easter/': '30.00',
     });
@@ -44,6 +67,7 @@ test.describe('Membership payment journey', () => {
       'GET /api/user/': { user: FAKE_USER },
       'GET /api/member/committee': { isCommittee: false },
       'GET /api/user/info': FAKE_USER,
+      'GET /api/user/missing': { missingFields: [] },
       'GET /api/member/': { member: { hasPaid: false, hasFree: true } },
       'GET /api/about/easter/': '30.00',
       'POST /api/paypal/membership': async route => {
@@ -73,6 +97,7 @@ test.describe('Membership payment journey', () => {
       'GET /api/user/': { user: FAKE_USER },
       'GET /api/member/committee': { isCommittee: false },
       'GET /api/user/info': FAKE_USER,
+      'GET /api/user/missing': { missingFields: [] },
       'GET /api/member/': { member: { hasPaid: false, hasFree: true } },
       'GET /api/about/easter/': '30.00',
       'POST /api/paypal/membership': { err: 'Price mismatch detected.' },

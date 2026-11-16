@@ -29,10 +29,25 @@ import { Badge } from '@/components/ui/badge';
 import PayPalButtons from '@/components/PayPalButton/PayPalButtons';
 import { User } from '@cumc/shared-types';
 
+const FIELD_LABELS: Record<string, string> = {
+  firstName: 'First name',
+  lastName: 'Last name',
+  dob: 'Date of birth',
+  phone: 'Mobile number',
+  emergencyName: 'Emergency contact name',
+  emergencyPhone: 'Emergency contact phone',
+  address1: 'Address',
+  postCode: 'Post code',
+  country: 'Country',
+  college: 'College / Dept',
+};
+
 const Register = ({ user }: { user: User }) => {
   const [form, setForm] = useState<any>({});
   const [member, setMember] = useState<any>({});
   const [price, setPrice] = useState('27.00');
+  const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [tab, setTab] = useState('profile');
   const [err, setErr] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -40,15 +55,17 @@ const Register = ({ user }: { user: User }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [userRes, memberRes, priceRes] = await Promise.all([
+        const [userRes, memberRes, priceRes, missingRes] = await Promise.all([
           axios.get('/api/user/info'),
           axios.get('/api/member/'),
           axios.get('/api/about/easter/'),
+          axios.get('/api/user/missing'),
         ]);
 
         setForm(userRes.data);
         setMember(memberRes.data.member || { hasFree: true });
         setPrice(priceRes.data);
+        setMissingFields(missingRes.data.missingFields || []);
       } catch (e) {
         setErr('Failed to load profile data.');
       } finally {
@@ -118,7 +135,7 @@ const Register = ({ user }: { user: User }) => {
         </div>
       )}
 
-      <Tabs defaultValue="profile" className="w-full">
+      <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 h-14 bg-zinc-100 p-1 rounded-xl">
           <TabsTrigger
             value="profile"
@@ -375,16 +392,37 @@ const Register = ({ user }: { user: User }) => {
                   </div>
                   <div className="flex flex-col items-center gap-4">
                     <div className="text-4xl font-black italic">£{price}</div>
-                    <div className="w-full max-w-sm">
-                      <PayPalButtons
-                        price={price}
-                        description="CUMC Full Membership"
-                        intent="membership"
-                        onSuccess={() => (window.location.href = '/home')}
-                        payer={{ email_address: user.email }}
-                        onError={e => setErr(e)}
-                      />
-                    </div>
+                    {missingFields.length > 0 ? (
+                      <div className="w-full max-w-sm space-y-4 text-left">
+                        <p className="text-sm text-zinc-300">
+                          Complete your profile before paying. The BMC needs
+                          these details for your membership:
+                        </p>
+                        <ul className="list-disc pl-5 text-sm text-zinc-400">
+                          {missingFields.map(field => (
+                            <li key={field}>{FIELD_LABELS[field] ?? field}</li>
+                          ))}
+                        </ul>
+                        <Button
+                          type="button"
+                          onClick={() => setTab('profile')}
+                          className="w-full h-12 font-black uppercase italic tracking-widest"
+                        >
+                          Complete your profile
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="w-full max-w-sm">
+                        <PayPalButtons
+                          price={price}
+                          description="CUMC Full Membership"
+                          intent="membership"
+                          onSuccess={() => (window.location.href = '/home')}
+                          payer={{ email_address: user.email }}
+                          onError={e => setErr(e)}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -11,16 +11,44 @@ router.get('/', userAuth, function (req: Request, res: Response) {
   });
 });
 
-router.post(
-  '/register',
+export async function handleRegister(req: Request, res: Response) {
+  try {
+    const required = await userService.getRequiredFields();
+    const body = req.body ?? {};
+    const missingFields = required.filter(
+      field => typeof body[field] !== 'string' || body[field].trim() === ''
+    );
+    if (missingFields.length > 0) {
+      return res.json({
+        err: 'Please fill in all the required profile fields.',
+        missingFields,
+      });
+    }
+
+    await userService.updateInfo(body, req.user!.id);
+    res.json(true);
+  } catch (err: any) {
+    logger.error('Database error: ', err);
+    res.json({ err: 'Database error: Please contact the webmaster' });
+  }
+}
+
+router.post('/register', userAuth, handleRegister);
+
+router.get(
+  '/missing',
   userAuth,
   async function (req: Request, res: Response) {
     try {
-      await userService.updateInfo(req.body, req.user!.id);
-      res.json(true);
+      const missingFields = await userService.getMissingProfileFields(
+        req.user!.id
+      );
+      res.json({ missingFields });
     } catch (err: any) {
       logger.error('Database error: ', err);
-      res.json({ err: 'Database error: Please contact the webmaster' });
+      res
+        .status(500)
+        .json({ err: 'Database error: Please contact the webmaster' });
     }
   }
 );

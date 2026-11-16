@@ -374,8 +374,21 @@ async function runCommitteeBatch(
   };
 }
 
-router.post('/membership', userAuth, async (req: Request, res: Response) => {
+/**
+ * Membership needs a complete profile (the BMC needs it).
+ */
+export async function handleMembershipPayment(req: Request, res: Response) {
   try {
+    const missingFields = await userService.getMissingProfileFields(
+      req.user!.id
+    );
+    if (missingFields.length > 0) {
+      return res.json({
+        err: 'You need to complete your profile before paying for membership.',
+        missingFields,
+      });
+    }
+
     const error = await executePaymentWorkflow({
       orderID: req.body.data.orderID,
       price: process.env.MEMBERSHIP_PRICE || '0',
@@ -404,7 +417,9 @@ router.post('/membership', userAuth, async (req: Request, res: Response) => {
     logger.error('Membership payment error: ', err);
     res.json({ err: 'Database error: Please contact the webmaster' });
   }
-});
+}
+
+router.post('/membership', userAuth, handleMembershipPayment);
 
 /**
  * Guest ticket for the current BritRock event. The event sets the price. The
