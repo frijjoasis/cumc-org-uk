@@ -110,6 +110,8 @@ export interface BritRockEvent {
   memberMeetID: number | null;
   refundNote: string | null;
   status: BritRockStatus;
+  /** Link to the page from the public sidebar while it isn't a draft. */
+  showInSidebar: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

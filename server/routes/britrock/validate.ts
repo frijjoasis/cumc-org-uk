@@ -55,6 +55,7 @@ export function parseEventInput(body: any): BritRockEventInput | Invalid {
     memberMeetID,
     refundNote: text(body?.refundNote, 300) || null,
     status,
+    showInSidebar: body?.showInSidebar === true,
   };
 }
 

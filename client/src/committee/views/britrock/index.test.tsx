@@ -12,6 +12,13 @@ import BritRockManager from './index';
 
 vi.mock('axios');
 
+// Radix checkboxes measure themselves; jsdom has no ResizeObserver.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 const event = {
   id: 3,
   title: 'Brit Rock Film Tour 2026',
@@ -23,6 +30,7 @@ const event = {
   memberMeetID: 352,
   refundNote: 'No refunds.',
   status: 'open',
+  showInSidebar: false,
 };
 
 const tickets = [
@@ -139,6 +147,14 @@ describe('BritRock committee page — editing', () => {
     expect(await screen.findByText('BritRock event saved.')).toBeTruthy();
   });
 
+  it('turns on the sidebar link', async () => {
+    render(<BritRockManager />);
+    await screen.findByLabelText('Title');
+    await userEvent.click(screen.getByLabelText(/sidebar/i));
+    await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+    expect(postedBody()).toMatchObject({ showInSidebar: true });
+  });
+
   it('shows the server error when saving fails', async () => {
     vi.mocked(axios.post).mockRejectedValue({
       response: { data: { err: 'Set a ticket price above £0.' } },
@@ -169,6 +185,7 @@ describe('BritRock committee page — editing', () => {
     );
     expect((screen.getByLabelText(/date & time/i) as HTMLInputElement).value).toBe('');
     expect((screen.getByLabelText('Status') as HTMLSelectElement).value).toBe('draft');
+    expect(screen.getByLabelText(/sidebar/i).getAttribute('aria-checked')).toBe('false');
     expect(screen.queryByText('Guest Tickets')).toBeNull();
 
     await userEvent.type(screen.getByLabelText(/date & time/i), '2027-11-16T19:30');

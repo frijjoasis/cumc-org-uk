@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { BritRock, BritRockEvent, BritRockStatus } from '@cumc/shared-types';
@@ -43,7 +44,7 @@ type EventForm = Record<
   | 'memberMeetID'
   | 'refundNote',
   string
-> & { status: BritRockStatus };
+> & { status: BritRockStatus; showInSidebar: boolean };
 
 const EMPTY_FORM: EventForm = {
   title: '',
@@ -55,6 +56,7 @@ const EMPTY_FORM: EventForm = {
   memberMeetID: '',
   refundNote: '',
   status: 'draft',
+  showInSidebar: false,
 };
 
 const STATUS_LABELS: Record<BritRockStatus, string> = {
@@ -79,6 +81,7 @@ const toForm = (e: BritRockEvent): EventForm => ({
   memberMeetID: e.memberMeetID?.toString() ?? '',
   refundNote: e.refundNote ?? '',
   status: e.status,
+  showInSidebar: e.showInSidebar,
 });
 
 const fieldLabel =
@@ -159,7 +162,12 @@ const BritRockManager = () => {
       )
     )
       return;
-    setForm({ ...toForm(event!), startsAt: '', status: 'draft' });
+    setForm({
+      ...toForm(event!),
+      startsAt: '',
+      status: 'draft',
+      showInSidebar: false,
+    });
     setCreating(true);
     setStatus({ err: null, success: null });
   };
@@ -410,6 +418,22 @@ const BritRockManager = () => {
                 value={form.refundNote}
                 onChange={handleChange}
               />
+            </div>
+
+            <div className="flex items-center space-x-2 p-3 bg-zinc-50 rounded border">
+              <Checkbox
+                id="showInSidebar"
+                checked={form.showInSidebar}
+                onCheckedChange={v =>
+                  setForm(prev => ({ ...prev, showInSidebar: !!v }))
+                }
+              />
+              <Label
+                htmlFor="showInSidebar"
+                className="text-[10px] uppercase font-bold cursor-pointer"
+              >
+                Show Brit Rock in the website sidebar (not while it's a draft)
+              </Label>
             </div>
 
             <div className="flex justify-end gap-2">

@@ -16,6 +16,7 @@ const valid = {
   memberMeetID: '352',
   refundNote: 'No refunds after 15 November.',
   status: 'open',
+  showInSidebar: true,
 };
 
 describe('parseEventInput', () => {
@@ -45,9 +46,18 @@ describe('parseEventInput', () => {
     });
   });
 
-  it('defaults to a draft', () => {
-    const { status: _status, ...rest } = valid;
-    expect(parseEventInput(rest)).toMatchObject({ status: 'draft' });
+  it('defaults to a draft that is not in the sidebar', () => {
+    const { status: _status, showInSidebar: _sidebar, ...rest } = valid;
+    expect(parseEventInput(rest)).toMatchObject({
+      status: 'draft',
+      showInSidebar: false,
+    });
+  });
+
+  it.each(['true', 1, 'yes'])('only takes a real true for the sidebar, not %o', value => {
+    expect(parseEventInput({ ...valid, showInSidebar: value })).toMatchObject({
+      showInSidebar: false,
+    });
   });
 
   it('rounds the price to pence', () => {

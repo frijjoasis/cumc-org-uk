@@ -29,6 +29,7 @@ class BritRockEventModel
   declare memberMeetID: number | null;
   declare refundNote: string | null;
   declare status: CreationOptional<BritRockStatus>;
+  declare showInSidebar: CreationOptional<boolean>;
 
   declare createdAt: CreationOptional<Date>;
   declare updatedAt: CreationOptional<Date>;
@@ -67,6 +68,11 @@ function define(sequelize: Sequelize): typeof BritRockEventModel {
         allowNull: false,
         defaultValue: 'draft',
         type: DataTypes.ENUM('draft', 'open', 'closed'),
+      },
+      showInSidebar: {
+        allowNull: false,
+        defaultValue: false,
+        type: DataTypes.BOOLEAN,
       },
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,

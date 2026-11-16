@@ -137,6 +137,16 @@ const routes: RouteConfig[] = [
     Component: SocialMeets,
     layout: '',
   },
+  // Committee choose whether this shows in the sidebar from the committee
+  // BritRock page; the layout un-hides it when they do
+  {
+    path: '/britrock',
+    name: 'Brit Rock',
+    icon: 'pe-7s-film',
+    hide: true,
+    Component: BritRock,
+    layout: '',
+  },
 
   /* --- OTHER --- */
   {
@@ -145,14 +155,6 @@ const routes: RouteConfig[] = [
     hide: true,
     auth: true,
     Component: Register,
-    layout: '',
-  },
-  // Committee turn this on and off from the committee BritRock page
-  {
-    path: '/britrock',
-    name: 'Brit Rock',
-    hide: true,
-    Component: BritRock,
     layout: '',
   },
 ];

@@ -10,6 +10,7 @@ import NotFound from '../404';
 
 import sidebarImg from '@/assets/img/sidebar/sidebar.webp';
 import { RouteConfig } from '@/types';
+import { showBritRockInSidebar } from '@/lib/britrock';
 
 const Frame = () => {
   const [user, setUser] = useState(null);
@@ -22,6 +23,7 @@ const Frame = () => {
     'black'
   );
   const [isOpen, setIsOpen] = useState(false);
+  const [showBritRock, setShowBritRock] = useState(false);
 
   const location = useLocation();
 
@@ -56,7 +58,16 @@ const Frame = () => {
       .catch(err =>
         console.log('Not a committee member:', err.response?.status)
       );
+
+    axios
+      .get('/api/britrock')
+      .then(res => setShowBritRock(showBritRockInSidebar(res.data)))
+      .catch(() => setShowBritRock(false));
   }, []);
+
+  const sidebarRoutes = routes.map(route =>
+    route.path === '/britrock' ? { ...route, hide: !showBritRock } : route
+  );
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -67,7 +78,7 @@ const Frame = () => {
       </HelmetProvider>
 
       <Sidebar
-        routes={routes}
+        routes={sidebarRoutes}
         color={color}
         image={image}
         isOpen={isOpen}

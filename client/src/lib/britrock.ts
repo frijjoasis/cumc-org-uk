@@ -1,3 +1,5 @@
+import type { BritRockEvent } from '@cumc/shared-types';
+
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** A date as a `<input type="datetime-local">` value, in the viewer's time. */
@@ -34,4 +36,11 @@ export const formatPrice = (price: number) => `£${price.toFixed(2)}`;
 export function newTicketCode(): string {
   const part = () => Math.floor(Math.random() * 900) + 100;
   return `${part()}-${part()}`;
+}
+
+/** Drafts never show, even to committee, so the sidebar matches the public's. */
+export function showBritRockInSidebar(
+  event: Pick<BritRockEvent, 'status' | 'showInSidebar'> | null
+): boolean {
+  return !!event && event.status !== 'draft' && event.showInSidebar;
 }

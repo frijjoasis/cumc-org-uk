@@ -3,6 +3,7 @@ import {
   formatPrice,
   formatShowtime,
   newTicketCode,
+  showBritRockInSidebar,
   toLocalInput,
 } from './britrock';
 
@@ -43,5 +44,17 @@ describe('newTicketCode', () => {
     for (let i = 0; i < 50; i++) {
       expect(newTicketCode()).toMatch(/^[1-9]\d{2}-[1-9]\d{2}$/);
     }
+  });
+});
+
+describe('showBritRockInSidebar', () => {
+  it.each([
+    [null, false],
+    [{ status: 'open', showInSidebar: true }, true],
+    [{ status: 'closed', showInSidebar: true }, true],
+    [{ status: 'open', showInSidebar: false }, false],
+    [{ status: 'draft', showInSidebar: true }, false],
+  ] as const)('%o → %s', (event, expected) => {
+    expect(showBritRockInSidebar(event)).toBe(expected);
   });
 });
