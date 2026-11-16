@@ -26,6 +26,7 @@ import meetsRouter from './routes/meets/meets.js';
 import memberRouter from './routes/member/member.js';
 import paypalRouter from './routes/paypal/paypal.js';
 import mailmanRouter from './routes/mailman/mailman.js';
+import britRockRouter from './routes/britrock/britrock.js';
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -90,6 +91,7 @@ const routers = [
   { path: '/api/member', router: memberRouter },
   { path: '/api/paypal', router: paypalRouter },
   { path: '/api/mailman', router: mailmanRouter },
+  { path: '/api/britrock', router: britRockRouter },
 ];
 
 routers.forEach(route => app.use(route.path, route.router));

@@ -147,14 +147,14 @@ const routes: RouteConfig[] = [
     Component: Register,
     layout: '',
   },
-  // Commented out as its over for this year
-  // {
-  //   path: '/britrock',
-  //   name: 'Brit Rock',
-  //   icon: 'pe-7s-film',
-  //   Component: BritRock,
-  //   layout: '',
-  // },
+  // Committee turn this on and off from the committee BritRock page
+  {
+    path: '/britrock',
+    name: 'Brit Rock',
+    hide: true,
+    Component: BritRock,
+    layout: '',
+  },
 ];
 
 export default routes;

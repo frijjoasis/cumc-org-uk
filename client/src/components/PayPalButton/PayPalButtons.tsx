@@ -13,7 +13,8 @@ interface PayPalButtonsProps {
   payer?: { email_address?: string };
   intent: 'membership' | 'register' | 'britrock';
   form?: unknown;
-  onSuccess: () => void;
+  /** Gets the server's reply, e.g. `{ ticket }` for BritRock. */
+  onSuccess: (result?: any) => void;
   /** `code` is PayPal's issue code when PayPal declined, e.g. INSTRUMENT_DECLINED. */
   onError: (error: string, code?: string) => void;
 }
@@ -157,7 +158,7 @@ const PayPalButtons = ({
               fail(DECLINE_CODES.has(code) ? 'declined' : 'rejected');
             } else {
               setStatus('success');
-              setTimeout(() => onSuccess(), 2000);
+              setTimeout(() => onSuccess(response.data), 2000);
             }
           } catch {
             // The request may have died after PayPal took the money, so don't

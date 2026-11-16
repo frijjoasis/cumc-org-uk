@@ -8,6 +8,7 @@ import RolesManager from './views/roles';
 import Members from './views/members';
 import ViewMember from './views/members/view';
 import Waivers from './views/waivers';
+import BritRockManager from './views/britrock';
 
 import MeetManager from './views/meets/';
 import EditMeet from './views/meets/edit';
@@ -91,6 +92,13 @@ const routes: RouteConfig[] = [
     name: 'Meet Waivers',
     icon: 'pe-7s-ticket',
     Component: Waivers,
+    layout: '/committee',
+  },
+  {
+    path: '/britrock',
+    name: 'BritRock',
+    icon: 'pe-7s-film',
+    Component: BritRockManager,
     layout: '/committee',
   },
   {

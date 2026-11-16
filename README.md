@@ -96,7 +96,6 @@ The project uses `.env.development` for local development with these defaults:
 - `NODE_ENV` - Environment mode (default: `development`)
 - `SECRET` - Session cookie secret (change this in production!)
 - `MEMBERSHIP_PRICE` - Membership fee (default: 30.00)
-- `BRITROCK_PRICE` - Britrock fee (default: 12.00)
 - `CURRENT_YEAR` - Current academic year (default: 2025-2026)
 - `PREVIOUS_YEAR` - Previous academic year (default: 2024-2025)
 - `FRONTEND_URL` - Frontend URL for redirects (default: `http://localhost:3000`)

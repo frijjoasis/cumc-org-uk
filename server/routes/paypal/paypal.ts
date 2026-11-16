@@ -28,6 +28,7 @@ import {
   type PaymentOutcome,
 } from './committeePayments.js';
 import type { SignupModel } from '../../database/database.js';
+import { isInvalid, parseTicketBuyer } from '../britrock/validate.js';
 
 const router: Router = Router();
 
@@ -401,15 +402,41 @@ router.post('/membership', userAuth, async (req: Request, res: Response) => {
   }
 });
 
-router.post('/britrock', async (req: Request, res: Response) => {
+/**
+ * Guest ticket for the current BritRock event. The event sets the price, and
+ * the ticket code is made here so a buyer can't choose or overwrite one.
+ */
+export async function handleBritRockPayment(req: Request, res: Response) {
   try {
+    const event = await britRockService.getCurrentEvent();
+    if (!event || event.status !== 'open') {
+      return res.json({ err: 'BritRock tickets are not on sale right now.' });
+    }
+
+    const buyer = parseTicketBuyer(req.body.form);
+    if (isInvalid(buyer)) return res.json(buyer);
+
+    // Checked before taking payment. Two buyers paying for the last seat at
+    // the same moment could both get in, which is fine for a film night.
+    if (
+      event.capacity !== null &&
+      (await britRockService.countTickets(event.id)) >= event.capacity
+    ) {
+      return res.json({ err: 'Sorry, BritRock has sold out.' });
+    }
+
+    let ticket = '';
     const error = await executePaymentWorkflow({
-      orderID: req.body.data.orderID,
-      price: process.env.BRITROCK_PRICE || '0',
+      orderID: req.body.data?.orderID,
+      price: event.price.toFixed(2),
       capture: true,
       ctx: { intent: 'britrock' },
-      onSuccess: async () => {
-        await britRockService.upsert(req.body.form);
+      onSuccess: async captureID => {
+        ({ ticket } = await britRockService.createTicket({
+          eventID: event.id,
+          ...buyer,
+          captureID,
+        }));
       },
     });
 
@@ -417,12 +444,14 @@ router.post('/britrock', async (req: Request, res: Response) => {
       return res.json(error);
     }
 
-    res.json(true);
+    res.json({ ticket });
   } catch (err: any) {
     logger.error('BritRock payment error: ', err);
     res.json({ err: 'Database error: Please contact the webmaster' });
   }
-});
+}
+
+router.post('/britrock', handleBritRockPayment);
 
 const signupUser = (req: Request) => ({
   id: req.user!.id.toString(),

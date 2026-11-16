@@ -97,11 +97,36 @@ export interface Committee {
   staging_year: string | null;
 }
 
+export type BritRockStatus = 'draft' | 'open' | 'closed';
+
+export interface BritRockEvent {
+  id: number;
+  title: string;
+  description: string | null;
+  location: string;
+  startsAt: Date | string;
+  price: number;
+  capacity: number | null;
+  memberMeetID: number | null;
+  refundNote: string | null;
+  status: BritRockStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+/** What the public BritRock page is sent. */
+export interface PublicBritRockEvent extends BritRockEvent {
+  remaining: number | null;
+  soldOut: boolean;
+}
+
 export interface BritRock {
   id: number;
+  eventID: number;
   name: string;
   email: string;
   ticket: string;
+  captureID: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 }
